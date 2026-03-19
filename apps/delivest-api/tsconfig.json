@@ -19,10 +19,6 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false,
-    "ignoreDeprecations": "5.0", 
-    "paths": {
-      "@delivest/types": ["../../libs/types/src/index.ts"]
-    }
+    "noFallthroughCasesInSwitch": false
   }
 }
