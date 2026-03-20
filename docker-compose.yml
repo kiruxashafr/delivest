@@ -16,7 +16,6 @@ services:
     networks:
       - delivest-network
 
-
 networks:
   delivest-network:
     driver: bridge

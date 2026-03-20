@@ -1,7 +1,7 @@
 export interface testInt {
-    id: string
+  id: string;
 }
 
 export interface randInt {
-    rn: number
+  rn: number;
 }
