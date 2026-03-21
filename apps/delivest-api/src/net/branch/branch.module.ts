@@ -9,4 +9,4 @@ import { PrismaService } from '../../prisma/prisma.service';
   providers: [BranchService, PrismaService],
   exports: [],
 })
-export class NetModule {}
+export class BranchModule {}

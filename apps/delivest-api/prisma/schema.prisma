@@ -7,8 +7,8 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+model Branches {
+  id   Int    @id @default(autoincrement())
+  url  String @unique
+  name String
 }

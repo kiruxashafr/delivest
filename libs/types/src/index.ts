@@ -1,7 +1,1 @@
-export interface testInt {
-  id: string;
-}
-
-export interface randInt {
-  rn: number;
-}
+export * from "./branch";
