@@ -10,7 +10,26 @@ export class BranchService {
 
   async findAll() {
     try {
-      const branches = await this.prisma.branches.findMany();
+      const branches = await this.prisma.branch.findMany();
+      return branches;
+    } catch (error) {
+      this.logger.error(
+        `findAllBranch() | error find all branch ${(error as Error).message}`,
+      );
+      throw new BadRequestException();
+    }
+  }
+
+  async getInfo(id: string) {
+    try {
+      const branches = await this.prisma.branch.findUnique({
+        where: {
+          id: id,
+        },
+        include: {
+          info: true,
+        },
+      });
       return branches;
     } catch (error) {
       this.logger.error(
