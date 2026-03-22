@@ -14,7 +14,7 @@ export class CategoryService {
   private readonly logger = new Logger(CategoryService.name);
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(branchId: string): Promise<ReadCategoryDto[]> {
+  async findAllByBranch(branchId: string): Promise<ReadCategoryDto[]> {
     try {
       const categories = await this.prisma.category.findMany({
         where: { branchId: branchId },
@@ -28,51 +28,29 @@ export class CategoryService {
         throw error;
       }
       this.logger.error(
-        `findAll() | error find all branch ${(error as Error).stack}`,
+        `findAllByBranch() | error find all category by branch ${branchId} ${(error as Error).stack}`,
       );
       throw new BadRequestException();
     }
   }
 
-  async findOne(dto: GetBranchDto): Promise<ReadBranchDto> {
+  async findOne(categoryId: string): Promise<ReadCategoryDto> {
     try {
-      const branch = await this.prisma.branch.findUnique({
+      const category = await this.prisma.category.findUnique({
         where: {
-          id: dto.id,
+          id: categoryId,
         },
       });
-      if (!branch) {
+      if (!category) {
         throw new NotFoundException();
       }
-      return toDto(branch, ReadBranchDto);
+      return toDto(category, ReadCategoryDto);
     } catch (error) {
       if (error instanceof DomainException) {
         throw error;
       }
       this.logger.error(
-        `findOne() | error find branch ${dto.id} info ${(error as Error).stack}`,
-      );
-      throw new BadRequestException();
-    }
-  }
-
-  async getBranchDetails(dto: GetBranchDto): Promise<ReadBranchDetailsDto> {
-    try {
-      const branchDetails = await this.prisma.branchInfo.findUnique({
-        where: {
-          branchId: dto.id,
-        },
-      });
-      if (!branchDetails) {
-        throw new NotFoundException();
-      }
-      return toDto(branchDetails, ReadBranchDetailsDto);
-    } catch (error) {
-      if (error instanceof DomainException) {
-        throw error;
-      }
-      this.logger.error(
-        `getInfo() | error get branch ${dto.id} info ${(error as Error).stack}`,
+        `findOneByBranch() | error find category ${categoryId}  ${(error as Error).stack}`,
       );
       throw new BadRequestException();
     }

@@ -1,55 +1,36 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BranchService } from './category.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { jest } from '@jest/globals';
-import { Branch, BranchInfo } from '../../generated/prisma/client.js';
-import { ReadBranchDto } from './dto/read-category.dto.js';
+import { Category } from '../../generated/prisma/client.js'; // Проверь путь к клиенту
 import {
   BadRequestException,
   NotFoundException,
 } from '../../shared/exception/domain_exception/domain-exception.js';
-import { GetBranchDto } from './dto/get-branch.dto.js';
-import { ReadBranchDetailsDto } from './dto/read-branch-details.dto.js';
+import { CategoryService } from './category.service.js'; // Твой обновленный сервис
+import { ReadCategoryDto } from './dto/read-category.dto.js';
 
-describe('BranchService', () => {
-  let service: BranchService;
-  let mockPrisma: {
-    branch: {
-      findUnique: jest.Mock<any>;
-      findMany: jest.Mock<any>;
-    };
-    branchInfo: {
-      findUnique: jest.Mock<any>;
-    };
-  };
-  const request: GetBranchDto = { id: '123' };
-  const mockBranch: Branch = {
-    id: '123',
-    name: 'branch',
-    alias: 'url',
-  };
+describe('CategoryService', () => {
+  let service: CategoryService;
+  let mockPrisma: any;
 
-  const mockDetails: BranchInfo = {
-    id: '123',
-    branchId: '123',
-    address: 'street',
-    description: 'rest',
-  };
+  const mockCategory: Category = {
+    id: 'cat-123',
+    name: 'Пицца',
+    branchId: 'branch-999',
+    // добавь другие поля из твоей схемы prisma, если они обязательны
+  } as Category;
 
   beforeEach(async () => {
     const prismaMock = {
-      branch: {
-        findUnique: jest.fn(),
+      category: {
         findMany: jest.fn(),
-      },
-      branchInfo: {
         findUnique: jest.fn(),
       },
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        BranchService,
+        CategoryService,
         {
           provide: PrismaService,
           useValue: prismaMock,
@@ -57,84 +38,68 @@ describe('BranchService', () => {
       ],
     }).compile();
 
-    service = module.get<BranchService>(BranchService);
-
+    service = module.get<CategoryService>(CategoryService);
     mockPrisma = module.get(PrismaService);
   });
-  describe('findAll', () => {
-    it('should return branches', async () => {
-      const mockBranches = [mockBranch];
-      mockPrisma.branch.findMany.mockResolvedValue(mockBranches);
-      const result = await service.findAll();
-      const expectedOutput: ReadBranchDto[] = [
-        {
-          id: '123',
-          name: 'branch',
-          alias: 'url',
-        },
-      ];
-      expect(result).toEqual(expectedOutput);
+
+  describe('findAllByBranch', () => {
+    const branchId = 'branch-999';
+
+    it('should return categories for a branch', async () => {
+      const mockCategories = [mockCategory];
+      mockPrisma.category.findMany.mockResolvedValue(mockCategories);
+
+      const result = await service.findAllByBranch(branchId);
+
+      // Проверяем, что результат соответствует DTO (с учетом транслитерации, если она в DTO)
+      expect(result[0].id).toEqual(mockCategory.id);
+      expect(result[0].name).toEqual(mockCategory.name);
+      // Если в ReadCategoryDto есть slug через @Transform, jest его тут не увидит
+      // без plainToInstance, но структура должна совпадать.
+      expect(mockPrisma.category.findMany).toHaveBeenCalledWith({
+        where: { branchId },
+      });
     });
 
-    it('should throw not found exception if brach not exist', async () => {
-      mockPrisma.branch.findMany.mockResolvedValue([]);
-      await expect(service.findAll()).rejects.toThrow(NotFoundException);
-    });
-
-    it('should throw bad request exception if not domain exception', async () => {
-      const dbError = new Error('Conection refused');
-      mockPrisma.branch.findMany.mockRejectedValue(dbError);
-      await expect(service.findAll()).rejects.toThrow(BadRequestException);
-    });
-  });
-  describe('findOne', () => {
-    it('should return branch', async () => {
-      mockPrisma.branch.findUnique.mockResolvedValue(mockBranch);
-      const result = await service.findOne(request);
-      const expectedOutput: ReadBranchDto = {
-        id: '123',
-        name: 'branch',
-        alias: 'url',
-      };
-      expect(result).toEqual(expectedOutput);
-    });
-
-    it('should throw not found exception if brach not exist', async () => {
-      mockPrisma.branch.findUnique.mockResolvedValue(null);
-      await expect(service.findOne(request)).rejects.toThrow(NotFoundException);
-    });
-
-    it('should throw bad request exception if not domain exception', async () => {
-      const dbError = new Error('Conection refused');
-      mockPrisma.branch.findUnique.mockRejectedValue(dbError);
-      await expect(service.findOne(request)).rejects.toThrow(
-        BadRequestException,
-      );
-    });
-  });
-  describe('getBranchDetails', () => {
-    it('should return detail', async () => {
-      mockPrisma.branchInfo.findUnique.mockResolvedValue(mockDetails);
-      const result = await service.getBranchDetails(request);
-      const expectedOutput: ReadBranchDetailsDto = {
-        id: '123',
-        address: 'street',
-        description: 'rest',
-      };
-      expect(result).toEqual(expectedOutput);
-    });
-
-    it('should throw not found exception if brach not exist', async () => {
-      mockPrisma.branchInfo.findUnique.mockResolvedValue(null);
-      await expect(service.getBranchDetails(request)).rejects.toThrow(
+    it('should throw NotFoundException if no categories found', async () => {
+      mockPrisma.category.findMany.mockResolvedValue([]);
+      await expect(service.findAllByBranch(branchId)).rejects.toThrow(
         NotFoundException,
       );
     });
 
-    it('should throw bad request exception if not domain exception', async () => {
-      const dbError = new Error('Conection refused');
-      mockPrisma.branchInfo.findUnique.mockRejectedValue(dbError);
-      await expect(service.getBranchDetails(request)).rejects.toThrow(
+    it('should throw BadRequestException on database error', async () => {
+      mockPrisma.category.findMany.mockRejectedValue(new Error('DB Error'));
+      await expect(service.findAllByBranch(branchId)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+  });
+
+  describe('findOne', () => {
+    const categoryId = 'cat-123';
+
+    it('should return a single category', async () => {
+      mockPrisma.category.findUnique.mockResolvedValue(mockCategory);
+
+      const result = await service.findOne(categoryId);
+
+      expect(result.id).toEqual(categoryId);
+      expect(mockPrisma.category.findUnique).toHaveBeenCalledWith({
+        where: { id: categoryId },
+      });
+    });
+
+    it('should throw NotFoundException if category does not exist', async () => {
+      mockPrisma.category.findUnique.mockResolvedValue(null);
+      await expect(service.findOne(categoryId)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw BadRequestException on database error', async () => {
+      mockPrisma.category.findUnique.mockRejectedValue(new Error('DB Error'));
+      await expect(service.findOne(categoryId)).rejects.toThrow(
         BadRequestException,
       );
     });

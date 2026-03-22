@@ -9,9 +9,9 @@ export class ReadCategoryDto implements CategoryResponce {
 
   @ApiProperty()
   @Expose()
-  alias!: string;
+  name!: string;
 
   @ApiProperty()
   @Expose()
-  name!: string;
+  order!: number;
 }
