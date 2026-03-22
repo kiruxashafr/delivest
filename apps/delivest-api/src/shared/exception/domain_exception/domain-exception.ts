@@ -1,5 +1,5 @@
-import { HttpStatus } from '@nestjs/common';
 import { ErrorCodes } from '@delivest/common';
+import { HttpStatus } from '@nestjs/common';
 
 export class DomainException extends Error {
   constructor(
@@ -36,6 +36,12 @@ export const AccessDeniedException = createException(
   ErrorCodes.ACCESS_DENIED,
   HttpStatus.FORBIDDEN,
 );
+
+export const NotFoundException = createException(
+  ErrorCodes.NOT_FOUND,
+  HttpStatus.NOT_FOUND,
+);
+
 // ========== Auth ошибки ==========
 export const InvalidCredentialsException = createException(
   ErrorCodes.INVALID_CREDENTIALS,
@@ -85,11 +91,6 @@ export const RefreshTokenMissingException = createException(
 export const MissingTokenException = createException(
   ErrorCodes.MISSING_TOKEN,
   HttpStatus.BAD_REQUEST,
-);
-
-export const NotFoundException = createException(
-  ErrorCodes.NOT_FOUND,
-  HttpStatus.NOT_FOUND,
 );
 
 // ========== Регистрация ==========

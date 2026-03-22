@@ -7,8 +7,23 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+model Branch {
+  id    String @id @default(uuid())
+  alias String @unique
+  name  String
+
+  info BranchInfo?
+
+  @@map("branches")
+}
+
+model BranchInfo {
+  id          String  @id @default(uuid())
+  description String? @db.Text
+  address     String
+
+  branch   Branch @relation(fields: [branchId], references: [id])
+  branchId String @unique @map("branch_id")
+
+  @@map("branch_info")
 }

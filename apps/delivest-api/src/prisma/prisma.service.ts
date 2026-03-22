@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { ConfigService } from '@nestjs/config';
 import { Pool } from 'pg';
 import {
@@ -9,7 +7,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../generated/prisma/client';
+import { PrismaClient } from '../generated/prisma/client.js';
 
 @Injectable()
 export class PrismaService
