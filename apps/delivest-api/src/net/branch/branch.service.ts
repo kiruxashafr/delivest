@@ -16,13 +16,13 @@ export class BranchService {
   private readonly logger = new Logger(BranchService.name);
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(): Promise<ReadBranchDto[]> {
     try {
       const branches = await this.prisma.branch.findMany();
       if (branches.length === 0) {
         throw new NotFoundException();
       }
-      return toDto(branches, ReadBranchDto);
+      return branches.map((branch) => toDto(branch, ReadBranchDto));
     } catch (error) {
       if (error instanceof DomainException) {
         throw error;
