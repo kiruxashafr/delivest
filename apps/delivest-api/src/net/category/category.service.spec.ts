@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { jest } from '@jest/globals';
-import { Category } from '../../generated/prisma/client.js'; // Проверь путь к клиенту
+import { Category } from '../../generated/prisma/client.js';
 import {
   BadRequestException,
   NotFoundException,
 } from '../../shared/exception/domain_exception/domain-exception.js';
-import { CategoryService } from './category.service.js'; // Твой обновленный сервис
+import { CategoryService } from './category.service.js';
 import { ReadCategoryDto } from './dto/read-category.dto.js';
 
 describe('CategoryService', () => {
@@ -17,7 +17,6 @@ describe('CategoryService', () => {
     id: 'cat-123',
     name: 'Пицца',
     branchId: 'branch-999',
-    // добавь другие поля из твоей схемы prisma, если они обязательны
   } as Category;
 
   beforeEach(async () => {
@@ -51,11 +50,8 @@ describe('CategoryService', () => {
 
       const result = await service.findAllByBranch(branchId);
 
-      // Проверяем, что результат соответствует DTO (с учетом транслитерации, если она в DTO)
       expect(result[0].id).toEqual(mockCategory.id);
       expect(result[0].name).toEqual(mockCategory.name);
-      // Если в ReadCategoryDto есть slug через @Transform, jest его тут не увидит
-      // без plainToInstance, но структура должна совпадать.
       expect(mockPrisma.category.findMany).toHaveBeenCalledWith({
         where: { branchId },
       });
