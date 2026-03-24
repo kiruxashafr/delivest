@@ -1,10 +1,10 @@
 import { PASSWORD_REGEX } from '@delivest/common';
-import { LoginRequest } from '@delivest/types';
+import { LoginClientRequest } from '@delivest/types';
 import { IsString, Matches } from 'class-validator';
 
-export class LoginDto implements LoginRequest {
+export class LoginClientDto implements LoginClientRequest {
   @IsString()
-  login!: string;
+  phone!: string;
 
   @IsString()
   @Matches(PASSWORD_REGEX)

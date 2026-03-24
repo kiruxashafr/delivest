@@ -51,7 +51,8 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Account: 'Account',
+  Client: 'Client',
+  Staff: 'Staff',
   Role: 'Role',
   Branch: 'Branch',
   BranchInfo: 'BranchInfo',
@@ -75,14 +76,28 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const AccountScalarFieldEnum = {
+export const ClientScalarFieldEnum = {
+  id: 'id',
+  phone: 'phone',
+  passwordHash: 'passwordHash',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ClientScalarFieldEnum = (typeof ClientScalarFieldEnum)[keyof typeof ClientScalarFieldEnum]
+
+
+export const StaffScalarFieldEnum = {
   id: 'id',
   login: 'login',
   passwordHash: 'passwordHash',
-  roleId: 'roleId'
+  roleId: 'roleId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
-export type AccountScalarFieldEnum = (typeof AccountScalarFieldEnum)[keyof typeof AccountScalarFieldEnum]
+export type StaffScalarFieldEnum = (typeof StaffScalarFieldEnum)[keyof typeof StaffScalarFieldEnum]
 
 
 export const RoleScalarFieldEnum = {

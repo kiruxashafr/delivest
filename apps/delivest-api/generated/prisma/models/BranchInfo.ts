@@ -322,10 +322,6 @@ export type BranchInfoUncheckedUpdateOneWithoutBranchNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BranchInfoUpdateToOneWithWhereWithoutBranchInput, Prisma.BranchInfoUpdateWithoutBranchInput>, Prisma.BranchInfoUncheckedUpdateWithoutBranchInput>
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type BranchInfoCreateWithoutBranchInput = {
   id?: string
   description?: string | null

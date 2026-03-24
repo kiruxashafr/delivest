@@ -162,14 +162,14 @@ export type RoleWhereInput = {
   id?: Prisma.StringFilter<"Role"> | string
   name?: Prisma.StringFilter<"Role"> | string
   Permissions?: Prisma.EnumPermissionNullableListFilter<"Role">
-  accounts?: Prisma.AccountListRelationFilter
+  staffs?: Prisma.StaffListRelationFilter
 }
 
 export type RoleOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   Permissions?: Prisma.SortOrder
-  accounts?: Prisma.AccountOrderByRelationAggregateInput
+  staffs?: Prisma.StaffOrderByRelationAggregateInput
 }
 
 export type RoleWhereUniqueInput = Prisma.AtLeast<{
@@ -179,7 +179,7 @@ export type RoleWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.RoleWhereInput[]
   NOT?: Prisma.RoleWhereInput | Prisma.RoleWhereInput[]
   Permissions?: Prisma.EnumPermissionNullableListFilter<"Role">
-  accounts?: Prisma.AccountListRelationFilter
+  staffs?: Prisma.StaffListRelationFilter
 }, "id" | "name">
 
 export type RoleOrderByWithAggregationInput = {
@@ -204,28 +204,28 @@ export type RoleCreateInput = {
   id?: string
   name: string
   Permissions?: Prisma.RoleCreatePermissionsInput | $Enums.Permission[]
-  accounts?: Prisma.AccountCreateNestedManyWithoutRoleInput
+  staffs?: Prisma.StaffCreateNestedManyWithoutRoleInput
 }
 
 export type RoleUncheckedCreateInput = {
   id?: string
   name: string
   Permissions?: Prisma.RoleCreatePermissionsInput | $Enums.Permission[]
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutRoleInput
+  staffs?: Prisma.StaffUncheckedCreateNestedManyWithoutRoleInput
 }
 
 export type RoleUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   Permissions?: Prisma.RoleUpdatePermissionsInput | $Enums.Permission[]
-  accounts?: Prisma.AccountUpdateManyWithoutRoleNestedInput
+  staffs?: Prisma.StaffUpdateManyWithoutRoleNestedInput
 }
 
 export type RoleUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   Permissions?: Prisma.RoleUpdatePermissionsInput | $Enums.Permission[]
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutRoleNestedInput
+  staffs?: Prisma.StaffUncheckedUpdateManyWithoutRoleNestedInput
 }
 
 export type RoleCreateManyInput = {
@@ -275,18 +275,18 @@ export type RoleMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
 }
 
-export type RoleCreateNestedOneWithoutAccountsInput = {
-  create?: Prisma.XOR<Prisma.RoleCreateWithoutAccountsInput, Prisma.RoleUncheckedCreateWithoutAccountsInput>
-  connectOrCreate?: Prisma.RoleCreateOrConnectWithoutAccountsInput
+export type RoleCreateNestedOneWithoutStaffsInput = {
+  create?: Prisma.XOR<Prisma.RoleCreateWithoutStaffsInput, Prisma.RoleUncheckedCreateWithoutStaffsInput>
+  connectOrCreate?: Prisma.RoleCreateOrConnectWithoutStaffsInput
   connect?: Prisma.RoleWhereUniqueInput
 }
 
-export type RoleUpdateOneRequiredWithoutAccountsNestedInput = {
-  create?: Prisma.XOR<Prisma.RoleCreateWithoutAccountsInput, Prisma.RoleUncheckedCreateWithoutAccountsInput>
-  connectOrCreate?: Prisma.RoleCreateOrConnectWithoutAccountsInput
-  upsert?: Prisma.RoleUpsertWithoutAccountsInput
+export type RoleUpdateOneRequiredWithoutStaffsNestedInput = {
+  create?: Prisma.XOR<Prisma.RoleCreateWithoutStaffsInput, Prisma.RoleUncheckedCreateWithoutStaffsInput>
+  connectOrCreate?: Prisma.RoleCreateOrConnectWithoutStaffsInput
+  upsert?: Prisma.RoleUpsertWithoutStaffsInput
   connect?: Prisma.RoleWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.RoleUpdateToOneWithWhereWithoutAccountsInput, Prisma.RoleUpdateWithoutAccountsInput>, Prisma.RoleUncheckedUpdateWithoutAccountsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RoleUpdateToOneWithWhereWithoutStaffsInput, Prisma.RoleUpdateWithoutStaffsInput>, Prisma.RoleUncheckedUpdateWithoutStaffsInput>
 }
 
 export type RoleCreatePermissionsInput = {
@@ -298,41 +298,41 @@ export type RoleUpdatePermissionsInput = {
   push?: $Enums.Permission | $Enums.Permission[]
 }
 
-export type RoleCreateWithoutAccountsInput = {
+export type RoleCreateWithoutStaffsInput = {
   id?: string
   name: string
   Permissions?: Prisma.RoleCreatePermissionsInput | $Enums.Permission[]
 }
 
-export type RoleUncheckedCreateWithoutAccountsInput = {
+export type RoleUncheckedCreateWithoutStaffsInput = {
   id?: string
   name: string
   Permissions?: Prisma.RoleCreatePermissionsInput | $Enums.Permission[]
 }
 
-export type RoleCreateOrConnectWithoutAccountsInput = {
+export type RoleCreateOrConnectWithoutStaffsInput = {
   where: Prisma.RoleWhereUniqueInput
-  create: Prisma.XOR<Prisma.RoleCreateWithoutAccountsInput, Prisma.RoleUncheckedCreateWithoutAccountsInput>
+  create: Prisma.XOR<Prisma.RoleCreateWithoutStaffsInput, Prisma.RoleUncheckedCreateWithoutStaffsInput>
 }
 
-export type RoleUpsertWithoutAccountsInput = {
-  update: Prisma.XOR<Prisma.RoleUpdateWithoutAccountsInput, Prisma.RoleUncheckedUpdateWithoutAccountsInput>
-  create: Prisma.XOR<Prisma.RoleCreateWithoutAccountsInput, Prisma.RoleUncheckedCreateWithoutAccountsInput>
+export type RoleUpsertWithoutStaffsInput = {
+  update: Prisma.XOR<Prisma.RoleUpdateWithoutStaffsInput, Prisma.RoleUncheckedUpdateWithoutStaffsInput>
+  create: Prisma.XOR<Prisma.RoleCreateWithoutStaffsInput, Prisma.RoleUncheckedCreateWithoutStaffsInput>
   where?: Prisma.RoleWhereInput
 }
 
-export type RoleUpdateToOneWithWhereWithoutAccountsInput = {
+export type RoleUpdateToOneWithWhereWithoutStaffsInput = {
   where?: Prisma.RoleWhereInput
-  data: Prisma.XOR<Prisma.RoleUpdateWithoutAccountsInput, Prisma.RoleUncheckedUpdateWithoutAccountsInput>
+  data: Prisma.XOR<Prisma.RoleUpdateWithoutStaffsInput, Prisma.RoleUncheckedUpdateWithoutStaffsInput>
 }
 
-export type RoleUpdateWithoutAccountsInput = {
+export type RoleUpdateWithoutStaffsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   Permissions?: Prisma.RoleUpdatePermissionsInput | $Enums.Permission[]
 }
 
-export type RoleUncheckedUpdateWithoutAccountsInput = {
+export type RoleUncheckedUpdateWithoutStaffsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   Permissions?: Prisma.RoleUpdatePermissionsInput | $Enums.Permission[]
@@ -344,11 +344,11 @@ export type RoleUncheckedUpdateWithoutAccountsInput = {
  */
 
 export type RoleCountOutputType = {
-  accounts: number
+  staffs: number
 }
 
 export type RoleCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  accounts?: boolean | RoleCountOutputTypeCountAccountsArgs
+  staffs?: boolean | RoleCountOutputTypeCountStaffsArgs
 }
 
 /**
@@ -364,8 +364,8 @@ export type RoleCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
 /**
  * RoleCountOutputType without action
  */
-export type RoleCountOutputTypeCountAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AccountWhereInput
+export type RoleCountOutputTypeCountStaffsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StaffWhereInput
 }
 
 
@@ -373,7 +373,7 @@ export type RoleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   id?: boolean
   name?: boolean
   Permissions?: boolean
-  accounts?: boolean | Prisma.Role$accountsArgs<ExtArgs>
+  staffs?: boolean | Prisma.Role$staffsArgs<ExtArgs>
   _count?: boolean | Prisma.RoleCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["role"]>
 
@@ -397,7 +397,7 @@ export type RoleSelectScalar = {
 
 export type RoleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "Permissions", ExtArgs["result"]["role"]>
 export type RoleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  accounts?: boolean | Prisma.Role$accountsArgs<ExtArgs>
+  staffs?: boolean | Prisma.Role$staffsArgs<ExtArgs>
   _count?: boolean | Prisma.RoleCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RoleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -406,7 +406,7 @@ export type RoleIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $RolePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Role"
   objects: {
-    accounts: Prisma.$AccountPayload<ExtArgs>[]
+    staffs: Prisma.$StaffPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -806,7 +806,7 @@ readonly fields: RoleFieldRefs;
  */
 export interface Prisma__RoleClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  accounts<T extends Prisma.Role$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Role$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  staffs<T extends Prisma.Role$staffsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Role$staffsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1232,27 +1232,27 @@ export type RoleDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * Role.accounts
+ * Role.staffs
  */
-export type Role$accountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Role$staffsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Account
+   * Select specific fields to fetch from the Staff
    */
-  select?: Prisma.AccountSelect<ExtArgs> | null
+  select?: Prisma.StaffSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Account
+   * Omit specific fields from the Staff
    */
-  omit?: Prisma.AccountOmit<ExtArgs> | null
+  omit?: Prisma.StaffOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.AccountInclude<ExtArgs> | null
-  where?: Prisma.AccountWhereInput
-  orderBy?: Prisma.AccountOrderByWithRelationInput | Prisma.AccountOrderByWithRelationInput[]
-  cursor?: Prisma.AccountWhereUniqueInput
+  include?: Prisma.StaffInclude<ExtArgs> | null
+  where?: Prisma.StaffWhereInput
+  orderBy?: Prisma.StaffOrderByWithRelationInput | Prisma.StaffOrderByWithRelationInput[]
+  cursor?: Prisma.StaffWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.AccountScalarFieldEnum | Prisma.AccountScalarFieldEnum[]
+  distinct?: Prisma.StaffScalarFieldEnum | Prisma.StaffScalarFieldEnum[]
 }
 
 /**

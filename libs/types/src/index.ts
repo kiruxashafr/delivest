@@ -1,6 +1,7 @@
-export * from "./branch";
-export * from "./category";
-export * from "./product";
-export * from "./acl";
-export * from "./account";
+export * from "./branch.js";
+export * from "./category.js";
+export * from "./product.js";
+export * from "./acl.js";
+export * from "./client.js";
+export * from "./staff.js";
 

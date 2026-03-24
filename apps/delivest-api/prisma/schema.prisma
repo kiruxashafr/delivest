@@ -7,15 +7,30 @@ datasource db {
   provider = "postgresql"
 }
 
-model Account {
+model Client {
+  id           String  @id @default(uuid())
+  phone        String  @unique
+  passwordHash String? @map("password_hash")
+  name         String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("clients")
+}
+
+model Staff {
   id           String @id @default(uuid())
-  login        String
+  login        String @unique
   passwordHash String @map("password_hash")
 
   roleId String @map("role_id")
   role   Role   @relation(fields: [roleId], references: [id])
 
-  @@map("accounts")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("staffs")
 }
 
 model Role {
@@ -23,7 +38,7 @@ model Role {
   name        String       @unique
   Permissions Permission[]
 
-  accounts Account[]
+  staffs Staff[]
 
   @@map("roles")
 }
