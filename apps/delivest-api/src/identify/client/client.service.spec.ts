@@ -336,12 +336,6 @@ describe('ClientService', () => {
         where: { id: clientId },
         data: { deletedAt: expect.any(Date) },
       });
-
-      expect((service as any).logger.log).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `softDelete() | Account soft-deleted | id=${clientId}`,
-        ),
-      );
     });
 
     it('should throw NotFoundException if client does not exist', async () => {

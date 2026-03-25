@@ -1,40 +1,41 @@
-import {
-  AccessClientTokenPayload,
-  RefreshClientTokenPayload,
-} from '@delivest/types';
 import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
-import * as argon2 from 'argon2';
 import { PrismaService } from '../../prisma/prisma.service.js';
-import { toDto } from '../../utils/to-dto.js';
-import { CreateClientDto } from './dto/create.dto.js';
-import { ReadClientDto } from './dto/read.dto.js';
+import { ReadStaffDto } from './dto/read.dto.js';
+import * as argon2 from 'argon2';
 import {
   BadRequestException,
   DomainException,
   DuplicateValueException,
   InvalidCredentialsException,
   NotFoundException,
-  PhoneAlreadyExistsException,
   RegistrationFailedException,
+  UserAlreadyExistsException,
   UserNotFoundException,
   UserNotRegisteredException,
 } from '../../shared/exception/domain_exception/domain-exception.js';
-import { Client } from '../../../generated/prisma/client.js';
-import { LoginClientDto } from './dto/login.dto.js';
+import { toDto } from '../../utils/to-dto.js';
+import { CreateStaffDto } from './dto/create.dto.js';
+import { Staff } from '../../../generated/prisma/client.js';
 import {
   getInternalErrorCode,
   getPrismaModelName,
   isPrismaError,
 } from '../../shared/helpers/db-errors.js';
 import { PrismaErrorCode } from '@delivest/common';
+import {
+  AccessStaffTokenPayload,
+  RefreshStaffTokenPayload,
+} from '@delivest/types';
+import { RoleService } from '../acl/role.service.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
+import { LoginStaffDto } from './dto/login.dto.js';
+import { Response } from 'express';
 
 @Injectable()
-export class ClientService {
-  private readonly logger = new Logger(ClientService.name);
+export class StaffService {
+  private readonly logger = new Logger(StaffService.name);
 
   private readonly accessTtl: number;
   private readonly refreshTtl: number;
@@ -44,34 +45,35 @@ export class ClientService {
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
     private readonly prisma: PrismaService,
+    private readonly roleService: RoleService,
   ) {
     this.accessTtl = +this.config.get<number>(
-      'JWT_ACCESS_TTL_SECONDS_CLIENT',
+      'JWT_ACCESS_TTL_SECONDS_STAFF',
       900,
     );
     this.refreshTtl = +this.config.get<number>(
-      'JWT_REFRESH_TTL_SECONDS_CLIENT',
+      'JWT_REFRESH_TTL_SECONDS_STAFF',
       604800,
     );
-    this.accessSecret = this.config.get<string>('JWT_ACCESS_SECRET_CLIENT', '');
+    this.accessSecret = this.config.get<string>('JWT_ACCESS_SECRET_STAFF', '');
     this.refreshSecret = this.config.get<string>(
-      'JWT_REFRESH_SECRET_CLIENT',
+      'JWT_REFRESH_SECRET_STAFF',
       '',
     );
   }
 
-  async findOne(id: string): Promise<ReadClientDto> {
+  async findOne(id: string): Promise<ReadStaffDto> {
     try {
-      const client = await this.prisma.client.findUnique({
+      const staff = await this.prisma.staff.findUnique({
         where: { id: id },
       });
 
-      if (!client) {
-        this.logger.warn(`findOne() | <client> not found | id=${id}`);
-        throw new UserNotFoundException('Client not found');
+      if (!staff) {
+        this.logger.warn(`findOne() | <staff> not found | id=${id}`);
+        throw new UserNotFoundException('Staff not found');
       }
 
-      return toDto(client, ReadClientDto);
+      return toDto(staff, ReadStaffDto);
     } catch (error: unknown) {
       if (error instanceof DomainException) {
         throw error;
@@ -80,24 +82,22 @@ export class ClientService {
         `findOne() | ${(error as Error).message}`,
         (error as Error).stack,
       );
-      throw new BadRequestException('Failed to fetch client');
+      throw new BadRequestException('Failed to fetch staff');
     }
   }
 
-  async findOneByPhone(phone: string): Promise<ReadClientDto> {
+  async findOneByLogin(login: string): Promise<ReadStaffDto> {
     try {
-      const client = await this.prisma.client.findUnique({
-        where: { phone: phone },
+      const staff = await this.prisma.staff.findUnique({
+        where: { login: login },
       });
 
-      if (!client) {
-        this.logger.warn(
-          `findOneByPhone() | Client not found | phone=${phone}`,
-        );
-        throw new UserNotFoundException('Client not found');
+      if (!staff) {
+        this.logger.warn(`findOneByLogin() | Staff not found | login=${login}`);
+        throw new UserNotFoundException('Staff not found');
       }
 
-      return toDto(client, ReadClientDto);
+      return toDto(staff, ReadStaffDto);
     } catch (error: unknown) {
       if (error instanceof DomainException) {
         throw error;
@@ -106,53 +106,53 @@ export class ClientService {
         `findOneByPhone() | ${(error as Error).message}`,
         (error as Error).stack,
       );
-      throw new BadRequestException('Failed to fetch client');
+      throw new BadRequestException('Failed to fetch staff');
     }
   }
 
-  async create(dto: CreateClientDto): Promise<Client> {
+  async create(dto: CreateStaffDto): Promise<Staff> {
     try {
-      const passwordHash = dto.password
-        ? await argon2.hash(dto.password)
-        : null;
-      const client = await this.prisma.client.create({
+      const passwordHash = await argon2.hash(dto.password);
+      const staff = await this.prisma.staff.create({
         data: {
-          phone: dto.phone,
+          login: dto.login,
           passwordHash: passwordHash,
+          roleId: dto.roleId,
         },
       });
 
-      this.logger.log(`create() | Client id=${client.id} is created`);
-      return client;
+      this.logger.log(`create() | Staff id=${staff.id} is created`);
+      return staff;
     } catch (error: unknown) {
       this.logger.error(
         `create() | ${(error as Error).message}`,
         (error as Error).stack,
       );
       this.handleAccountConstraintError(error);
+      throw error;
     }
   }
 
   async refresh(refreshToken: string): Promise<string> {
     try {
-      const payload = await this.jwt.verifyAsync<RefreshClientTokenPayload>(
+      const payload = await this.jwt.verifyAsync<RefreshStaffTokenPayload>(
         refreshToken,
         {
           secret: this.refreshSecret,
         },
       );
 
-      const client = await this.prisma.client.findUnique({
+      const staff = await this.prisma.staff.findUnique({
         where: {
           id: payload.sub,
         },
       });
 
-      if (!client) {
+      if (!staff) {
         throw new NotFoundException('Account not found');
       }
 
-      return this.generateAccessToken(client);
+      return this.generateAccessToken(staff);
     } catch (e: unknown) {
       if (e instanceof NotFoundException) {
         throw e;
@@ -163,20 +163,17 @@ export class ClientService {
   }
 
   async changePassword(id: string, dto: ChangePasswordDto): Promise<void> {
-    const client = await this.prisma.client.findUnique({
+    const staff = await this.prisma.staff.findUnique({
       where: {
         id: id,
       },
     });
-    if (!client) throw new NotFoundException('Account not found');
+    if (!staff) throw new NotFoundException('Account not found');
 
-    if (!client.passwordHash) {
+    if (!staff.passwordHash) {
       throw new UserNotRegisteredException();
     }
-    const isOldValid = await argon2.verify(
-      client.passwordHash,
-      dto.oldPassword,
-    );
+    const isOldValid = await argon2.verify(staff.passwordHash, dto.oldPassword);
     if (!isOldValid) {
       this.logger.warn(`changePassword() | Invalid old password | id=${id}`);
       throw new ForbiddenException('Invalid old password');
@@ -184,20 +181,20 @@ export class ClientService {
 
     const newPassword = await argon2.hash(dto.newPassword);
 
-    await this.prisma.client.update({
+    await this.prisma.staff.update({
       where: { id: id },
       data: { passwordHash: newPassword },
     });
-    this.logger.log(`changePassword() | Client id=${id} changed password`);
+    this.logger.log(`changePassword() | Staff id=${id} changed password`);
   }
 
   async softDelete(id: string): Promise<void> {
     try {
-      await this.prisma.client.update({
+      await this.prisma.staff.update({
         where: { id: id },
         data: { deletedAt: new Date() },
       });
-      this.logger.log(`softDelete() | Client soft-deleted | id=${id}`);
+      this.logger.log(`softDelete() | Staff soft-deleted | id=${id}`);
     } catch (error) {
       this.logger.error(
         `softDelete() | Error | id=${id}`,
@@ -216,30 +213,33 @@ export class ClientService {
     }
   }
 
-  async validateCredentials(dto: LoginClientDto): Promise<Client> {
-    const client = await this.prisma.client.findUnique({
-      where: { phone: dto.phone },
+  async validateCredentials(dto: LoginStaffDto): Promise<Staff> {
+    const staff = await this.prisma.staff.findUnique({
+      where: { login: dto.login },
     });
-    if (!client) {
+    if (!staff) {
       throw new NotFoundException();
     }
-    if (!client.passwordHash) {
+    if (!staff.passwordHash) {
       throw new UserNotRegisteredException();
     }
     const isPasswordValid = await argon2.verify(
-      client.passwordHash,
+      staff.passwordHash,
       dto.password,
     );
     if (!isPasswordValid) {
       throw new InvalidCredentialsException();
     }
-    return client;
+    return staff;
   }
 
-  async generateAccessToken(client: Client): Promise<string> {
-    const payload: AccessClientTokenPayload = {
-      phone: client.phone,
-      sub: client.id,
+  async generateAccessToken(staff: Staff): Promise<string> {
+    const role = await this.roleService.findById(staff.roleId);
+    const payload: AccessStaffTokenPayload = {
+      login: staff.login,
+      sub: staff.id,
+      roleId: staff.roleId,
+      permissions: role.permissions,
     };
 
     return this.jwt.signAsync(payload, {
@@ -248,10 +248,10 @@ export class ClientService {
     });
   }
 
-  async generateRefreshToken(client: Client): Promise<string> {
-    const payload: RefreshClientTokenPayload = {
-      sub: client.id,
-      phone: client.phone,
+  async generateRefreshToken(staff: Staff): Promise<string> {
+    const payload: RefreshStaffTokenPayload = {
+      login: staff.login,
+      sub: staff.id,
     };
     return this.jwt.signAsync(payload, {
       expiresIn: this.refreshTtl,
@@ -262,7 +262,7 @@ export class ClientService {
   setRefreshCookie(res: Response, token: string): void {
     const refreshMaxAge = this.refreshTtl * 1000;
 
-    res.cookie('client_refresh_token', token, {
+    res.cookie('staff_refresh_token', token, {
       httpOnly: true,
       secure: this.config.get<string>('NODE_ENV') === 'production',
       sameSite: 'strict',
@@ -279,14 +279,14 @@ export class ClientService {
     const modelName = getPrismaModelName(error);
 
     if (internalCode === PrismaErrorCode.UNIQUE_VIOLATION) {
-      if (modelName === 'Client') {
-        throw new PhoneAlreadyExistsException();
+      if (modelName === 'Staff') {
+        throw new UserAlreadyExistsException();
       }
       throw new DuplicateValueException();
     }
 
     if (internalCode === PrismaErrorCode.FOREIGN_KEY_VIOLATION) {
-      throw new BadRequestException();
+      throw new NotFoundException();
     }
 
     throw new RegistrationFailedException();

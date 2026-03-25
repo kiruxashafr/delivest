@@ -1,0 +1,19 @@
+import { StaffResponse } from '@delivest/types';
+import { Expose } from 'class-transformer';
+
+export class ReadStaffDto implements StaffResponse {
+  @Expose()
+  id!: string;
+
+  @Expose()
+  login!: string;
+
+  @Expose()
+  roleId: string;
+
+  @Expose()
+  createdAt: Date;
+
+  @Expose()
+  updatedAt: Date;
+}

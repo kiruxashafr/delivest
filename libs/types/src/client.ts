@@ -21,8 +21,8 @@ export interface LoginClientRequest {
 export interface ClientResponse {
   id: string;
   phone: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface ChangePasswordRequest {

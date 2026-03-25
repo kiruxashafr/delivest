@@ -14,15 +14,6 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ClientService } from './client.service.js';
-import { LoginClientDto } from './dto/login.dto.js';
-import type { Request, Response } from 'express';
-import { TokenClientResponseDto } from './dto/token.dto.js';
-import { MissingTokenException } from '../../shared/exception/domain_exception/domain-exception.js';
-import { JwtClientAuthGuard } from './guards/jwt-client.guard.js';
-import { CurrentClient } from '../../shared/decorators/current-client.decorator.js';
-import { CreateClientDto } from './dto/create.dto.js';
-import { ChangePasswordDto } from './dto/change-password.dto.js';
 import {
   ApiBearerAuth,
   ApiCookieAuth,
@@ -31,22 +22,31 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { FindByPhoneDto } from './dto/find-by-phone.dto.js';
+import { StaffService } from './staff.service.js';
+import { TokenStaffResponseDto } from './dto/token.dto.js';
+import { LoginStaffDto } from './dto/login.dto.js';
+import type { Request, Response } from 'express';
+import { CreateStaffDto } from './dto/create.dto.js';
+import { MissingTokenException } from '../../shared/exception/domain_exception/domain-exception.js';
+import { JwtStaffAuthGuard } from './guards/jwt-staff.guard.js';
+import { ChangePasswordDto } from './dto/change-password.dto.js';
+import { FindByLoginDto } from './dto/find-by-login.dto.js';
+import { CurrentStaff } from '../../shared/decorators/current-staff.decorator.js';
 
-@ApiTags('Client (Клиенты)')
-@Controller('client')
-export class ClientController {
-  private readonly logger = new Logger(ClientService.name);
+@ApiTags('Staff (Работники)')
+@Controller('staff')
+export class StaffController {
+  private readonly logger = new Logger(StaffController.name);
 
-  constructor(private readonly service: ClientService) {}
+  constructor(private readonly service: StaffService) {}
 
   @Post('login')
   @ApiOperation({ summary: 'Вход' })
-  @ApiOkResponse({ type: TokenClientResponseDto })
+  @ApiOkResponse({ type: TokenStaffResponseDto })
   async login(
-    @Body() dto: LoginClientDto,
+    @Body() dto: LoginStaffDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<TokenClientResponseDto> {
+  ): Promise<TokenStaffResponseDto> {
     const account = await this.service.validateCredentials(dto);
     const accessToken = await this.service.generateAccessToken(account);
     const refreshToken = await this.service.generateRefreshToken(account);
@@ -58,11 +58,11 @@ export class ClientController {
 
   @Post('register')
   @ApiOperation({ summary: 'Регистрация' })
-  @ApiOkResponse({ type: TokenClientResponseDto })
+  @ApiOkResponse({ type: TokenStaffResponseDto })
   @HttpCode(HttpStatus.CREATED)
   async register(
     @Res({ passthrough: true }) res: Response,
-    @Body() dto: CreateClientDto,
+    @Body() dto: CreateStaffDto,
   ) {
     const client = await this.service.create(dto);
     const accessToken = await this.service.generateAccessToken(client);
@@ -74,9 +74,9 @@ export class ClientController {
   }
 
   @Get('refresh')
-  @ApiCookieAuth('client_refresh_token')
+  @ApiCookieAuth('staff_refresh_token')
   @ApiOperation({ summary: 'Рефреш токен' })
-  @ApiOkResponse({ type: TokenClientResponseDto })
+  @ApiOkResponse({ type: TokenStaffResponseDto })
   async refresh(@Req() req: Request) {
     const token = req.cookies?.['client_refresh_token'];
 
@@ -90,11 +90,11 @@ export class ClientController {
   }
 
   @Get('me')
-  @ApiBearerAuth('client-auth')
+  @ApiBearerAuth('staff-auth')
   @ApiOperation({ summary: 'Получить данные текущего пользователя' })
-  @ApiOkResponse({ type: TokenClientResponseDto })
-  @UseGuards(JwtClientAuthGuard)
-  async findMe(@CurrentClient('sub') id: string) {
+  @ApiOkResponse({ type: TokenStaffResponseDto })
+  @UseGuards(JwtStaffAuthGuard)
+  async findMe(@CurrentStaff('sub') id: string) {
     return this.service.findOne(id);
   }
 
@@ -103,17 +103,17 @@ export class ClientController {
   @ApiOperation({ summary: 'Изменить пароль' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: 204, description: 'Пароль успешно изменен' })
-  @UseGuards(JwtClientAuthGuard)
+  @UseGuards(JwtStaffAuthGuard)
   async changePassword(
-    @CurrentClient('sub') userId: string,
+    @CurrentStaff('sub') userId: string,
     @Body() dto: ChangePasswordDto,
   ) {
     await this.service.changePassword(userId, dto);
   }
 
-  @Get('find-by-phone')
-  @ApiOperation({ summary: 'Найти клиента по номеру телефона' })
-  async findByPhone(@Query() dto: FindByPhoneDto) {
-    return await this.service.findOneByPhone(dto.phone);
+  @Get('find-by-login')
+  @ApiOperation({ summary: 'Найти работника по логину' })
+  async findByPhone(@Query() dto: FindByLoginDto) {
+    return await this.service.findOneByLogin(dto.login);
   }
 }

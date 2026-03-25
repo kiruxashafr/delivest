@@ -114,6 +114,11 @@ export const PhoneAlreadyExistsException = createException(
   HttpStatus.CONFLICT,
 );
 
+export const UserAlreadyExistsException = createException(
+  ErrorCodes.USER_ALREADY_EXISTS,
+  HttpStatus.CONFLICT,
+);
+
 export const DuplicateValueException = createException(
   ErrorCodes.DUPLICATE_VALUE,
   HttpStatus.CONFLICT,
