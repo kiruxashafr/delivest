@@ -13,11 +13,13 @@ import { CreateClientDto } from './dto/create.dto.js';
 import { ReadClientDto } from './dto/read.dto.js';
 import {
   BadRequestException,
+  DomainException,
   DuplicateValueException,
   InvalidCredentialsException,
   NotFoundException,
   PhoneAlreadyExistsException,
   RegistrationFailedException,
+  UserNotFoundException,
   UserNotRegisteredException,
 } from '../../shared/exception/domain_exception/domain-exception.js';
 import { Client } from '../../../generated/prisma/client.js';
@@ -52,7 +54,57 @@ export class ClientService {
     this.refreshSecret = this.config.get<string>('JWT_REFRESH_SECRET', '');
   }
 
-  async create(dto: CreateClientDto): Promise<ReadClientDto> {
+  async findOne(id: string): Promise<ReadClientDto> {
+    try {
+      const client = await this.prisma.client.findUnique({
+        where: { id: id },
+      });
+
+      if (!client) {
+        this.logger.warn(`findOne() | <client> not found | id=${id}`);
+        throw new UserNotFoundException('Client not found');
+      }
+
+      return toDto(client, ReadClientDto);
+    } catch (error: unknown) {
+      if (error instanceof DomainException) {
+        throw error;
+      }
+      this.logger.error(
+        `findOne() | ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw new BadRequestException('Failed to fetch client');
+    }
+  }
+
+  async findOneByPhone(phone: string): Promise<ReadClientDto> {
+    try {
+      const client = await this.prisma.client.findUnique({
+        where: { phone: phone },
+      });
+
+      if (!client) {
+        this.logger.warn(
+          `findOneByPhone() | Client not found | phone=${phone}`,
+        );
+        throw new NotFoundException('Client not found');
+      }
+
+      return toDto(client, ReadClientDto);
+    } catch (error: unknown) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      this.logger.error(
+        `findOneByPhone() | ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw new BadRequestException('Failed to fetch client');
+    }
+  }
+
+  async create(dto: CreateClientDto): Promise<Client> {
     try {
       const passwordHash = dto.password
         ? await argon2.hash(dto.password)
@@ -63,8 +115,9 @@ export class ClientService {
           passwordHash: passwordHash,
         },
       });
+
       this.logger.log(`create() | Client created | id=${client.id}`);
-      return toDto(client, ReadClientDto);
+      return client;
     } catch (error: unknown) {
       this.logger.error(
         `create() | ${(error as Error).message}`,

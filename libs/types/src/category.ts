@@ -1,5 +1,9 @@
 export interface GetCategoryRequest {
-  id: string;
+  categoryId: string;
+}
+
+export interface GetCategoryByBranchRequest {
+  branchId: string;
 }
 
 export interface CategoryResponce {

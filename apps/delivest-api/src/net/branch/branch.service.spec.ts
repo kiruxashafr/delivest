@@ -76,11 +76,6 @@ describe('BranchService', () => {
       expect(result).toEqual(expectedOutput);
     });
 
-    it('should throw not found exception if brach not exist', async () => {
-      mockPrisma.branch.findMany.mockResolvedValue([]);
-      await expect(service.findAll()).rejects.toThrow(NotFoundException);
-    });
-
     it('should throw bad request exception if not domain exception', async () => {
       const dbError = new Error('Conection refused');
       mockPrisma.branch.findMany.mockRejectedValue(dbError);

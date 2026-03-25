@@ -29,3 +29,7 @@ export interface ChangePasswordRequest {
   oldPassword: string;
   newPassword: string;
 }
+
+export interface TokenClientResponse {
+  accessToken: string;
+}
