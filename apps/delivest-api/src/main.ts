@@ -47,7 +47,18 @@ async function bootstrap() {
       },
       'staff-auth',
     )
-    .addCookieAuth('refresh_token')
+    .addCookieAuth('client_refresh_token', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'client_refresh_token',
+      description: 'Refresh token for Clients',
+    })
+    // .addCookieAuth('staff_refresh_token', {
+    //   type: 'apiKey',
+    //   in: 'cookie',
+    //   name: 'staff_refresh_token',
+    //   description: 'Refresh token for Staff',
+    // })
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

@@ -45,13 +45,19 @@ export class ClientService {
     private readonly jwt: JwtService,
     private readonly prisma: PrismaService,
   ) {
-    this.accessTtl = +this.config.get<number>('JWT_ACCESS_TTL_SECONDS', 900);
+    this.accessTtl = +this.config.get<number>(
+      'JWT_ACCESS_TTL_SECONDS_CLIENT',
+      900,
+    );
     this.refreshTtl = +this.config.get<number>(
-      'JWT_REFRESH_TTL_SECONDS',
+      'JWT_REFRESH_TTL_SECONDS_CLIENT',
       604800,
     );
-    this.accessSecret = this.config.get<string>('JWT_ACCESS_SECRET', '');
-    this.refreshSecret = this.config.get<string>('JWT_REFRESH_SECRET', '');
+    this.accessSecret = this.config.get<string>('JWT_ACCESS_SECRET_CLIENT', '');
+    this.refreshSecret = this.config.get<string>(
+      'JWT_REFRESH_SECRET_CLIENT',
+      '',
+    );
   }
 
   async findOne(id: string): Promise<ReadClientDto> {
@@ -260,7 +266,7 @@ export class ClientService {
   setRefreshCookie(res: Response, token: string): void {
     const refreshMaxAge = this.refreshTtl * 1000;
 
-    res.cookie('refresh_token', token, {
+    res.cookie('client_refresh_token', token, {
       httpOnly: true,
       secure: this.config.get<string>('NODE_ENV') === 'production',
       sameSite: 'strict',
@@ -277,7 +283,7 @@ export class ClientService {
     const modelName = getPrismaModelName(error);
 
     if (internalCode === PrismaErrorCode.UNIQUE_VIOLATION) {
-      if (modelName === 'Сlient') {
+      if (modelName === 'Client') {
         throw new PhoneAlreadyExistsException();
       }
       throw new DuplicateValueException();

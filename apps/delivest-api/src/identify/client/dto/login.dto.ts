@@ -6,7 +6,7 @@ import { IsString, Matches } from 'class-validator';
 export class LoginClientDto implements LoginClientRequest {
   @ApiProperty({
     description: 'Номер телефона клиента',
-    example: '+1234567890',
+    example: '+79255355278',
     required: true,
   })
   @IsString()
@@ -14,7 +14,7 @@ export class LoginClientDto implements LoginClientRequest {
 
   @ApiProperty({
     description: 'Пароль клиента',
-    example: 'SecurePass123',
+    example: 'SecurePass123!',
     required: true,
     pattern: PASSWORD_REGEX.source,
   })

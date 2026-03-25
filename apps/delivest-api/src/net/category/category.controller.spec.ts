@@ -16,7 +16,7 @@ describe('CategoryController', () => {
     findOne: jest.fn(),
   };
 
-  const mockGetCategoryDto: GetCategoryDto = { categoryId: '123' };
+  const mockGetCategoryDto: GetCategoryDto = { id: '123' };
   const mockGetByBranchCategoryDto: GetCategoryByBranchDto = {
     branchId: '123',
   };
@@ -70,7 +70,7 @@ describe('CategoryController', () => {
       const result = await controller.getCategory(mockGetCategoryDto);
 
       expect(service.findOne).toHaveBeenCalledWith(
-        mockGetCategoryDto.categoryId,
+        mockGetCategoryDto.id,
       );
       expect(service.findOne).toHaveBeenCalledTimes(1);
       expect(result).toEqual(mockResult);

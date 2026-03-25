@@ -6,7 +6,7 @@ import { IsString, Matches, IsOptional } from 'class-validator';
 export class CreateClientDto implements CreateClientRequest {
   @ApiProperty({
     description: 'Номер телефона',
-    example: '+1234567890',
+    example: '+79255355278',
     pattern: PHONE_REGEX.source,
     required: true,
   })
@@ -16,7 +16,7 @@ export class CreateClientDto implements CreateClientRequest {
 
   @ApiPropertyOptional({
     description: 'Пароль (минимум 8 символов, буквы и цифры)',
-    example: 'SecurePass123',
+    example: 'SecurePass123!',
     pattern: PASSWORD_REGEX.source,
     required: false,
   })

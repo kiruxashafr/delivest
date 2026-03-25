@@ -19,7 +19,10 @@ export class JwtClientAuthGuard implements CanActivate {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {
-    this.accessSecret = this.configService.get<string>('JWT_ACCESS_SECRET', '');
+    this.accessSecret = this.configService.get<string>(
+      'JWT_ACCESS_SECRET_CLIENT',
+      '',
+    );
   }
 
   canActivate(context: ExecutionContext): boolean {

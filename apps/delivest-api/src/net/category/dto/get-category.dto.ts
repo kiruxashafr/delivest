@@ -6,5 +6,5 @@ export class GetCategoryDto implements GetCategoryRequest {
   @ApiProperty({ description: 'Id филиала' })
   @IsString()
   @IsNotEmpty()
-  categoryId!: string;
+  id!: string;
 }

@@ -22,7 +22,15 @@ import { JwtClientAuthGuard } from './guards/jwt-client.guard.js';
 import { CurrentClient } from '../../shared/decorators/current-client.decorator.js';
 import { CreateClientDto } from './dto/create.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiCookieAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @ApiTags('Client (Клиенты)')
 @Controller('client')
@@ -65,10 +73,11 @@ export class ClientController {
   }
 
   @Get('refresh')
+  @ApiCookieAuth('client_refresh_token')
   @ApiOperation({ summary: 'Рефреш токен' })
   @ApiOkResponse({ type: TokenClientResponseDto })
   async refresh(@Req() req: Request) {
-    const token = req.cookies?.['refresh_token'];
+    const token = req.cookies?.['client_refresh_token'];
 
     if (!token) {
       throw new MissingTokenException('Missing refresh token');
@@ -80,6 +89,7 @@ export class ClientController {
   }
 
   @Get('me')
+  @ApiBearerAuth('client-auth')
   @ApiOperation({ summary: 'Получить данные текущего пользователя' })
   @ApiOkResponse({ type: TokenClientResponseDto })
   @UseGuards(JwtClientAuthGuard)
@@ -88,9 +98,11 @@ export class ClientController {
   }
 
   @Patch('me/password')
+  @ApiBearerAuth('client-auth')
   @ApiBody({ type: ChangePasswordDto })
   @ApiOperation({ summary: 'Изменить пароль' })
-  @ApiOkResponse({ type: TokenClientResponseDto })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiResponse({ status: 204, description: 'Пароль успешно изменен' })
   @UseGuards(JwtClientAuthGuard)
   async changePassword(
     @CurrentClient('sub') userId: string,

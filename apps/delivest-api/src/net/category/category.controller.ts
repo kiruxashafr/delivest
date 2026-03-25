@@ -15,7 +15,7 @@ import { GetCategoryDto } from './dto/get-category.dto.js';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @Get('filial/:id')
+  @Get('filial/:branchId')
   @ApiOperation({ summary: 'Получить все категории по айди филиала' })
   @ApiOkResponse({ type: ReadCategoryDto })
   @ApiNotFoundResponse({ description: 'Категории не найдены' })
@@ -28,6 +28,6 @@ export class CategoryController {
   @ApiOkResponse({ type: ReadCategoryDto })
   @ApiNotFoundResponse({ description: 'Категория не найдена' })
   async getCategory(@Param() dto: GetCategoryDto) {
-    return this.categoryService.findOne(dto.categoryId);
+    return this.categoryService.findOne(dto.id);
   }
 }

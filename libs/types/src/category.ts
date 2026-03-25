@@ -1,5 +1,5 @@
 export interface GetCategoryRequest {
-  categoryId: string;
+  id: string;
 }
 
 export interface GetCategoryByBranchRequest {
