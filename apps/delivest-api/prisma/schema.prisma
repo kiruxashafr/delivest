@@ -28,8 +28,9 @@ model Staff {
   roleId String @map("role_id")
   role   Role   @relation(fields: [roleId], references: [id])
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   @@map("staffs")
 }
@@ -40,6 +41,9 @@ model Role {
   Permissions Permission[]
 
   staffs Staff[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("roles")
 }

@@ -25,7 +25,6 @@ import { CreateClientDto } from './dto/create.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 import {
   ApiBearerAuth,
-  ApiBody,
   ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
@@ -101,7 +100,6 @@ export class ClientController {
 
   @Patch('me/password')
   @ApiBearerAuth('client-auth')
-  @ApiBody({ type: ChangePasswordDto })
   @ApiOperation({ summary: 'Изменить пароль' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: 204, description: 'Пароль успешно изменен' })

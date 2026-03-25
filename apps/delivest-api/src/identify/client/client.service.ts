@@ -122,7 +122,7 @@ export class ClientService {
         },
       });
 
-      this.logger.log(`create() | Client created | id=${client.id}`);
+      this.logger.log(`create() | Client id=${client.id} is created`);
       return client;
     } catch (error: unknown) {
       this.logger.error(
@@ -163,8 +163,6 @@ export class ClientService {
   }
 
   async changePassword(id: string, dto: ChangePasswordDto): Promise<void> {
-    this.logger.log(`changePassword() | id=${id}`);
-
     const client = await this.prisma.client.findUnique({
       where: {
         id: id,
@@ -190,9 +188,7 @@ export class ClientService {
       where: { id: id },
       data: { passwordHash: newPassword },
     });
-    this.logger.log(
-      `changePassword() | Password changed successfully | id=${id}`,
-    );
+    this.logger.log(`changePassword() | Client id=${id} changed password`);
   }
 
   async softDelete(id: string): Promise<void> {
@@ -201,7 +197,7 @@ export class ClientService {
         where: { id: id },
         data: { deletedAt: new Date() },
       });
-      this.logger.log(`softDelete() | Account soft-deleted | id=${id}`);
+      this.logger.log(`softDelete() | Client soft-deleted | id=${id}`);
     } catch (error) {
       this.logger.error(
         `softDelete() | Error | id=${id}`,

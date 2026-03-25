@@ -31,6 +31,7 @@ export type StaffMinAggregateOutputType = {
   roleId: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  deletedAt: Date | null
 }
 
 export type StaffMaxAggregateOutputType = {
@@ -40,6 +41,7 @@ export type StaffMaxAggregateOutputType = {
   roleId: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  deletedAt: Date | null
 }
 
 export type StaffCountAggregateOutputType = {
@@ -49,6 +51,7 @@ export type StaffCountAggregateOutputType = {
   roleId: number
   createdAt: number
   updatedAt: number
+  deletedAt: number
   _all: number
 }
 
@@ -60,6 +63,7 @@ export type StaffMinAggregateInputType = {
   roleId?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
 }
 
 export type StaffMaxAggregateInputType = {
@@ -69,6 +73,7 @@ export type StaffMaxAggregateInputType = {
   roleId?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
 }
 
 export type StaffCountAggregateInputType = {
@@ -78,6 +83,7 @@ export type StaffCountAggregateInputType = {
   roleId?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
   _all?: true
 }
 
@@ -160,6 +166,7 @@ export type StaffGroupByOutputType = {
   roleId: string
   createdAt: Date
   updatedAt: Date
+  deletedAt: Date | null
   _count: StaffCountAggregateOutputType | null
   _min: StaffMinAggregateOutputType | null
   _max: StaffMaxAggregateOutputType | null
@@ -190,6 +197,7 @@ export type StaffWhereInput = {
   roleId?: Prisma.StringFilter<"Staff"> | string
   createdAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
 }
 
@@ -200,6 +208,7 @@ export type StaffOrderByWithRelationInput = {
   roleId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.RoleOrderByWithRelationInput
 }
 
@@ -213,6 +222,7 @@ export type StaffWhereUniqueInput = Prisma.AtLeast<{
   roleId?: Prisma.StringFilter<"Staff"> | string
   createdAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
 }, "id" | "login">
 
@@ -223,6 +233,7 @@ export type StaffOrderByWithAggregationInput = {
   roleId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.StaffCountOrderByAggregateInput
   _max?: Prisma.StaffMaxOrderByAggregateInput
   _min?: Prisma.StaffMinOrderByAggregateInput
@@ -238,6 +249,7 @@ export type StaffScalarWhereWithAggregatesInput = {
   roleId?: Prisma.StringWithAggregatesFilter<"Staff"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Staff"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Staff"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
 }
 
 export type StaffCreateInput = {
@@ -246,6 +258,7 @@ export type StaffCreateInput = {
   passwordHash: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   role: Prisma.RoleCreateNestedOneWithoutStaffsInput
 }
 
@@ -256,6 +269,7 @@ export type StaffUncheckedCreateInput = {
   roleId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type StaffUpdateInput = {
@@ -264,6 +278,7 @@ export type StaffUpdateInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.RoleUpdateOneRequiredWithoutStaffsNestedInput
 }
 
@@ -274,6 +289,7 @@ export type StaffUncheckedUpdateInput = {
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type StaffCreateManyInput = {
@@ -283,6 +299,7 @@ export type StaffCreateManyInput = {
   roleId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type StaffUpdateManyMutationInput = {
@@ -291,6 +308,7 @@ export type StaffUpdateManyMutationInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type StaffUncheckedUpdateManyInput = {
@@ -300,6 +318,7 @@ export type StaffUncheckedUpdateManyInput = {
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type StaffCountOrderByAggregateInput = {
@@ -309,6 +328,7 @@ export type StaffCountOrderByAggregateInput = {
   roleId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type StaffMaxOrderByAggregateInput = {
@@ -318,6 +338,7 @@ export type StaffMaxOrderByAggregateInput = {
   roleId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type StaffMinOrderByAggregateInput = {
@@ -327,6 +348,7 @@ export type StaffMinOrderByAggregateInput = {
   roleId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type StaffListRelationFilter = {
@@ -387,6 +409,7 @@ export type StaffCreateWithoutRoleInput = {
   passwordHash: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type StaffUncheckedCreateWithoutRoleInput = {
@@ -395,6 +418,7 @@ export type StaffUncheckedCreateWithoutRoleInput = {
   passwordHash: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type StaffCreateOrConnectWithoutRoleInput = {
@@ -433,6 +457,7 @@ export type StaffScalarWhereInput = {
   roleId?: Prisma.StringFilter<"Staff"> | string
   createdAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
 }
 
 export type StaffCreateManyRoleInput = {
@@ -441,6 +466,7 @@ export type StaffCreateManyRoleInput = {
   passwordHash: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type StaffUpdateWithoutRoleInput = {
@@ -449,6 +475,7 @@ export type StaffUpdateWithoutRoleInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type StaffUncheckedUpdateWithoutRoleInput = {
@@ -457,6 +484,7 @@ export type StaffUncheckedUpdateWithoutRoleInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type StaffUncheckedUpdateManyWithoutRoleInput = {
@@ -465,6 +493,7 @@ export type StaffUncheckedUpdateManyWithoutRoleInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -476,6 +505,7 @@ export type StaffSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   roleId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["staff"]>
 
@@ -486,6 +516,7 @@ export type StaffSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   roleId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["staff"]>
 
@@ -496,6 +527,7 @@ export type StaffSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   roleId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["staff"]>
 
@@ -506,9 +538,10 @@ export type StaffSelectScalar = {
   roleId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
 }
 
-export type StaffOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "login" | "passwordHash" | "roleId" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
+export type StaffOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "login" | "passwordHash" | "roleId" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["staff"]>
 export type StaffInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
 }
@@ -531,6 +564,7 @@ export type $StaffPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     roleId: string
     createdAt: Date
     updatedAt: Date
+    deletedAt: Date | null
   }, ExtArgs["result"]["staff"]>
   composites: {}
 }
@@ -961,6 +995,7 @@ export interface StaffFieldRefs {
   readonly roleId: Prisma.FieldRef<"Staff", 'String'>
   readonly createdAt: Prisma.FieldRef<"Staff", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Staff", 'DateTime'>
+  readonly deletedAt: Prisma.FieldRef<"Staff", 'DateTime'>
 }
     
 
