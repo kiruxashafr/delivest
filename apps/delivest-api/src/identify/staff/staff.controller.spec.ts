@@ -63,14 +63,21 @@ describe('StaffController', () => {
       const result = await controller.login(dto, mockResponse);
 
       expect(service.validateCredentials).toHaveBeenCalledWith(dto);
-      expect(service.setRefreshCookie).toHaveBeenCalledWith(mockResponse, refreshToken);
+      expect(service.setRefreshCookie).toHaveBeenCalledWith(
+        mockResponse,
+        refreshToken,
+      );
       expect(result).toEqual({ accessToken });
     });
   });
 
   describe('register', () => {
     it('should register staff and return access token', async () => {
-      const dto = { login: 'new_manager', password: 'password', roleId: 'role-1' };
+      const dto = {
+        login: 'new_manager',
+        password: 'password',
+        roleId: 'role-1',
+      };
       const mockStaff = { id: 'staff-2' };
       const accessToken = 'access_token_reg';
       const refreshToken = 'refresh_token_reg';
@@ -82,7 +89,10 @@ describe('StaffController', () => {
       const result = await controller.register(mockResponse, dto);
 
       expect(service.create).toHaveBeenCalledWith(dto);
-      expect(service.setRefreshCookie).toHaveBeenCalledWith(mockResponse, refreshToken);
+      expect(service.setRefreshCookie).toHaveBeenCalledWith(
+        mockResponse,
+        refreshToken,
+      );
       expect(result).toEqual({ accessToken });
     });
   });
@@ -106,7 +116,9 @@ describe('StaffController', () => {
     it('should throw MissingTokenException if no cookies present', async () => {
       const mockRequest = { cookies: {} } as unknown as Request;
 
-      await expect(controller.refresh(mockRequest)).rejects.toThrow(MissingTokenException);
+      await expect(controller.refresh(mockRequest)).rejects.toThrow(
+        MissingTokenException,
+      );
     });
   });
 

@@ -117,7 +117,9 @@ describe('StaffService', () => {
 
     it('should throw UserNotFoundException if staff not found', async () => {
       mockPrisma.staff.findUnique.mockResolvedValue(null);
-      await expect(service.findOne('invalid')).rejects.toThrow(UserNotFoundException);
+      await expect(service.findOne('invalid')).rejects.toThrow(
+        UserNotFoundException,
+      );
     });
   });
 
@@ -130,7 +132,9 @@ describe('StaffService', () => {
 
     it('should throw UserNotFoundException if login not found', async () => {
       mockPrisma.staff.findUnique.mockResolvedValue(null);
-      await expect(service.findOneByLogin('ghost')).rejects.toThrow(UserNotFoundException);
+      await expect(service.findOneByLogin('ghost')).rejects.toThrow(
+        UserNotFoundException,
+      );
     });
   });
 
@@ -143,7 +147,11 @@ describe('StaffService', () => {
 
     it('should hash password and create staff', async () => {
       mockArgonHash.mockResolvedValue('new_hash');
-      mockPrisma.staff.create.mockResolvedValue({ ...mockStaff, ...createDto, passwordHash: 'new_hash' });
+      mockPrisma.staff.create.mockResolvedValue({
+        ...mockStaff,
+        ...createDto,
+        passwordHash: 'new_hash',
+      });
 
       const result = await service.create(createDto);
 
@@ -166,7 +174,9 @@ describe('StaffService', () => {
       });
       mockPrisma.staff.create.mockRejectedValue(prismaError);
 
-      await expect(service.create(createDto)).rejects.toThrow(UserAlreadyExistsException);
+      await expect(service.create(createDto)).rejects.toThrow(
+        UserAlreadyExistsException,
+      );
     });
   });
 
@@ -185,7 +195,9 @@ describe('StaffService', () => {
       mockPrisma.staff.findUnique.mockResolvedValue(mockStaff);
       mockArgonVerify.mockResolvedValue(false);
 
-      await expect(service.validateCredentials(loginDto)).rejects.toThrow(InvalidCredentialsException);
+      await expect(service.validateCredentials(loginDto)).rejects.toThrow(
+        InvalidCredentialsException,
+      );
     });
   });
 
@@ -203,7 +215,7 @@ describe('StaffService', () => {
           permissions: mockRole.permissions,
           sub: mockStaff.id,
         }),
-        expect.objectContaining({ secret: 'ACCESS_SECRET_STAFF' })
+        expect.objectContaining({ secret: 'ACCESS_SECRET_STAFF' }),
       );
       expect(token).toBe('access_token');
     });
@@ -228,7 +240,9 @@ describe('StaffService', () => {
       });
       mockPrisma.staff.update.mockRejectedValue(prismaError);
 
-      await expect(service.softDelete('none')).rejects.toThrow(NotFoundException);
+      await expect(service.softDelete('none')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -240,7 +254,7 @@ describe('StaffService', () => {
       expect(mockRes.cookie).toHaveBeenCalledWith(
         'staff_refresh_token',
         'token123',
-        expect.any(Object)
+        expect.any(Object),
       );
     });
   });

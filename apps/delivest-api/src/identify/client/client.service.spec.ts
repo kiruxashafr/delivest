@@ -336,7 +336,6 @@ describe('ClientService', () => {
         where: { id: clientId },
         data: { deletedAt: expect.any(Date) },
       });
-
     });
 
     it('should throw NotFoundException if client does not exist', async () => {
