@@ -69,9 +69,7 @@ describe('CategoryController', () => {
 
       const result = await controller.getCategory(mockGetCategoryDto);
 
-      expect(service.findOne).toHaveBeenCalledWith(
-        mockGetCategoryDto.id,
-      );
+      expect(service.findOne).toHaveBeenCalledWith(mockGetCategoryDto.id);
       expect(service.findOne).toHaveBeenCalledTimes(1);
       expect(result).toEqual(mockResult);
     });

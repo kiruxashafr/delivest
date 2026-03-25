@@ -7,13 +7,4 @@ export class ReadClientDto implements ClientResponse {
 
   @Expose()
   phone!: string;
-
-  @Expose()
-  roleId!: string;
-
-  @Expose()
-  createdAt!: Date;
-
-  @Expose()
-  updatedAt!: Date;
 }

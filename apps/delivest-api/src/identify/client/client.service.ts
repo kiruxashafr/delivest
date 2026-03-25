@@ -94,12 +94,12 @@ export class ClientService {
         this.logger.warn(
           `findOneByPhone() | Client not found | phone=${phone}`,
         );
-        throw new NotFoundException('Client not found');
+        throw new UserNotFoundException('Client not found');
       }
 
       return toDto(client, ReadClientDto);
     } catch (error: unknown) {
-      if (error instanceof NotFoundException) {
+      if (error instanceof DomainException) {
         throw error;
       }
       this.logger.error(

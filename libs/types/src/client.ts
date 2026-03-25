@@ -30,6 +30,10 @@ export interface ChangePasswordRequest {
   newPassword: string;
 }
 
+export interface FindByPhoneRequest {
+  phone: string;
+}
+
 export interface TokenClientResponse {
   accessToken: string;
 }

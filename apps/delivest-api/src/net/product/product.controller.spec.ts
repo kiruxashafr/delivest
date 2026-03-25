@@ -20,7 +20,9 @@ describe('ProductController', () => {
   };
 
   const mockGetDto: GetProductDto = { id: 'prod-123' };
-  const mockGetByCategoryDto: GetProductsByCategoryDto= { categoryId: 'prod-123' };
+  const mockGetByCategoryDto: GetProductsByCategoryDto = {
+    categoryId: 'prod-123',
+  };
   const mockGetByBranchDto: GetProductsByBranchDto = { branchId: 'prod-123' };
 
   const mockResult: ReadProductDto = {
@@ -54,7 +56,8 @@ describe('ProductController', () => {
       const mockResults = [mockResult];
       service.findAllByBranch.mockResolvedValue(mockResults);
 
-      const result = await controller.getAllProductsByBranch(mockGetByBranchDto);
+      const result =
+        await controller.getAllProductsByBranch(mockGetByBranchDto);
 
       expect(service.findAllByBranch).toHaveBeenCalledWith(mockGetDto.id);
       expect(result).toEqual(mockResults);
@@ -66,7 +69,8 @@ describe('ProductController', () => {
       const mockResults = [mockResult];
       service.findAllByCategory.mockResolvedValue(mockResults);
 
-      const result = await controller.getAllProductsByCategory(mockGetByCategoryDto);
+      const result =
+        await controller.getAllProductsByCategory(mockGetByCategoryDto);
 
       expect(service.findAllByCategory).toHaveBeenCalledWith(mockGetDto.id);
       expect(result).toEqual(mockResults);
