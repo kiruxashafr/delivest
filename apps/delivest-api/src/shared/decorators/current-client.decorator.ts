@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { AccessClientTokenPayload } from '@delivest/types';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import type { Request } from 'express';

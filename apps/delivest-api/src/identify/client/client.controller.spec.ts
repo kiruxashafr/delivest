@@ -38,7 +38,7 @@ describe('ClientController', () => {
       ],
     })
       .overrideGuard(JwtClientAuthGuard)
-      .useValue({ canActivate: () => true }) 
+      .useValue({ canActivate: () => true })
       .compile();
 
     controller = module.get<ClientController>(ClientController);
@@ -63,7 +63,10 @@ describe('ClientController', () => {
       const result = await controller.login(dto, mockResponse);
 
       expect(service.validateCredentials).toHaveBeenCalledWith(dto);
-      expect(service.setRefreshCookie).toHaveBeenCalledWith(mockResponse, refreshToken);
+      expect(service.setRefreshCookie).toHaveBeenCalledWith(
+        mockResponse,
+        refreshToken,
+      );
       expect(result).toEqual({ accessToken });
     });
   });
@@ -82,7 +85,10 @@ describe('ClientController', () => {
       const result = await controller.register(mockResponse, dto);
 
       expect(service.create).toHaveBeenCalledWith(dto);
-      expect(service.setRefreshCookie).toHaveBeenCalledWith(mockResponse, refreshToken);
+      expect(service.setRefreshCookie).toHaveBeenCalledWith(
+        mockResponse,
+        refreshToken,
+      );
       expect(result).toEqual({ accessToken });
     });
   });
@@ -105,7 +111,9 @@ describe('ClientController', () => {
     it('should throw MissingTokenException if no cookie', async () => {
       const mockRequest = { cookies: {} } as unknown as Request;
 
-      await expect(controller.refresh(mockRequest)).rejects.toThrow(MissingTokenException);
+      await expect(controller.refresh(mockRequest)).rejects.toThrow(
+        MissingTokenException,
+      );
     });
   });
 
