@@ -13,6 +13,10 @@ export interface CreateClientRequest {
   password?: string;
 }
 
+export interface GetClientRequest {
+  id:string
+}
+
 export interface LoginClientRequest {
   phone: string;
   password: string;
@@ -23,6 +27,7 @@ export interface ClientResponse {
   phone: string;
   createdAt?: Date;
   updatedAt?: Date;
+  deletedAt?: Date;
 }
 
 export interface ChangePasswordRequest {

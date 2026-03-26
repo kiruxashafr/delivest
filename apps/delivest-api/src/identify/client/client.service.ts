@@ -31,6 +31,7 @@ import {
 } from '../../shared/helpers/db-errors.js';
 import { PrismaErrorCode } from '@delivest/common';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
+import { AdminReadClientDto } from './dto/admin-dto/admin-read.dto.js';
 
 @Injectable()
 export class ClientService {
@@ -60,7 +61,13 @@ export class ClientService {
     );
   }
 
-  async findOne(id: string): Promise<ReadClientDto> {
+  async findOne(id: string, extended: true): Promise<AdminReadClientDto>;
+  async findOne(id: string, extended?: false): Promise<ReadClientDto>;
+
+  async findOne(
+    id: string,
+    extended?: boolean,
+  ): Promise<ReadClientDto | AdminReadClientDto> {
     try {
       const client = await this.prisma.client.findUnique({
         where: { id: id },
@@ -71,6 +78,9 @@ export class ClientService {
         throw new UserNotFoundException('Client not found');
       }
 
+      if (extended === true) {
+        return toDto(client, AdminReadClientDto);
+      }
       return toDto(client, ReadClientDto);
     } catch (error: unknown) {
       if (error instanceof DomainException) {
@@ -84,7 +94,16 @@ export class ClientService {
     }
   }
 
-  async findOneByPhone(phone: string): Promise<ReadClientDto> {
+  async findOneByPhone(
+    phone: string,
+    extended: true,
+  ): Promise<AdminReadClientDto>;
+  async findOneByPhone(phone: string, extended?: false): Promise<ReadClientDto>;
+
+  async findOneByPhone(
+    phone: string,
+    extended?: boolean,
+  ): Promise<ReadClientDto | AdminReadClientDto> {
     try {
       const client = await this.prisma.client.findUnique({
         where: { phone: phone },
@@ -97,6 +116,9 @@ export class ClientService {
         throw new UserNotFoundException('Client not found');
       }
 
+      if (extended === true) {
+        return toDto(client, AdminReadClientDto);
+      }
       return toDto(client, ReadClientDto);
     } catch (error: unknown) {
       if (error instanceof DomainException) {
@@ -107,6 +129,19 @@ export class ClientService {
         (error as Error).stack,
       );
       throw new BadRequestException('Failed to fetch client');
+    }
+  }
+
+  async findAll(): Promise<ReadClientDto[]> {
+    try {
+      const clients = await this.prisma.client.findMany();
+
+      return clients.map((client) => toDto(client, ReadClientDto));
+    } catch (error) {
+      this.logger.error(
+        `findAll() | error find all client ${(error as Error).stack}`,
+      );
+      throw new BadRequestException();
     }
   }
 

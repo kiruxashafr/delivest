@@ -12,7 +12,11 @@
 export const Permission = {
   ADMIN: 'ADMIN',
   STAFF_CREATE: 'STAFF_CREATE',
-  STAFF_READ: 'STAFF_READ'
+  STAFF_READ: 'STAFF_READ',
+  CLIENT_CREATE: 'CLIENT_CREATE',
+  CLIENT_READ: 'CLIENT_READ',
+  CLIENT_UPDATE: 'CLIENT_UPDATE',
+  CLIENT_DELETE: 'CLIENT_DELETE'
 } as const
 
 export type Permission = (typeof Permission)[keyof typeof Permission]

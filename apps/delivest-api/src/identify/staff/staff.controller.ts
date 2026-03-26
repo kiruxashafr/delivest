@@ -10,7 +10,6 @@ import {
   Param,
   Patch,
   Post,
-  Query,
   Req,
   Res,
   UseGuards,
@@ -100,7 +99,7 @@ export class StaffController {
   @ApiBearerAuth('staff-auth')
   @ApiOperation({ summary: 'Получить данные текущего пользователя' })
   @ApiOkResponse({ type: TokenStaffResponseDto })
-  @UseGuards(JwtStaffAuthGuard, AclGuard)
+  @UseGuards(JwtStaffAuthGuard)
   async findMe(@CurrentStaff('sub') id: string) {
     return this.service.findOne(id);
   }
@@ -130,7 +129,7 @@ export class StaffController {
 
   @Get('find-by-login')
   @ApiOperation({ summary: 'Найти работника по логину' })
-  async findByPhone(@Query() dto: FindByLoginDto) {
+  async findByPhone(@Param() dto: FindByLoginDto) {
     return await this.service.findOneByLogin(dto.login);
   }
 }
