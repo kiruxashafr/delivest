@@ -38,7 +38,7 @@ model Staff {
 model Role {
   id          String       @id @default(uuid())
   name        String       @unique
-  Permissions Permission[]
+  permissions Permission[] @map("permissions")
 
   staffs Staff[]
 
@@ -100,4 +100,6 @@ model Product {
 
 enum Permission {
   ADMIN
+  STAFF_CREATE
+  STAFF_READ
 }

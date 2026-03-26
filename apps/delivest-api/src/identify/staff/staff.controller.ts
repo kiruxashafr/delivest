@@ -7,6 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
+  Param,
   Patch,
   Post,
   Query,
@@ -35,6 +36,7 @@ import { CurrentStaff } from '../../shared/decorators/current-staff.decorator.js
 import { AclGuard } from '../acl/guards/acl.guard.js';
 import { RequirePermission } from '../acl/decorators/require-permission.decorator.js';
 import { Permission } from '../../../generated/prisma/enums.js';
+import { GetStaffDto } from './dto/get-staff.dto.js';
 
 @ApiTags('Staff (Работники)')
 @Controller('staff')
@@ -59,10 +61,12 @@ export class StaffController {
     return { accessToken };
   }
 
-  @Post('register')
+  @Post('create')
   @ApiOperation({ summary: 'Регистрация' })
   @ApiOkResponse({ type: TokenStaffResponseDto })
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtStaffAuthGuard, AclGuard)
+  @RequirePermission(Permission.STAFF_CREATE)
   async register(
     @Res({ passthrough: true }) res: Response,
     @Body() dto: CreateStaffDto,
@@ -97,7 +101,6 @@ export class StaffController {
   @ApiOperation({ summary: 'Получить данные текущего пользователя' })
   @ApiOkResponse({ type: TokenStaffResponseDto })
   @UseGuards(JwtStaffAuthGuard, AclGuard)
-  @RequirePermission(Permission.ADMIN)
   async findMe(@CurrentStaff('sub') id: string) {
     return this.service.findOne(id);
   }
@@ -113,6 +116,16 @@ export class StaffController {
     @Body() dto: ChangePasswordDto,
   ) {
     await this.service.changePassword(userId, dto);
+  }
+
+  @Get('')
+  @ApiBearerAuth('staff-auth')
+  @ApiOperation({ summary: 'Получить данные работника по айди' })
+  @ApiOkResponse({ type: TokenStaffResponseDto })
+  @UseGuards(JwtStaffAuthGuard, AclGuard)
+  @RequirePermission(Permission.STAFF_READ)
+  async findOne(@Param() dto: GetStaffDto) {
+    return this.service.findOne(dto.id);
   }
 
   @Get('find-by-login')

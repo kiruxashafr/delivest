@@ -30,7 +30,6 @@ export class AclGuard implements CanActivate {
       throw new UnauthorizedException('Staff context or permissions not found');
     }
 
-    // 3. Используем опциональную цепочку ?. для безопасности
     if (staff.permissions.includes(Permission.ADMIN)) {
       return true;
     }
