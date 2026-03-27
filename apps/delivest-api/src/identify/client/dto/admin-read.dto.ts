@@ -9,6 +9,9 @@ export class AdminReadClientDto implements ClientResponse {
   phone!: string;
 
   @Expose()
+  name: string;
+
+  @Expose()
   createdAt: Date | undefined;
 
   @Expose()

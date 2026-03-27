@@ -984,6 +984,7 @@ export const StaffScalarFieldEnum = {
   id: 'id',
   login: 'login',
   passwordHash: 'passwordHash',
+  name: 'name',
   roleId: 'roleId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',

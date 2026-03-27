@@ -28,4 +28,13 @@ export class CreateStaffDto implements CreateStaffRequest {
   })
   @IsString()
   roleId: string;
+
+  @ApiProperty({
+    description: 'Имя работника',
+    example: 'Иван Иванов',
+    required: true,
+  })
+  @IsString()
+  @IsString()
+  name: string;
 }

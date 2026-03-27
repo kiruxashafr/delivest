@@ -11,10 +11,15 @@ export type AccessClientTokenPayload = RefreshClientTokenPayload;
 export interface CreateClientRequest {
   phone: string;
   password?: string;
+  name?: string;
+}
+
+export interface UpdateClientRequest {
+  name?: string;
 }
 
 export interface GetClientRequest {
-  id:string
+  id: string;
 }
 
 export interface LoginClientRequest {
@@ -25,6 +30,7 @@ export interface LoginClientRequest {
 export interface ClientResponse {
   id: string;
   phone: string;
+  name?: string;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;

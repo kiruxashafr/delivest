@@ -16,6 +16,13 @@ export interface CreateStaffRequest {
   login: string;
   password: string;
   roleId: string;
+  name: string;
+}
+
+export interface UpdateStaffRequest {
+  login: string;
+  roleId: string;
+  name: string;
 }
 
 export interface GetStaffRequest {
@@ -31,6 +38,7 @@ export interface StaffResponse {
   id: string;
   login: string;
   roleId: string;
+  name?: string;
   createdAt: Date;
   updatedAt: Date;
 }
