@@ -32,6 +32,7 @@ import { PrismaErrorCode } from '@delivest/common';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { AdminReadClientDto } from './dto/admin-read.dto.js';
 import { UpdateClientDto } from './dto/update.dto.js';
+import { OutboxService } from '../../outbox/outbox.service.js';
 
 @Injectable()
 export class ClientService {
@@ -45,6 +46,7 @@ export class ClientService {
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
     private readonly prisma: PrismaService,
+    private readonly outboxService: OutboxService,
   ) {
     this.accessTtl = +this.config.get<number>(
       'JWT_ACCESS_TTL_SECONDS_CLIENT',

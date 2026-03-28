@@ -9,6 +9,16 @@
 * 🟢 You can import this file directly.
 */
 
+export const AuthStatus = {
+  PENDING: 'PENDING',
+  VERIFIED: 'VERIFIED',
+  EXPIRED: 'EXPIRED',
+  FAILED: 'FAILED'
+} as const
+
+export type AuthStatus = (typeof AuthStatus)[keyof typeof AuthStatus]
+
+
 export const Permission = {
   ADMIN: 'ADMIN',
   STAFF_CREATE: 'STAFF_CREATE',

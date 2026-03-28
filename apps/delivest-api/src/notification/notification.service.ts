@@ -1,0 +1,43 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { OutboxService } from '../outbox/outbox.service.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { Transactional } from '@nestjs-cls/transactional';
+import { SendAuthCodeEvent } from './events/send-aunt-code.event.js';
+import { DelivestEvent } from '../shared/events/types.js';
+import { toPrismaJson } from '../utils/to-prisma-json.js';
+
+@Injectable()
+export class NotificationService {
+  private readonly logger = new Logger(NotificationService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly outboxService: OutboxService,
+  ) {}
+
+  @Transactional()
+  async sendAuthCode(phone: string, code: number) {
+    try {
+      this.logger.log(`sendAuthCode() | start sending auth code to ${phone}`);
+      const codeMessage = await this.prisma.authMessage.create({
+        data: {
+          phone,
+          code,
+        },
+      });
+
+      const event = new SendAuthCodeEvent(
+        codeMessage.id,
+        codeMessage.phone,
+        codeMessage.code,
+      );
+
+      await this.outboxService.save(
+        DelivestEvent.AUTH_CODE_REQUESTED,
+        toPrismaJson(event),
+      );
+    } catch (error) {
+      this.logger.error(`sendAuthCode() failed: ${(error as Error).message}`);
+    }
+  }
+}
