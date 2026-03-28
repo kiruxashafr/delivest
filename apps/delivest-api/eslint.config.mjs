@@ -1,4 +1,3 @@
-// @ts-check
 import eslint from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
@@ -6,12 +5,15 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    // ДОБАВЬ ЭТИ ИГНОРЫ
     ignores: [
       'dist/**',
       'node_modules/**',
       'eslint.config.mjs',
-      '**/*.d.ts', // Игнорируем файлы деклараций типов
+      '**/*.d.ts',
+      '**/*.spec.ts',
+      '**/*.test.ts',
+      '**/*e2e-spec.ts',
+      'test/**',
     ],
   },
   eslint.configs.recommended,
@@ -23,8 +25,6 @@ export default tseslint.config(
         ...globals.node,
         ...globals.jest,
       },
-      // Для NestJS (если используешь ESM) лучше 'module',
-      // но если проект на CommonJS, оставь как есть.
       sourceType: 'module',
       parserOptions: {
         projectService: true,
@@ -33,10 +33,15 @@ export default tseslint.config(
     },
   },
   {
+    files: ['**/*.js', '**/*.mjs'],
+    ...tseslint.configs.disableTypeChecked,
+  },
+  {
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
       'prettier/prettier': ['error', { endOfLine: 'auto' }],
     },
   },

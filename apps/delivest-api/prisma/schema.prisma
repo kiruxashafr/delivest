@@ -1,14 +1,127 @@
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+model Client {
+  id           String  @id @default(uuid())
+  phone        String  @unique
+  passwordHash String? @map("password_hash")
+  name         String?
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("clients")
+}
+
+model Staff {
+  id           String  @id @default(uuid())
+  login        String  @unique
+  passwordHash String  @map("password_hash")
+  name         String?
+
+  roleId String @map("role_id")
+  role   Role   @relation(fields: [roleId], references: [id])
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("staffs")
+}
+
+model Role {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  permissions Permission[] @map("permissions")
+
+  staffs Staff[]
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("roles")
+}
+
+model Branch {
+  id    String @id @default(uuid())
+  alias String @unique
+  name  String
+
+  info       BranchInfo?
+  categories Category[]
+  products   Product[]
+
+  @@map("branches")
+}
+
+model BranchInfo {
+  id          String  @id @default(uuid())
+  description String? @db.Text
+  address     String
+
+  branch   Branch @relation(fields: [branchId], references: [id])
+  branchId String @unique @map("branch_id")
+
+  @@map("branch_info")
+}
+
+model Category {
+  id    String @id @default(uuid())
+  name  String
+  order Int
+
+  branch   Branch    @relation(fields: [branchId], references: [id])
+  branchId String    @map("branch_id")
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id       String  @id @default(uuid())
+  name     String
+  price    Decimal @db.Decimal(10, 2)
+  isActive Boolean @default(true)
+
+  branch   Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branchId String @map("branch_id")
+
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?   @map("category_id")
+
+  @@map("product")
+}
+
+model OutboxMessage {
+  id        String   @id @default(uuid()) @db.Uuid
+  type      String
+  payload   Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("outbox_messages")
+}
+
+enum Permission {
+  ADMIN
+  STAFF_CREATE
+  STAFF_READ
+  STAFF_UPDATE
+  STAFF_DELETE
+  CLIENT_CREATE
+  CLIENT_READ
+  CLIENT_UPDATE
+  CLIENT_DELETE
+  ROLE_CREATE
+  ROLE_READ
+  ROLE_UPDATE
+  ROLE_DELETE
 }
