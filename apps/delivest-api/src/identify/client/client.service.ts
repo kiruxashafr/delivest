@@ -32,7 +32,7 @@ import { PrismaErrorCode } from '@delivest/common';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { AdminReadClientDto } from './dto/admin-read.dto.js';
 import { UpdateClientDto } from './dto/update.dto.js';
-import { OutboxService } from '../../outbox/outbox.service.js';
+import { NotificationService } from '../../notification/notification.service.js';
 
 @Injectable()
 export class ClientService {
@@ -46,7 +46,7 @@ export class ClientService {
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
     private readonly prisma: PrismaService,
-    private readonly outboxService: OutboxService,
+    private readonly notificationService: NotificationService,
   ) {
     this.accessTtl = +this.config.get<number>(
       'JWT_ACCESS_TTL_SECONDS_CLIENT',
@@ -259,6 +259,10 @@ export class ClientService {
       data: { passwordHash: newPassword },
     });
     this.logger.log(`changePassword() | Client id=${id} changed password`);
+  }
+
+  async sendCode(number: string) {
+    return await this.notificationService.sendAuthCode(number, 123);
   }
 
   async softDelete(id: string): Promise<void> {

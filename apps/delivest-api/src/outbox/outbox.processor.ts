@@ -22,12 +22,12 @@ export class OutboxProcessor {
 
     try {
       await this.prisma.$transaction(async (tx) => {
-        const messages = await tx.$queryRaw<OutboxMessage[]>`
-          SELECT * FROM "outbox_messages"
-          ORDER BY "created_at" ASC
-          LIMIT 50
-          FOR UPDATE SKIP LOCKED
-        `;
+        const messages = await this.prisma.$queryRaw<OutboxMessage[]>`
+            SELECT * FROM "outbox_messages"
+            ORDER BY "created_at" ASC
+            LIMIT 50
+            FOR UPDATE SKIP LOCKED
+          `;
 
         if (messages.length === 0) return;
 
@@ -40,6 +40,8 @@ export class OutboxProcessor {
             await tx.outboxMessage.delete({
               where: { id: msg.id },
             });
+
+            this.logger.debug(`otp message deleted from db`);
           } catch (err) {
             this.logger.error(
               `Failed to process message ${msg.id}: ${(err as Error).message}`,

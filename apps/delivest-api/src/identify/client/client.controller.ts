@@ -30,6 +30,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { SendCodeDto } from './dto/send-code.dto.js';
 
 @ApiTags('Client (Клиенты)')
 @Controller('client')
@@ -52,6 +53,13 @@ export class ClientController {
     this.service.setRefreshCookie(res, refreshToken);
 
     return { accessToken };
+  }
+
+  @Post('send-code')
+  @ApiOperation({ summary: 'Отправить код' })
+  @ApiOkResponse({ type: TokenClientResponseDto })
+  async sendCode(@Body() dto: SendCodeDto) {
+    return this.service.sendCode(dto.phone);
   }
 
   @Post('register')

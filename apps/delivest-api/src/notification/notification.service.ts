@@ -36,6 +36,8 @@ export class NotificationService {
         DelivestEvent.AUTH_CODE_REQUESTED,
         toPrismaJson(event),
       );
+
+      return codeMessage;
     } catch (error) {
       this.logger.error(`sendAuthCode() failed: ${(error as Error).message}`);
     }

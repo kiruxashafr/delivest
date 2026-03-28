@@ -6,9 +6,16 @@ import { JwtModule } from '@nestjs/jwt';
 import { AdminClientController } from './admin-client.controller.js';
 import { OutboxModule } from '../../outbox/outbox.module.js';
 import { PrismaModule } from '../../prisma/prisma.module.js';
+import { NotificationModule } from '../../notification/notification.module.js';
 
 @Module({
-  imports: [OutboxModule, JwtModule, PrismaModule, ConfigModule],
+  imports: [
+    OutboxModule,
+    JwtModule,
+    PrismaModule,
+    ConfigModule,
+    NotificationModule,
+  ],
   controllers: [ClientController, AdminClientController],
   providers: [ClientService],
   exports: [ClientService],
