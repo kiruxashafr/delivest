@@ -23,7 +23,7 @@ export class NotificationService {
 
       const codeMessage = await this.prisma.authMessage.create({
         data: {
-          phone: phone,
+          target: phone,
           code: code,
         },
       });

@@ -1209,7 +1209,7 @@ export type OutboxMessageScalarFieldEnum = (typeof OutboxMessageScalarFieldEnum)
 
 export const AuthMessageScalarFieldEnum = {
   id: 'id',
-  phone: 'phone',
+  target: 'target',
   code: 'code',
   callId: 'callId',
   status: 'status',

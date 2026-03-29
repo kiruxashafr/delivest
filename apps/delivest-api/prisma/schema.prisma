@@ -112,7 +112,7 @@ model OutboxMessage {
 
 model AuthMessage {
   id     String  @id @default(uuid())
-  phone  String
+  target String
   code   String
   callId String? @map("call_id")
 
@@ -128,7 +128,7 @@ model AuthMessage {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
 
-  @@index([phone])
+  @@index([target])
   @@map("auth_message")
 }
 

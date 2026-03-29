@@ -5,10 +5,11 @@ import { PrismaModule } from '../prisma/prisma.module.js';
 import { SendCodeListener } from './listeners/send-code.listener.js';
 import { TelegramSmsAdapter } from './adapters/sms/telegram.adapter.js';
 import { UCallerSmsAdapter } from './adapters/sms/ucaller.adapter.js';
-import { isProd } from '../utils/env.js';
+import { isDev, isProd } from '../utils/env.js';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [OutboxModule, PrismaModule],
+  imports: [OutboxModule, PrismaModule, HttpModule],
   controllers: [],
   providers: [
     NotificationService,
@@ -19,7 +20,7 @@ import { isProd } from '../utils/env.js';
       provide: 'IAuthCodeSender',
       inject: [TelegramSmsAdapter, UCallerSmsAdapter],
       useFactory: (tg: TelegramSmsAdapter, uCaller: UCallerSmsAdapter) => {
-        const provider = isProd() ? uCaller : tg;
+        const provider = isDev() ? uCaller : tg;
         return provider;
       },
     },
