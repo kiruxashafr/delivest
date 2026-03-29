@@ -31,6 +31,7 @@ import { ForbiddenException } from '@nestjs/common/exceptions/index.js';
 import type { ClientService as ClientServiceType } from './client.service.js';
 import { AdminReadClientDto } from './dto/admin-read.dto.js';
 import { UpdateClientDto } from './dto/update.dto.js';
+import { NotificationService } from '../../notification/notification.service.js';
 
 describe('ClientService', () => {
   let service: ClientServiceType;
@@ -43,6 +44,9 @@ describe('ClientService', () => {
     typeof argon2.hash
   >;
 
+  const notificationMock = {
+    send: jest.fn<() => Promise<boolean>>().mockResolvedValue(true),
+  };
   const mockClient: Client = {
     id: '1',
     name: 'John Doe',
@@ -88,6 +92,7 @@ describe('ClientService', () => {
             }),
           },
         },
+        { provide: NotificationService, useValue: notificationMock },
         {
           provide: JwtService,
           useValue: { signAsync: jest.fn(), verifyAsync: jest.fn() },
@@ -98,7 +103,6 @@ describe('ClientService', () => {
     service = module.get<ClientServiceType>(ClientService);
     mockPrisma = module.get(PrismaService);
 
-    // Глушим логгеры
     jest.spyOn((service as any).logger, 'error').mockImplementation(() => {});
     jest.spyOn((service as any).logger, 'warn').mockImplementation(() => {});
     jest.spyOn((service as any).logger, 'log').mockImplementation(() => {});
