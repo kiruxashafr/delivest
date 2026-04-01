@@ -24,7 +24,7 @@ export interface GetClientRequest {
 
 export interface LoginClientRequest {
   phone: string;
-  password: string;
+  code: string;
 }
 
 export interface ClientResponse {

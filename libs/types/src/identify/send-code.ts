@@ -8,10 +8,10 @@ interface UCallerSuccess {
   exists: boolean;
 }
 
- export interface UCallerError {
-  status: false; 
+export interface UCallerError {
+  status: false;
   error: string;
-  code: number; 
+  code: number;
 }
 
 export type UCallerResponse = UCallerSuccess | UCallerError;
@@ -24,4 +24,3 @@ export interface UCallerInitCallRequest {
   voice?: boolean;
   mix?: boolean;
 }
-

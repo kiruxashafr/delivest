@@ -31,6 +31,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { SendCodeDto } from './dto/send-code.dto.js';
+import { SendCodeType } from '../../../generated/prisma/client.js';
 
 @ApiTags('Client (Клиенты)')
 @Controller('client')
@@ -46,7 +47,7 @@ export class ClientController {
     @Body() dto: LoginClientDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<TokenClientResponseDto> {
-    const account = await this.service.validateCredentials(dto);
+    const account = await this.service.loginByCode(dto.phone, dto.code);
     const accessToken = await this.service.generateAccessToken(account);
     const refreshToken = await this.service.generateRefreshToken(account);
 
@@ -62,7 +63,7 @@ export class ClientController {
     @Body() dto: LoginClientDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<TokenClientResponseDto> {
-    const account = await this.service.validateCredentials(dto);
+    const account = await this.service.loginByCode(dto.phone, dto.code);
     const accessToken = await this.service.generateAccessToken(account);
     const refreshToken = await this.service.generateRefreshToken(account);
 
@@ -71,11 +72,11 @@ export class ClientController {
     return { accessToken };
   }
 
-  @Post('send-code')
-  @ApiOperation({ summary: 'Отправить код' })
+  @Post('send-code-ucaller')
+  @ApiOperation({ summary: 'Отправить код через Ucaller' })
   @ApiOkResponse({ type: TokenClientResponseDto })
   async sendCode(@Body() dto: SendCodeDto) {
-    return this.service.sendCode(dto.phone);
+    return this.service.sendCode(dto.phone, SendCodeType.UCALLER);
   }
 
   @Post('register')

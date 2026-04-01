@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { IAuthCodeSender } from '@delivest/common';
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service.js';
 import {
@@ -10,9 +8,10 @@ import {
 import axios from 'axios';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { ConfigService } from '@nestjs/config';
+import { IAuthCodeSenderUCaller } from '@delivest/common';
 
 @Injectable()
-export class UCallerSmsAdapter implements IAuthCodeSender {
+export class UCallerSmsAdapter implements IAuthCodeSenderUCaller {
   private readonly logger = new Logger(UCallerSmsAdapter.name);
   private readonly initCallApiUrl = 'https://api.ucaller.ru/v1.0/initCall';
   private readonly proxyAgent: HttpsProxyAgent<string>;

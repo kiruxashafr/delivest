@@ -7,7 +7,7 @@ export const ErrorCodes = {
   ACCESS_DENIED: "ACCESS_DENIED",
   NOT_FOUND: "NOT_FOUND",
   FORBIDDEN: "FORBIDDEN",
-  
+
   // Auth ошибки
   LOGIN_FAILED: "LOGIN_FAILED",
   REFRESH_FAILED: "REFRESH_FAILED",

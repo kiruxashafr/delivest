@@ -5,7 +5,6 @@ import { Transactional } from '@nestjs-cls/transactional';
 import { SendAuthCodeEvent } from './events/send-aunt-code.event.js';
 import { DelivestEvent } from '../shared/events/types.js';
 import { toPrismaJson } from '../utils/to-prisma-json.js';
-import { ForbiddenException } from '../shared/exception/domain_exception/domain-exception.js';
 import { SendCodeType } from '../../generated/prisma/enums.js';
 
 @Injectable()
@@ -39,23 +38,6 @@ export class NotificationService {
       );
 
       return codeMessage;
-    } catch (error) {
-      this.logger.error(`sendAuthCode() failed: ${(error as Error).message}`);
-      throw error;
-    }
-  }
-
-  async checkAuthCode(target: string, code: string) {
-    try {
-      const codeMessage = await this.prisma.authMessage.findFirst({
-        where: { target },
-      });
-
-      if (code === codeMessage?.code) {
-        return;
-      } else {
-        throw new ForbiddenException();
-      }
     } catch (error) {
       this.logger.error(`sendAuthCode() failed: ${(error as Error).message}`);
       throw error;

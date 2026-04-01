@@ -2,7 +2,7 @@ import {
   AccessClientTokenPayload,
   RefreshClientTokenPayload,
 } from '@delivest/types';
-import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
@@ -15,13 +15,13 @@ import {
   BadRequestException,
   DomainException,
   DuplicateValueException,
-  InvalidCredentialsException,
+  ForbiddenException,
   NotFoundException,
   PhoneAlreadyExistsException,
   UserNotFoundException,
   UserNotRegisteredException,
 } from '../../shared/exception/domain_exception/domain-exception.js';
-import { Client } from '../../../generated/prisma/client.js';
+import { Client, SendCodeType } from '../../../generated/prisma/client.js';
 import { LoginClientDto } from './dto/login.dto.js';
 import {
   getInternalErrorCode,
@@ -261,12 +261,106 @@ export class ClientService {
     this.logger.log(`changePassword() | Client id=${id} changed password`);
   }
 
-  async sendCode(target: string) {
-    return await this.notificationService.sendAuthCode(target);
+  async sendCode(target: string, type: SendCodeType) {
+    try {
+      const client = await this.prisma.client.findUnique({
+        where: { phone: target },
+      });
+
+      if (!client) {
+        const newClient = await this.prisma.client.create({
+          data: { phone: target },
+        });
+        this.logger.log(
+          `sendCode() | New client created for phone=${target} | id=${newClient.id}`,
+        );
+      }
+
+      return await this.notificationService.sendAuthCode(target, type);
+    } catch (error: unknown) {
+      if (error instanceof DomainException) {
+        throw error;
+      }
+
+      this.logger.error(
+        `sendCode() | Error sending code to ${target}: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+
+      this.handleAccountConstraintError(error);
+    }
   }
 
-  async loginByCode(target: string, code: string) {
-    return await this.notificationService.checkAuthCode(target, code);
+  async loginByCode(target: string, code: string): Promise<Client> {
+    try {
+      const client = await this.prisma.client.findUnique({
+        where: { phone: target },
+      });
+
+      if (!client) {
+        this.logger.error(`loginByCode() | Client not found | phone=${target}`);
+        throw new NotFoundException('Client not found after code verification');
+      }
+
+      await this.checkAuthCode(target, code);
+
+      this.logger.log(`loginByCode() | Client logged in | id=${client.id}`);
+      return client;
+    } catch (error: unknown) {
+      if (error instanceof DomainException) {
+        throw error;
+      }
+      this.logger.error(
+        `loginByCode() | Unexpected error | ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+
+      throw new BadRequestException('Failed to login by code');
+    }
+  }
+
+  async checkAuthCode(target: string, code: string) {
+    try {
+      const codeMessage = await this.prisma.authMessage.findFirst({
+        where: { target: target, status: 'PENDING' },
+        orderBy: { createdAt: 'desc' },
+      });
+      if (!codeMessage) {
+        this.logger.warn(
+          `checkAuthCode() | No PENDING code found for ${target}`,
+        );
+        throw new ForbiddenException('Code not found or already used');
+      }
+
+      if (code === codeMessage?.code) {
+        await this.prisma.authMessage.update({
+          where: { id: codeMessage.id },
+          data: { status: 'VERIFIED' },
+        });
+        return;
+      }
+      const currentAttempts = codeMessage.attemptsCount + 1;
+      const isFailed = currentAttempts >= 3;
+
+      await this.prisma.authMessage.update({
+        where: { id: codeMessage.id },
+        data: {
+          attemptsCount: currentAttempts,
+          status: isFailed ? 'FAILED' : 'PENDING',
+        },
+      });
+
+      if (isFailed) {
+        this.logger.warn(
+          `checkAuthCode() | Max attempts reached for ${target}`,
+        );
+      }
+
+      throw new ForbiddenException('Invalid verification code');
+    } catch (error) {
+      this.logger.error(`checkAuthCode() failed: ${(error as Error).message}`);
+      throw error;
+    }
   }
 
   async softDelete(id: string): Promise<void> {
@@ -296,13 +390,7 @@ export class ClientService {
     if (!client.passwordHash) {
       throw new UserNotRegisteredException();
     }
-    const isPasswordValid = await argon2.verify(
-      client.passwordHash,
-      dto.password,
-    );
-    if (!isPasswordValid) {
-      throw new InvalidCredentialsException();
-    }
+
     return client;
   }
 
