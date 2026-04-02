@@ -6,7 +6,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
-import * as argon2 from 'argon2';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { toDto } from '../../utils/to-dto.js';
 import { CreateClientDto } from './dto/create.dto.js';
@@ -19,17 +18,14 @@ import {
   NotFoundException,
   PhoneAlreadyExistsException,
   UserNotFoundException,
-  UserNotRegisteredException,
 } from '../../shared/exception/domain_exception/domain-exception.js';
 import { Client, SendCodeType } from '../../../generated/prisma/client.js';
-import { LoginClientDto } from './dto/login.dto.js';
 import {
   getInternalErrorCode,
   getPrismaModelName,
   isPrismaError,
 } from '../../shared/helpers/db-errors.js';
 import { PrismaErrorCode } from '@delivest/common';
-import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { AdminReadClientDto } from './dto/admin-read.dto.js';
 import { UpdateClientDto } from './dto/update.dto.js';
 import { NotificationService } from '../../notification/notification.service.js';
@@ -159,13 +155,9 @@ export class ClientService {
 
   async create(dto: CreateClientDto): Promise<Client> {
     try {
-      const passwordHash = dto.password
-        ? await argon2.hash(dto.password)
-        : null;
       const client = await this.prisma.client.create({
         data: {
           phone: dto.phone,
-          passwordHash: passwordHash,
           name: dto.name,
         },
       });
@@ -230,35 +222,6 @@ export class ClientService {
       this.logger.warn(`refresh() | Invalid refresh token`);
       throw new BadRequestException('Invalid or expired refresh token');
     }
-  }
-
-  async changePassword(id: string, dto: ChangePasswordDto): Promise<void> {
-    const client = await this.prisma.client.findUnique({
-      where: {
-        id: id,
-      },
-    });
-    if (!client) throw new NotFoundException('Account not found');
-
-    if (!client.passwordHash) {
-      throw new UserNotRegisteredException();
-    }
-    const isOldValid = await argon2.verify(
-      client.passwordHash,
-      dto.oldPassword,
-    );
-    if (!isOldValid) {
-      this.logger.warn(`changePassword() | Invalid old password | id=${id}`);
-      throw new ForbiddenException('Invalid old password');
-    }
-
-    const newPassword = await argon2.hash(dto.newPassword);
-
-    await this.prisma.client.update({
-      where: { id: id },
-      data: { passwordHash: newPassword },
-    });
-    this.logger.log(`changePassword() | Client id=${id} changed password`);
   }
 
   async sendCode(target: string, type: SendCodeType) {
@@ -378,20 +341,6 @@ export class ClientService {
 
       this.handleAccountConstraintError(error);
     }
-  }
-
-  async validateCredentials(dto: LoginClientDto): Promise<Client> {
-    const client = await this.prisma.client.findUnique({
-      where: { phone: dto.phone },
-    });
-    if (!client) {
-      throw new NotFoundException();
-    }
-    if (!client.passwordHash) {
-      throw new UserNotRegisteredException();
-    }
-
-    return client;
   }
 
   async generateAccessToken(client: Client): Promise<string> {
