@@ -19,7 +19,6 @@ import {
   BadRequestException,
   DomainException,
   DuplicateValueException,
-  ForbiddenException,
   InvalidPhoneNumberException,
   NotFoundException,
   PhoneAlreadyExistsException,
@@ -271,7 +270,7 @@ export class ClientService {
         throw new NotFoundException('Client not found after code verification');
       }
 
-      await this.checkAuthCode(target, code);
+      await this.notificationService.checkAuthCode(target, code);
 
       this.logger.log(`loginByCode() | Client logged in | id=${client.id}`);
       return client;
@@ -288,50 +287,6 @@ export class ClientService {
     }
   }
 
-  async checkAuthCode(target: string, code: string) {
-    try {
-      const codeMessage = await this.prisma.authMessage.findFirst({
-        where: { target: target, status: 'PENDING' },
-        orderBy: { createdAt: 'desc' },
-      });
-      if (!codeMessage) {
-        this.logger.warn(
-          `checkAuthCode() | No PENDING code found for ${target}`,
-        );
-        throw new ForbiddenException('Code not found or already used');
-      }
-
-      if (code === codeMessage?.code) {
-        await this.prisma.authMessage.update({
-          where: { id: codeMessage.id },
-          data: { status: 'VERIFIED' },
-        });
-        return;
-      }
-      const currentAttempts = codeMessage.attemptsCount + 1;
-      const isFailed = currentAttempts >= 3;
-
-      await this.prisma.authMessage.update({
-        where: { id: codeMessage.id },
-        data: {
-          attemptsCount: currentAttempts,
-          status: isFailed ? 'FAILED' : 'PENDING',
-        },
-      });
-
-      if (isFailed) {
-        this.logger.warn(
-          `checkAuthCode() | Max attempts reached for ${target}`,
-        );
-      }
-
-      throw new ForbiddenException('Invalid verification code');
-    } catch (error) {
-      this.logger.error(`checkAuthCode() failed: ${(error as Error).message}`);
-      throw error;
-    }
-  }
-
   validatePhoneNumber(number: string): string {
     const defaultCountry: CountryCode = 'RU';
     try {
@@ -343,8 +298,6 @@ export class ClientService {
       if (!phoneNumber.isValid()) {
         throw new Error('Number is not valid for the detected country');
       }
-
-      this.logger.log(`Phone validated: ${phoneNumber.number}`);
 
       return phoneNumber.number;
     } catch (error) {

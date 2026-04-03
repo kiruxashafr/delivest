@@ -34,10 +34,13 @@ export class UCallerSmsAdapter implements IAuthCodeSenderUCaller {
     const authRecord = await this.prisma.authMessage.findUnique({
       where: { id: authCodeId },
     });
+    if (!authRecord) {
+      throw new Error(`Auth record with id ${authCodeId} not found`);
+    }
 
     const payload: UCallerInitCallRequest = {
-      phone: Number(authRecord?.target),
-      code: String(authRecord?.code),
+      phone: Number(authRecord.target),
+      code: String(authRecord.code),
       unique: authCodeId,
       voice: true,
     };

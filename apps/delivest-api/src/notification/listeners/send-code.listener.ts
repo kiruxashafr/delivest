@@ -45,11 +45,6 @@ export class SendCodeListener {
   }
 
   async SendAuthCodeUCaller(payload: SendAuthCodeEvent) {
-    try {
-      await this.authCodeSenderUCaller.send(payload.authCodeId);
-    } catch (err) {
-      this.logger.error(`handleSendAuthCode() | ${(err as Error).message}`);
-      return err as Error;
-    }
+    await this.authCodeSenderUCaller.send(payload.authCodeId);
   }
 }

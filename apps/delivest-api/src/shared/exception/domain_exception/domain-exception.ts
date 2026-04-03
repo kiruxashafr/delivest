@@ -108,6 +108,16 @@ export const InvalidPhoneNumberException = createException(
   HttpStatus.BAD_REQUEST,
 );
 
+export const ResendLimitExceededException = createException(
+  ErrorCodes.RESEND_LIMIT_EXCEEDED,
+  HttpStatus.BAD_REQUEST,
+);
+
+export const ResendTooFastException = createException(
+  ErrorCodes.RESEND_TOO_FAST,
+  HttpStatus.BAD_REQUEST,
+);
+
 // ========== Регистрация ==========
 export const RegistrationFailedException = createException(
   ErrorCodes.REGISTRATION_FAILED,

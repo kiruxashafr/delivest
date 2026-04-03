@@ -38,6 +38,7 @@ import { NotificationService } from '../../notification/notification.service.js'
 describe('ClientService', () => {
   let service: ClientServiceType;
   let mockPrisma: any;
+  let notificationService: NotificationService;
 
   const mockArgonVerify = argon2.verify as unknown as jest.MockedFunction<
     typeof argon2.verify
@@ -48,6 +49,7 @@ describe('ClientService', () => {
 
   const notificationMock = {
     sendAuthCode: jest.fn<any>().mockResolvedValue({ success: true }),
+    checkAuthCode: jest.fn(),
   };
 
   const mockClient: Client = {
@@ -56,7 +58,6 @@ describe('ClientService', () => {
     phone: '1234567890',
     createdAt: new Date(),
     updatedAt: new Date(),
-    passwordHash: 'hashedpassword',
     deletedAt: null,
   };
 
@@ -107,6 +108,7 @@ describe('ClientService', () => {
 
     service = module.get<ClientServiceType>(ClientService);
     mockPrisma = module.get(PrismaService);
+    notificationService = module.get<NotificationService>(NotificationService);
 
     jest.spyOn((service as any).logger, 'error').mockImplementation(() => {});
     jest.spyOn((service as any).logger, 'warn').mockImplementation(() => {});
@@ -114,104 +116,72 @@ describe('ClientService', () => {
   });
 
   describe('sendCode', () => {
-    const phone = '79991112233';
+    const rawPhone = '89161234567';
+    const normalizedPhone = '+79161234567';
 
     it('should send code to existing client', async () => {
-      mockPrisma.client.findUnique.mockResolvedValue(mockClient);
+      const validateSpy = jest
+        .spyOn(service, 'validatePhoneNumber')
+        .mockReturnValue(normalizedPhone);
 
-      await service.sendCode(phone, SendCodeType.UCALLER);
+      mockPrisma.client.findUnique.mockResolvedValue({
+        ...mockClient,
+        phone: normalizedPhone,
+      });
+
+      await service.sendCode(rawPhone, SendCodeType.UCALLER);
 
       expect(notificationMock.sendAuthCode).toHaveBeenCalledWith(
-        phone,
+        normalizedPhone,
         SendCodeType.UCALLER,
       );
+
       expect(mockPrisma.client.create).not.toHaveBeenCalled();
+      validateSpy.mockRestore();
     });
 
     it('should create new client and send code if phone not found', async () => {
-      mockPrisma.client.findUnique.mockResolvedValue(null);
-      mockPrisma.client.create.mockResolvedValue({ id: 'new-id', phone });
+      const validateSpy = jest
+        .spyOn(service, 'validatePhoneNumber')
+        .mockReturnValue(normalizedPhone);
 
-      await service.sendCode(phone, SendCodeType.UCALLER);
+      mockPrisma.client.findUnique.mockResolvedValue(null);
+      mockPrisma.client.create.mockResolvedValue({
+        id: 'new-id',
+        phone: normalizedPhone,
+      });
+
+      await service.sendCode(rawPhone, SendCodeType.UCALLER);
 
       expect(mockPrisma.client.create).toHaveBeenCalledWith({
-        data: { phone },
+        data: {
+          phone: normalizedPhone,
+          name: '',
+        },
       });
+
       expect(notificationMock.sendAuthCode).toHaveBeenCalledWith(
-        phone,
+        normalizedPhone,
         SendCodeType.UCALLER,
       );
-    });
-  });
 
-  describe('checkAuthCode', () => {
-    const phone = '79991112233';
-    const code = '1234';
-
-    it('should verify correct code', async () => {
-      mockPrisma.authMessage.findFirst.mockResolvedValue({
-        id: 'msg-1',
-        code: '1234',
-        status: 'PENDING',
-      });
-
-      await service.checkAuthCode(phone, code);
-
-      expect(mockPrisma.authMessage.update).toHaveBeenCalledWith({
-        where: { id: 'msg-1' },
-        data: { status: 'VERIFIED' },
-      });
-    });
-
-    it('should increment attempts and throw on wrong code', async () => {
-      mockPrisma.authMessage.findFirst.mockResolvedValue({
-        id: 'msg-1',
-        code: '0000',
-        attemptsCount: 0,
-        status: 'PENDING',
-      });
-
-      await expect(service.checkAuthCode(phone, code)).rejects.toThrow(
-        ForbiddenException,
-      );
-
-      expect(mockPrisma.authMessage.update).toHaveBeenCalledWith({
-        where: { id: 'msg-1' },
-        data: { attemptsCount: 1, status: 'PENDING' },
-      });
-    });
-
-    it('should set FAILED status after 3 attempts', async () => {
-      mockPrisma.authMessage.findFirst.mockResolvedValue({
-        id: 'msg-1',
-        code: '0000',
-        attemptsCount: 2,
-        status: 'PENDING',
-      });
-
-      await expect(service.checkAuthCode(phone, code)).rejects.toThrow(
-        ForbiddenException,
-      );
-
-      expect(mockPrisma.authMessage.update).toHaveBeenCalledWith({
-        where: { id: 'msg-1' },
-        data: { attemptsCount: 3, status: 'FAILED' },
-      });
+      validateSpy.mockRestore();
     });
   });
 
   describe('loginByCode', () => {
     it('should return client after successful code verification', async () => {
       mockPrisma.client.findUnique.mockResolvedValue(mockClient);
-      jest.spyOn(service, 'checkAuthCode').mockResolvedValue(undefined);
+
+      const checkSpy = jest
+        .spyOn(notificationService, 'checkAuthCode')
+        .mockResolvedValue(undefined as any); // Возвращает void
 
       const result = await service.loginByCode(mockClient.phone, '1234');
 
       expect(result).toEqual(mockClient);
-      expect(service.checkAuthCode).toHaveBeenCalledWith(
-        mockClient.phone,
-        '1234',
-      );
+
+      expect(checkSpy).toHaveBeenCalledWith(mockClient.phone, '1234');
     });
 
     it('should throw NotFoundException if client disappears', async () => {
