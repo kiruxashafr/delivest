@@ -2,11 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProductController } from './product.controller.js';
 import { ProductService } from './product.service.js';
 import { jest } from '@jest/globals';
-import { GetProductDto } from './dto/get-product.dto.js';
-import { ReadProductDto } from './dto/read-product.dto.js';
-import { FindProductsDto } from './dto/find-products.dto.js';
-import { GetProductsByCategoryDto } from './dto/get-product-by-category.dto.js';
-import { GetProductsByBranchDto } from './dto/get-product-by-branch.dto.js';
+import { GetProductDto } from './dto/find.dto.js';
+import { ReadProductDto } from './dto/read.dto.js';
+import { FindProductsByNameDto } from './dto/find-by-name.dto.js';
+import { GetProductsByCategoryDto } from './dto/find-by-category.dto.js';
+import { GetProductsByBranchDto } from './dto/find-by-branch.dto.js';
 
 describe('ProductController', () => {
   let controller: ProductController;
@@ -90,7 +90,10 @@ describe('ProductController', () => {
 
   describe('findProduct', () => {
     it('should call service.findByName with branchId and name', async () => {
-      const findDto: FindProductsDto = { branchId: 'branch-999', name: 'Марг' };
+      const findDto: FindProductsByNameDto = {
+        branchId: 'branch-999',
+        name: 'Марг',
+      };
       const mockResults = [mockResult];
       service.findByName.mockResolvedValue(mockResults);
 

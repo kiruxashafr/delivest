@@ -85,16 +85,21 @@ model Category {
 }
 
 model Product {
-  id       String  @id @default(uuid())
-  name     String
-  price    Decimal @db.Decimal(10, 2)
-  isActive Boolean @default(true)
+  id          String  @id @default(uuid())
+  name        String
+  price       Decimal @db.Decimal(10, 2)
+  isActive    Boolean @default(true)
+  description String?
 
   branch   Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
   branchId String @map("branch_id")
 
   category   Category? @relation(fields: [categoryId], references: [id])
   categoryId String?   @map("category_id")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   @@map("product")
 }
@@ -141,18 +146,26 @@ enum AuthStatus {
 
 enum Permission {
   ADMIN
+  //Работник
   STAFF_CREATE
   STAFF_READ
   STAFF_UPDATE
   STAFF_DELETE
+  //Клиент
   CLIENT_CREATE
   CLIENT_READ
   CLIENT_UPDATE
   CLIENT_DELETE
+  //Роль
   ROLE_CREATE
   ROLE_READ
   ROLE_UPDATE
   ROLE_DELETE
+  //Продукт
+  PRODUCT_CREATE
+  PRODUCT_READ
+  PRODUCT_UPDATE
+  PRODUCT_DELETE
 }
 
 enum SendCodeType {
