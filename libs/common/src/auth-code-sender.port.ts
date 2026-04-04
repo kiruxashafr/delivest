@@ -1,3 +1,3 @@
-export interface IAuthCodeSenderUCaller {
+export interface IAuthCodeSender {
   send(authCodeId: string): Promise<void>;
 }

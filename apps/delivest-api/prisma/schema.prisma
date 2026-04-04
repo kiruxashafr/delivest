@@ -169,5 +169,5 @@ enum Permission {
 }
 
 enum SendCodeType {
-  UCALLER
+  ZVONOK
 }

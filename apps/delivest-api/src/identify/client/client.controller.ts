@@ -50,11 +50,11 @@ export class ClientController {
     return { accessToken };
   }
 
-  @Post('send-code-ucaller')
-  @ApiOperation({ summary: 'Отправить код через Ucaller' })
+  @Post('send-code-zvonok')
+  @ApiOperation({ summary: 'Отправить код через Zvonok' })
   @ApiOkResponse({ type: TokenClientResponseDto })
   async sendCode(@Body() dto: SendCodeDto) {
-    return this.service.sendCode(dto.phone, SendCodeType.UCALLER);
+    return this.service.sendCode(dto.phone, SendCodeType.ZVONOK);
   }
 
   @Get('refresh')

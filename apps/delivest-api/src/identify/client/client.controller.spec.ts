@@ -73,7 +73,7 @@ describe('ClientController', () => {
   });
 
   describe('sendCode', () => {
-    it('should call service.sendCode with UCALLER type', async () => {
+    it('should call service.sendCode with Zvonok type', async () => {
       const dto = { phone: '79991234567' };
       const expectedResponse = { success: true };
 
@@ -83,7 +83,7 @@ describe('ClientController', () => {
 
       expect(service.sendCode).toHaveBeenCalledWith(
         dto.phone,
-        SendCodeType.UCALLER,
+        SendCodeType.ZVONOK,
       );
       expect(result).toEqual(expectedResponse);
     });

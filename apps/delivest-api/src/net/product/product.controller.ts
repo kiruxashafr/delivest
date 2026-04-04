@@ -18,20 +18,20 @@ import { GetProductsByCategoryDto } from './dto/find-by-category.dto.js';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Get('branch/:id')
+  @Get('branch/:branchId')
   @ApiParam({ name: 'branchId', description: 'айди филиала' })
   @ApiOperation({ summary: 'Получить все товары по айди филиала' })
-  @ApiOkResponse({ type: ReadProductDto })
-  @ApiNotFoundResponse({ description: 'Категории не найдены' })
+  @ApiOkResponse({ type: [ReadProductDto] })
+  @ApiNotFoundResponse({ description: 'Товары не найдены' })
   async getAllProductsByBranch(@Param() dto: GetProductsByBranchDto) {
     return this.productService.findAllByBranch(dto.branchId);
   }
 
-  @Get('category/:id')
+  @Get('category/:categoryId')
   @ApiParam({ name: 'categoryId', description: 'айди категории' })
   @ApiOperation({ summary: 'Получить все товары по айди категории' })
-  @ApiOkResponse({ type: ReadProductDto })
-  @ApiNotFoundResponse({ description: 'Категории не найдены' })
+  @ApiOkResponse({ type: [ReadProductDto] })
+  @ApiNotFoundResponse({ description: 'Товары не найдены' })
   async getAllProductsByCategory(@Param() dto: GetProductsByCategoryDto) {
     return this.productService.findAllByCategory(dto.categoryId);
   }
@@ -47,7 +47,7 @@ export class ProductController {
 
   @Get('search')
   @ApiOperation({ summary: 'Поиск товара' })
-  @ApiOkResponse({ type: ReadProductDto })
+  @ApiOkResponse({ type: [ReadProductDto] })
   @ApiNotFoundResponse({ description: 'Товар не найден' })
   async findProduct(@Query() dto: FindProductsByNameDto) {
     return this.productService.findByName(dto.branchId, dto.name);

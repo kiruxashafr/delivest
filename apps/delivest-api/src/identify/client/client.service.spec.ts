@@ -175,7 +175,7 @@ describe('ClientService', () => {
 
       mockTx.authMessage.findFirst.mockResolvedValue(null);
 
-      await service.sendCode(rawPhone, SendCodeType.UCALLER);
+      await service.sendCode(rawPhone, SendCodeType.ZVONOK);
 
       expect(mockTx.authMessage.create).toHaveBeenCalled();
 
@@ -200,7 +200,7 @@ describe('ClientService', () => {
       mockTx.authMessage.findFirst.mockResolvedValue(null);
       mockTx.authMessage.create.mockResolvedValue(mockAuthMessageRecord);
 
-      await service.sendCode(rawPhone, SendCodeType.UCALLER);
+      await service.sendCode(rawPhone, SendCodeType.ZVONOK);
 
       expect(mockPrisma.client.create).toHaveBeenCalledWith({
         data: { phone: normalizedPhone, name: '' },
@@ -609,7 +609,7 @@ describe('ClientService', () => {
 
         const result = await (service as any).requestAuthCode(
           target,
-          SendCodeType.UCALLER,
+          SendCodeType.ZVONOK,
         );
 
         expect(mockTx.authMessage.create).toHaveBeenCalled();
@@ -634,7 +634,7 @@ describe('ClientService', () => {
           resendCount: 1,
         });
 
-        await (service as any).requestAuthCode(target, SendCodeType.UCALLER);
+        await (service as any).requestAuthCode(target, SendCodeType.ZVONOK);
 
         expect(mockTx.authMessage.update).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -654,7 +654,7 @@ describe('ClientService', () => {
           .mockResolvedValue(recentCode);
 
         await expect(
-          (service as any).requestAuthCode(target, SendCodeType.UCALLER),
+          (service as any).requestAuthCode(target, SendCodeType.ZVONOK),
         ).rejects.toThrow(ResendTooFastException);
       });
 
@@ -669,7 +669,7 @@ describe('ClientService', () => {
           .mockResolvedValue(exhaustedCode);
 
         await expect(
-          (service as any).requestAuthCode(target, SendCodeType.UCALLER),
+          (service as any).requestAuthCode(target, SendCodeType.ZVONOK),
         ).rejects.toThrow(ResendLimitExceededException);
       });
     });

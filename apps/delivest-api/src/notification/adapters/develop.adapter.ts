@@ -1,9 +1,9 @@
-import { IAuthCodeSenderUCaller } from '@delivest/common';
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../../prisma/prisma.service.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
+import { IAuthCodeSender } from '@delivest/common';
 
 @Injectable()
-export class DevelopSmsAdapter implements IAuthCodeSenderUCaller {
+export class DevelopSmsAdapter implements IAuthCodeSender {
   private readonly logger = new Logger(DevelopSmsAdapter.name);
   constructor(private readonly prisma: PrismaService) {}
 

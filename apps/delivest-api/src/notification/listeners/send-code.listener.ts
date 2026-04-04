@@ -2,8 +2,8 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { DelivestEvent } from '../../shared/events/types.js';
 import { SendAuthCodeEvent } from '../events/send-aunt-code.event.js';
-import type { IAuthCodeSenderUCaller } from '@delivest/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import type { IAuthCodeSender } from '@delivest/common';
 
 @Injectable()
 export class SendCodeListener {
@@ -11,8 +11,8 @@ export class SendCodeListener {
   constructor(
     private readonly prisma: PrismaService,
 
-    @Inject('IAuthCodeSenderUCaller')
-    private readonly authCodeSenderUCaller: IAuthCodeSenderUCaller,
+    @Inject('IAuthCodeSender')
+    private readonly authCodeSender: IAuthCodeSender,
   ) {}
 
   @OnEvent(DelivestEvent.AUTH_CODE_REQUESTED)
@@ -30,8 +30,8 @@ export class SendCodeListener {
       }
 
       switch (message.type) {
-        case 'UCALLER':
-          await this.SendAuthCodeUCaller(payload);
+        case 'ZVONOK':
+          await this.SendAuthCode(payload);
           break;
         default:
           this.logger.warn(
@@ -44,7 +44,7 @@ export class SendCodeListener {
     }
   }
 
-  async SendAuthCodeUCaller(payload: SendAuthCodeEvent) {
-    await this.authCodeSenderUCaller.send(payload.authCodeId);
+  async SendAuthCode(payload: SendAuthCodeEvent) {
+    await this.authCodeSender.send(payload.authCodeId);
   }
 }

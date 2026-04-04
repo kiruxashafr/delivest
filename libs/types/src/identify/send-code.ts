@@ -1,26 +1,24 @@
-interface UCallerSuccess {
-  status: true;
-  ucaller_id: number;
+export interface ZvonokSuccessResponse {
+  status: "ok";
+  data: {
+    balance: string;
+    call_id: number;
+    created: string;
+    phone: string;
+    pincode: string;
+  };
+}
+
+export interface ZvonokErrorResponse {
+  status: "error";
+  data: string | Record<string, any>;
+}
+
+export type ZvonokResponse = ZvonokSuccessResponse | ZvonokErrorResponse;
+
+export interface ZvonokTellCodeParams {
+  public_key: string;
+  campaign_id: string;
   phone: string;
-  code: string;
-  client?: string;
-  unique_request_id?: string;
-  exists: boolean;
-}
-
-export interface UCallerError {
-  status: false;
-  error: string;
-  code: number;
-}
-
-export type UCallerResponse = UCallerSuccess | UCallerError;
-
-export interface UCallerInitCallRequest {
-  phone: number;
-  code?: string;
-  client?: string;
-  unique?: string;
-  voice?: boolean;
-  mix?: boolean;
+  pincode: string;
 }
