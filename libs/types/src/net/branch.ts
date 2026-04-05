@@ -25,3 +25,14 @@ export interface BranchDetailsResponce {
   updatedAt?: Date;
   deletedAt?: Date | null;
 }
+
+export type UpdateBranchRequest = Partial<CreateBranchRequest>;
+
+export interface UpdateBranchInfoRequest {
+  description?: string;
+  address?: string;
+}
+
+export interface BranchWithDetailsResponse extends BranchResponce {
+  info: BranchDetailsResponce | null;
+}

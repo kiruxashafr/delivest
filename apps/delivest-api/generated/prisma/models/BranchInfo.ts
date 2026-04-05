@@ -162,7 +162,7 @@ export type BranchInfoGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 export type BranchInfoGroupByOutputType = {
   id: string
   description: string | null
-  address: string
+  address: string | null
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -193,7 +193,7 @@ export type BranchInfoWhereInput = {
   NOT?: Prisma.BranchInfoWhereInput | Prisma.BranchInfoWhereInput[]
   id?: Prisma.StringFilter<"BranchInfo"> | string
   description?: Prisma.StringNullableFilter<"BranchInfo"> | string | null
-  address?: Prisma.StringFilter<"BranchInfo"> | string
+  address?: Prisma.StringNullableFilter<"BranchInfo"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BranchInfo"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BranchInfo"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"BranchInfo"> | Date | string | null
@@ -204,7 +204,7 @@ export type BranchInfoWhereInput = {
 export type BranchInfoOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  address?: Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -219,7 +219,7 @@ export type BranchInfoWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.BranchInfoWhereInput[]
   NOT?: Prisma.BranchInfoWhereInput | Prisma.BranchInfoWhereInput[]
   description?: Prisma.StringNullableFilter<"BranchInfo"> | string | null
-  address?: Prisma.StringFilter<"BranchInfo"> | string
+  address?: Prisma.StringNullableFilter<"BranchInfo"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BranchInfo"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BranchInfo"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"BranchInfo"> | Date | string | null
@@ -229,7 +229,7 @@ export type BranchInfoWhereUniqueInput = Prisma.AtLeast<{
 export type BranchInfoOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  address?: Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -245,7 +245,7 @@ export type BranchInfoScalarWhereWithAggregatesInput = {
   NOT?: Prisma.BranchInfoScalarWhereWithAggregatesInput | Prisma.BranchInfoScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"BranchInfo"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"BranchInfo"> | string | null
-  address?: Prisma.StringWithAggregatesFilter<"BranchInfo"> | string
+  address?: Prisma.StringNullableWithAggregatesFilter<"BranchInfo"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BranchInfo"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BranchInfo"> | Date | string
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"BranchInfo"> | Date | string | null
@@ -255,7 +255,7 @@ export type BranchInfoScalarWhereWithAggregatesInput = {
 export type BranchInfoCreateInput = {
   id?: string
   description?: string | null
-  address: string
+  address?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -265,7 +265,7 @@ export type BranchInfoCreateInput = {
 export type BranchInfoUncheckedCreateInput = {
   id?: string
   description?: string | null
-  address: string
+  address?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -275,7 +275,7 @@ export type BranchInfoUncheckedCreateInput = {
 export type BranchInfoUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -285,7 +285,7 @@ export type BranchInfoUpdateInput = {
 export type BranchInfoUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -295,7 +295,7 @@ export type BranchInfoUncheckedUpdateInput = {
 export type BranchInfoCreateManyInput = {
   id?: string
   description?: string | null
-  address: string
+  address?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -305,7 +305,7 @@ export type BranchInfoCreateManyInput = {
 export type BranchInfoUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -314,7 +314,7 @@ export type BranchInfoUpdateManyMutationInput = {
 export type BranchInfoUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -391,7 +391,7 @@ export type BranchInfoUncheckedUpdateOneWithoutBranchNestedInput = {
 export type BranchInfoCreateWithoutBranchInput = {
   id?: string
   description?: string | null
-  address: string
+  address?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -400,7 +400,7 @@ export type BranchInfoCreateWithoutBranchInput = {
 export type BranchInfoUncheckedCreateWithoutBranchInput = {
   id?: string
   description?: string | null
-  address: string
+  address?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -425,7 +425,7 @@ export type BranchInfoUpdateToOneWithWhereWithoutBranchInput = {
 export type BranchInfoUpdateWithoutBranchInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -434,7 +434,7 @@ export type BranchInfoUpdateWithoutBranchInput = {
 export type BranchInfoUncheckedUpdateWithoutBranchInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -504,7 +504,7 @@ export type $BranchInfoPayload<ExtArgs extends runtime.Types.Extensions.Internal
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     description: string | null
-    address: string
+    address: string | null
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null

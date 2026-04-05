@@ -67,7 +67,7 @@ model Branch {
 model BranchInfo {
   id          String    @id @default(uuid())
   description String?   @db.Text
-  address     String
+  address     String?
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   deletedAt   DateTime? @map("deleted_at")
@@ -97,7 +97,7 @@ model Category {
 model Product {
   id          String  @id @default(uuid())
   name        String
-  price       Decimal @db.Decimal(10, 2)
+  price       Int
   isActive    Boolean @default(true)
   description String?
 

@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString, IsUUID, Min } from 'class-validator';
 
 export class CreateCategoryDto implements CreateCategoryRequest {
-  @ApiProperty({ example: 'Пицца Маргарита' })
+  @ApiProperty({ example: 'Пицца' })
   @IsString()
   @IsNotEmpty()
   name!: string;

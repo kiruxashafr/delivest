@@ -72,12 +72,18 @@ describe('CategoryService (Comprehensive Tests)', () => {
 
     it('should throw NotFoundException if result array is empty', async () => {
       mockPrisma.category.findMany.mockResolvedValue([]);
-      await expect(service.findAllByBranch(branchId)).rejects.toThrow(NotFoundException);
+      await expect(service.findAllByBranch(branchId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should catch unknown DB errors and throw BadRequestException', async () => {
-      mockPrisma.category.findMany.mockRejectedValue(new Error('Fatal DB Error'));
-      await expect(service.findAllByBranch(branchId)).rejects.toThrow(BadRequestException);
+      mockPrisma.category.findMany.mockRejectedValue(
+        new Error('Fatal DB Error'),
+      );
+      await expect(service.findAllByBranch(branchId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -131,7 +137,9 @@ describe('CategoryService (Comprehensive Tests)', () => {
     });
 
     it('should fail if prisma.create fails', async () => {
-      mockPrisma.category.create.mockRejectedValue(new Error('Unique name error'));
+      mockPrisma.category.create.mockRejectedValue(
+        new Error('Unique name error'),
+      );
       await expect(service.create(createDto)).rejects.toThrow();
     });
   });
@@ -157,7 +165,7 @@ describe('CategoryService (Comprehensive Tests)', () => {
     });
 
     it('should throw exception if update fails (e.g. record not found)', async () => {
-      mockPrisma.category.update.mockRejectedValue(new Error('P2025')); 
+      mockPrisma.category.update.mockRejectedValue(new Error('P2025'));
       await expect(service.update(catId, updateDto)).rejects.toThrow();
     });
   });
