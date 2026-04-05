@@ -15,11 +15,6 @@ export class CreateProductDto implements CreateProductRequest {
   @IsNotEmpty()
   name!: string;
 
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  @Min(0)
-  order!: number;
-
   @ApiProperty({ example: 550 })
   @IsNumber()
   @Min(0)

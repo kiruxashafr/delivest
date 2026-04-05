@@ -13,10 +13,6 @@ export class AdminReadProductDto implements ProductResponse {
 
   @ApiProperty()
   @Expose()
-  order!: number;
-
-  @ApiProperty()
-  @Expose()
   branchId: string;
 
   @ApiProperty()

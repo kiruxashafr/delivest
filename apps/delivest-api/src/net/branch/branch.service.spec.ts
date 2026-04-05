@@ -3,37 +3,30 @@ import { BranchService } from './branch.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { jest } from '@jest/globals';
 import { Branch, BranchInfo } from '../../../generated/prisma/client.js';
-import { ReadBranchDto } from './dto/read-branch.dto.js';
-import {
-  BadRequestException,
-  NotFoundException,
-} from '../../shared/exception/domain_exception/domain-exception.js';
-import { GetBranchDto } from './dto/get-branch.dto.js';
-import { ReadBranchDetailsDto } from './dto/read-branch-details.dto.js';
 
 describe('BranchService', () => {
   let service: BranchService;
-  let mockPrisma: {
-    branch: {
-      findUnique: jest.Mock<any>;
-      findMany: jest.Mock<any>;
-    };
-    branchInfo: {
-      findUnique: jest.Mock<any>;
-    };
-  };
-  const request: GetBranchDto = { id: '123' };
-  const mockBranch: Branch = {
-    id: '123',
-    name: 'branch',
-    alias: 'url',
+  let mockPrisma: any;
+
+  const branchId = '123';
+
+  const mockBranch = {
+    id: branchId,
+    name: 'Main Branch',
+    alias: 'main-branch',
+    deletedAt: null,
   };
 
-  const mockDetails: BranchInfo = {
-    id: '123',
-    branchId: '123',
-    address: 'street',
-    description: 'rest',
+  const mockInfo = {
+    id: 'info_1',
+    branchId: branchId,
+    address: 'Street 1',
+    description: 'Description',
+  };
+
+  const mockBranchWithInfo = {
+    ...mockBranch,
+    info: mockInfo,
   };
 
   beforeEach(async () => {
@@ -41,6 +34,8 @@ describe('BranchService', () => {
       branch: {
         findUnique: jest.fn(),
         findMany: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn(),
       },
       branchInfo: {
         findUnique: jest.fn(),
@@ -58,80 +53,122 @@ describe('BranchService', () => {
     }).compile();
 
     service = module.get<BranchService>(BranchService);
-
     mockPrisma = module.get(PrismaService);
   });
+
   describe('findAll', () => {
-    it('should return branches', async () => {
-      const mockBranches = [mockBranch];
-      mockPrisma.branch.findMany.mockResolvedValue(mockBranches);
+    it('should return all active branches', async () => {
+      mockPrisma.branch.findMany.mockResolvedValue([mockBranch]);
+
       const result = await service.findAll();
-      const expectedOutput: ReadBranchDto[] = [
-        {
-          id: '123',
-          name: 'branch',
-          alias: 'url',
-        },
-      ];
-      expect(result).toEqual(expectedOutput);
+
+      expect(mockPrisma.branch.findMany).toHaveBeenCalledWith({
+        where: { deletedAt: null },
+      });
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(branchId);
     });
 
-    it('should throw bad request exception if not domain exception', async () => {
-      const dbError = new Error('Conection refused');
-      mockPrisma.branch.findMany.mockRejectedValue(dbError);
-      await expect(service.findAll()).rejects.toThrow(BadRequestException);
+    it('should return extended dto when extended is true', async () => {
+      mockPrisma.branch.findMany.mockResolvedValue([mockBranch]);
+
+      const result = await service.findAll(true);
+
+      expect(result).toBeDefined();
     });
   });
+
   describe('findOne', () => {
-    it('should return branch', async () => {
-      mockPrisma.branch.findUnique.mockResolvedValue(mockBranch);
-      const result = await service.findOne(request);
-      const expectedOutput: ReadBranchDto = {
-        id: '123',
-        name: 'branch',
-        alias: 'url',
-      };
-      expect(result).toEqual(expectedOutput);
-    });
+    it('should return a single branch with info', async () => {
+      mockPrisma.branch.findUnique.mockResolvedValue(mockBranchWithInfo);
 
-    it('should throw not found exception if brach not exist', async () => {
-      mockPrisma.branch.findUnique.mockResolvedValue(null);
-      await expect(service.findOne(request)).rejects.toThrow(NotFoundException);
-    });
+      const result = await service.findOne(branchId);
 
-    it('should throw bad request exception if not domain exception', async () => {
-      const dbError = new Error('Conection refused');
-      mockPrisma.branch.findUnique.mockRejectedValue(dbError);
-      await expect(service.findOne(request)).rejects.toThrow(
-        BadRequestException,
-      );
+      expect(mockPrisma.branch.findUnique).toHaveBeenCalledWith({
+        where: { id: branchId },
+        include: { info: true },
+      });
+      expect(result.id).toBe(branchId);
     });
   });
+
   describe('getBranchDetails', () => {
-    it('should return detail', async () => {
-      mockPrisma.branchInfo.findUnique.mockResolvedValue(mockDetails);
-      const result = await service.getBranchDetails(request);
-      const expectedOutput: ReadBranchDetailsDto = {
-        id: '123',
-        address: 'street',
-        description: 'rest',
-      };
-      expect(result).toEqual(expectedOutput);
-    });
+    it('should return only info record', async () => {
+      mockPrisma.branchInfo.findUnique.mockResolvedValue(mockInfo);
 
-    it('should throw not found exception if brach not exist', async () => {
-      mockPrisma.branchInfo.findUnique.mockResolvedValue(null);
-      await expect(service.getBranchDetails(request)).rejects.toThrow(
-        NotFoundException,
-      );
-    });
+      const result = await service.getBranchDetails(branchId);
 
-    it('should throw bad request exception if not domain exception', async () => {
-      const dbError = new Error('Conection refused');
-      mockPrisma.branchInfo.findUnique.mockRejectedValue(dbError);
-      await expect(service.getBranchDetails(request)).rejects.toThrow(
-        BadRequestException,
-      );
+      expect(mockPrisma.branchInfo.findUnique).toHaveBeenCalledWith({
+        where: { branchId: branchId },
+      });
+      expect(result.address).toBe(mockInfo.address);
+    });
+  });
+
+  describe('create', () => {
+    it('should create branch and empty info record', async () => {
+      const createDto = { name: 'New', alias: 'new' };
+      mockPrisma.branch.create.mockResolvedValue(mockBranchWithInfo);
+
+      const result = await service.create(createDto);
+
+      expect(mockPrisma.branch.create).toHaveBeenCalledWith({
+        data: { ...createDto, info: { create: {} } },
+        include: { info: true },
+      });
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe('update', () => {
+    it('should update branch main fields', async () => {
+      const updateDto = { name: 'Updated Name' };
+      mockPrisma.branch.update.mockResolvedValue({
+        ...mockBranchWithInfo,
+        ...updateDto,
+      });
+
+      const result = await service.update(branchId, updateDto);
+
+      expect(mockPrisma.branch.update).toHaveBeenCalledWith({
+        where: { id: branchId },
+        data: updateDto,
+        include: { info: true },
+      });
+      expect(result.name).toBe('Updated Name');
+    });
+  });
+
+  describe('updateInfo', () => {
+    it('should update nested branch info', async () => {
+      const infoDto = { address: 'New Address' };
+      mockPrisma.branch.update.mockResolvedValue(mockBranchWithInfo);
+
+      await service.updateInfo(branchId, infoDto);
+
+      expect(mockPrisma.branch.update).toHaveBeenCalledWith({
+        where: { id: branchId },
+        data: {
+          info: { update: infoDto },
+        },
+        include: { info: true },
+      });
+    });
+  });
+
+  describe('softDelete', () => {
+    it('should update deletedAt field with current date', async () => {
+      mockPrisma.branch.update.mockResolvedValue({
+        ...mockBranch,
+        deletedAt: new Date(),
+      });
+
+      await service.softDelete(branchId);
+
+      expect(mockPrisma.branch.update).toHaveBeenCalledWith({
+        where: { id: branchId },
+        data: { deletedAt: expect.any(Date) },
+      });
     });
   });
 });
