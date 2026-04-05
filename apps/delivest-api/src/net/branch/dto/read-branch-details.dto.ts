@@ -9,6 +9,10 @@ export class ReadBranchDetailsDto implements BranchDetailsResponce {
 
   @ApiProperty()
   @Expose()
+  branchId: string;
+
+  @ApiProperty()
+  @Expose()
   description: string;
 
   @ApiProperty()

@@ -18,7 +18,6 @@ export interface FindProductsByNameRequest {
 export interface ProductResponse {
   id: string;
   name: string;
-  order: number;
   price: number;
   branchId: string;
   categoryId?: string;
@@ -29,11 +28,10 @@ export interface ProductResponse {
 
 export interface CreateProductRequest {
   name: string;
-  order: number;
   price: number;
   branchId: string;
   categoryId?: string;
   description?: string;
 }
 
-export interface UpdateProductRequest extends Partial<CreateProductRequest> {}
+export type UpdateProductRequest = Partial<CreateProductRequest>;

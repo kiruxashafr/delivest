@@ -1,8 +1,8 @@
-import { GetBranchRequest } from '@delivest/types';
+import { FindBranchRequest } from '@delivest/types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class GetBranchDto implements GetBranchRequest {
+export class FindBranchDto implements FindBranchRequest {
   @ApiProperty({ description: 'Id филиала' })
   @IsString()
   @IsNotEmpty()
