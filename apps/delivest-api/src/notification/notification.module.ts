@@ -4,7 +4,7 @@ import { OutboxModule } from '../outbox/outbox.module.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { SendCodeListener } from './listeners/send-code.listener.js';
 import { ZvonokAuthAdapter } from './adapters/zvonok.adapter.js';
-import { isDev } from '../utils/env.js';
+import { isProd } from '../utils/env.js';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { DevelopSmsAdapter } from './adapters/develop.adapter.js';
@@ -24,7 +24,7 @@ import { AuthCleanupJob } from './workers/auth-cleanup.job.js';
       provide: 'IAuthCodeSender',
       inject: [DevelopSmsAdapter, ZvonokAuthAdapter],
       useFactory: (dev: DevelopSmsAdapter, Zvonok: ZvonokAuthAdapter) => {
-        const provider = isDev() ? Zvonok : dev;
+        const provider = isProd() ? Zvonok : dev;
         return provider;
       },
     },
