@@ -38,11 +38,6 @@ export type Role = Prisma.RoleModel
  */
 export type Branch = Prisma.BranchModel
 /**
- * Model BranchInfo
- * 
- */
-export type BranchInfo = Prisma.BranchInfoModel
-/**
  * Model Category
  * 
  */

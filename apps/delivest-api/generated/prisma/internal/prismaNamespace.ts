@@ -388,7 +388,6 @@ export const ModelName = {
   Staff: 'Staff',
   Role: 'Role',
   Branch: 'Branch',
-  BranchInfo: 'BranchInfo',
   Category: 'Category',
   Product: 'Product',
   OutboxMessage: 'OutboxMessage',
@@ -408,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "client" | "staff" | "role" | "branch" | "branchInfo" | "category" | "product" | "outboxMessage" | "authMessage"
+    modelProps: "client" | "staff" | "role" | "branch" | "category" | "product" | "outboxMessage" | "authMessage"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -705,80 +704,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.BranchCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.BranchCountAggregateOutputType> | number
-        }
-      }
-    }
-    BranchInfo: {
-      payload: Prisma.$BranchInfoPayload<ExtArgs>
-      fields: Prisma.BranchInfoFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.BranchInfoFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$BranchInfoPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.BranchInfoFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$BranchInfoPayload>
-        }
-        findFirst: {
-          args: Prisma.BranchInfoFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$BranchInfoPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.BranchInfoFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$BranchInfoPayload>
-        }
-        findMany: {
-          args: Prisma.BranchInfoFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$BranchInfoPayload>[]
-        }
-        create: {
-          args: Prisma.BranchInfoCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$BranchInfoPayload>
-        }
-        createMany: {
-          args: Prisma.BranchInfoCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.BranchInfoCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$BranchInfoPayload>[]
-        }
-        delete: {
-          args: Prisma.BranchInfoDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$BranchInfoPayload>
-        }
-        update: {
-          args: Prisma.BranchInfoUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$BranchInfoPayload>
-        }
-        deleteMany: {
-          args: Prisma.BranchInfoDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.BranchInfoUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.BranchInfoUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$BranchInfoPayload>[]
-        }
-        upsert: {
-          args: Prisma.BranchInfoUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$BranchInfoPayload>
-        }
-        aggregate: {
-          args: Prisma.BranchInfoAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateBranchInfo>
-        }
-        groupBy: {
-          args: Prisma.BranchInfoGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.BranchInfoGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.BranchInfoCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.BranchInfoCountAggregateOutputType> | number
         }
       }
     }
@@ -1159,25 +1084,14 @@ export const BranchScalarFieldEnum = {
   id: 'id',
   alias: 'alias',
   name: 'name',
+  address: 'address',
+  description: 'description',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
 } as const
 
 export type BranchScalarFieldEnum = (typeof BranchScalarFieldEnum)[keyof typeof BranchScalarFieldEnum]
-
-
-export const BranchInfoScalarFieldEnum = {
-  id: 'id',
-  description: 'description',
-  address: 'address',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  deletedAt: 'deletedAt',
-  branchId: 'branchId'
-} as const
-
-export type BranchInfoScalarFieldEnum = (typeof BranchInfoScalarFieldEnum)[keyof typeof BranchInfoScalarFieldEnum]
 
 
 export const CategoryScalarFieldEnum = {
@@ -1501,7 +1415,6 @@ export type GlobalOmitConfig = {
   staff?: Prisma.StaffOmit
   role?: Prisma.RoleOmit
   branch?: Prisma.BranchOmit
-  branchInfo?: Prisma.BranchInfoOmit
   category?: Prisma.CategoryOmit
   product?: Prisma.ProductOmit
   outboxMessage?: Prisma.OutboxMessageOmit

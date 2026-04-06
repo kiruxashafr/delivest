@@ -55,7 +55,6 @@ export const ModelName = {
   Staff: 'Staff',
   Role: 'Role',
   Branch: 'Branch',
-  BranchInfo: 'BranchInfo',
   Category: 'Category',
   Product: 'Product',
   OutboxMessage: 'OutboxMessage',
@@ -120,25 +119,14 @@ export const BranchScalarFieldEnum = {
   id: 'id',
   alias: 'alias',
   name: 'name',
+  address: 'address',
+  description: 'description',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
 } as const
 
 export type BranchScalarFieldEnum = (typeof BranchScalarFieldEnum)[keyof typeof BranchScalarFieldEnum]
-
-
-export const BranchInfoScalarFieldEnum = {
-  id: 'id',
-  description: 'description',
-  address: 'address',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  deletedAt: 'deletedAt',
-  branchId: 'branchId'
-} as const
-
-export type BranchInfoScalarFieldEnum = (typeof BranchInfoScalarFieldEnum)[keyof typeof BranchInfoScalarFieldEnum]
 
 
 export const CategoryScalarFieldEnum = {

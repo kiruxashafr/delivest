@@ -84,16 +84,6 @@ describe('AdminBranchController', () => {
     });
   });
 
-  describe('updateInfo', () => {
-    it('should call service.updateInfo with id and info dto', async () => {
-      const dto: UpdateBranchInfoDto = { address: 'New Address' };
-      service.updateInfo.mockResolvedValue({ id: branchId, info: dto } as any);
-      const result = await controller.updateInfo(branchId, dto);
-      expect(service.updateInfo).toHaveBeenCalledWith(branchId, dto);
-      expect(result.info?.address).toBe('New Address');
-    });
-  });
-
   describe('softDelete', () => {
     it('should call service.softDelete with correct id', async () => {
       service.softDelete.mockResolvedValue(undefined);
