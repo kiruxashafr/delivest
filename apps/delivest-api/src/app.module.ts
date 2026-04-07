@@ -12,6 +12,8 @@ import { OutboxModule } from './outbox/outbox.module.js';
 import { SharedModule } from './shared/shared.module.js';
 import { NotificationModule } from './notification/notification.module.js';
 import { SessionMiddleware } from './shared/middleware/session.middleware.js';
+import { RedisModule } from './redis/redis.module.js';
+import { OmsModule } from './oms/oms.module.js';
 
 @Module({
   imports: [
@@ -19,10 +21,12 @@ import { SessionMiddleware } from './shared/middleware/session.middleware.js';
     PrismaModule,
     EventEmitterModule.forRoot(),
     NetModule,
+    OmsModule,
     IdentityModule,
     OutboxModule,
     SharedModule,
     NotificationModule,
+    RedisModule,
     ClsModule.forRoot({
       global: true,
       middleware: { mount: true },

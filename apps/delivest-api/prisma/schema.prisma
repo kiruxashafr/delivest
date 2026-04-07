@@ -134,6 +134,27 @@ model AuthMessage {
   @@map("auth_message")
 }
 
+model Cart {
+  id        String     @id @default(uuid())
+  sessionId String     @unique @map("session_id")
+  items     CartItem[]
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String @id @default(uuid())
+  cartId    String @map("cart_id")
+  productId String @map("product_id")
+  quantity  Int
+  cart      Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
 enum AuthStatus {
   PENDING
   VERIFIED
