@@ -58,7 +58,8 @@ export const ModelName = {
   Category: 'Category',
   Product: 'Product',
   OutboxMessage: 'OutboxMessage',
-  AuthMessage: 'AuthMessage'
+  AuthMessage: 'AuthMessage',
+  Carts: 'Carts'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -185,6 +186,18 @@ export const AuthMessageScalarFieldEnum = {
 } as const
 
 export type AuthMessageScalarFieldEnum = (typeof AuthMessageScalarFieldEnum)[keyof typeof AuthMessageScalarFieldEnum]
+
+
+export const CartsScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  items: 'items',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type CartsScalarFieldEnum = (typeof CartsScalarFieldEnum)[keyof typeof CartsScalarFieldEnum]
 
 
 export const SortOrder = {
