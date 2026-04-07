@@ -5,7 +5,6 @@ import { BranchService } from './branch.service.js';
 import { jest } from '@jest/globals';
 import { CreateBranchDto } from './dto/create.dto.js';
 import { UpdateBranchDto } from './dto/update.dto.js';
-import { UpdateBranchInfoDto } from './dto/update-branch-info.dto.js';
 import { JwtStaffAuthGuard } from '../../identify/index.js';
 import { AclGuard } from '../../identify/acl/guards/acl.guard.js';
 

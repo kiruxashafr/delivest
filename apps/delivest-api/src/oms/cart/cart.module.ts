@@ -2,8 +2,9 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../prisma/prisma.module.js';
 import { CartService } from './cart.service.js';
 import { CartController } from './cart.controller.js';
+import { NetModule } from '../../net/net.module.js';
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, NetModule],
   providers: [CartService],
   controllers: [CartController],
   exports: [],

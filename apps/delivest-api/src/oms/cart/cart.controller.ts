@@ -43,7 +43,10 @@ export class CartController {
       );
     }
 
-    await this.cartService.addItem(sessionId, dto.productId, dto.quantity);
-    return { success: true };
+    return await this.cartService.addItem(
+      sessionId,
+      dto.productId,
+      dto.quantity,
+    );
   }
 }
