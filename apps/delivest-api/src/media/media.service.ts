@@ -22,7 +22,7 @@ import {
   FileRetrievalFailedException,
   FileUploadFailedException,
   PayloadTooLargeException,
-} from '../shared/exception/domain_exception/domain-exception.js';
+} from '../shared/exceptions/domain_exception/domain-exception.js';
 
 @Injectable()
 export class MediaService implements OnModuleInit {

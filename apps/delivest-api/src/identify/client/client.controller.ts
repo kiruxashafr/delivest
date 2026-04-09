@@ -14,7 +14,7 @@ import { ClientService } from './client.service.js';
 import { LoginClientDto } from './dto/login.dto.js';
 import type { Request, Response } from 'express';
 import { TokenClientResponseDto } from './dto/token.dto.js';
-import { MissingTokenException } from '../../shared/exception/domain_exception/domain-exception.js';
+import { MissingTokenException } from '../../shared/exceptions/domain_exception/domain-exception.js';
 import { JwtClientAuthGuard } from './guards/jwt-client.guard.js';
 import { CurrentClient } from '../../shared/decorators/current-client.decorator.js';
 import {

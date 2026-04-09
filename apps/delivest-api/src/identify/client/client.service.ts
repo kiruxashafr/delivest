@@ -35,7 +35,7 @@ import {
   ResendLimitExceededException,
   ResendTooFastException,
   UserNotFoundException,
-} from '../../shared/exception/domain_exception/domain-exception.js';
+} from '../../shared/exceptions/domain_exception/domain-exception.js';
 import {
   getInternalErrorCode,
   getPrismaModelName,

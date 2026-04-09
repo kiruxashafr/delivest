@@ -87,6 +87,7 @@ model Product {
   price       Int
   isActive    Boolean @default(true)
   description String?
+  photos      Json?   @map("photos")
 
   branch   Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
   branchId String @map("branch_id")

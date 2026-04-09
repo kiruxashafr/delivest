@@ -6,7 +6,7 @@ import {
   DomainException,
   DuplicateValueException,
   NotFoundException,
-} from '../../shared/exception/domain_exception/domain-exception.js';
+} from '../../shared/exceptions/domain_exception/domain-exception.js';
 import { toDto } from '../../utils/to-dto.js';
 import { ReadProductDto } from './dto/read.dto.js';
 import { CreateProductDto } from './dto/create.dto.js';

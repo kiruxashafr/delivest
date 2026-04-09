@@ -3,7 +3,7 @@ import { Job } from 'bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-import { PhotoJobData } from '../interface/photo-job-data.interface.js';
+import { PhotoQueuePayload } from '../interface/photo-payload.interface.js';
 import { PhotoConvertedEvent, PhotoEvent } from '../../shared/events/types.js';
 import { MediaService } from '../media.service.js';
 import sharp from 'sharp';
@@ -40,7 +40,7 @@ export class PhotoEditorProcessor extends WorkerHost {
     super();
   }
 
-  async process(job: Job<PhotoJobData>): Promise<void> {
+  async process(job: Job<PhotoQueuePayload>): Promise<void> {
     const { fileId, profile, socketId } = job.data;
     try {
       const originalBuffer = await this.mediaService.getFileBuffer(fileId);
@@ -55,14 +55,20 @@ export class PhotoEditorProcessor extends WorkerHost {
         );
       }
 
-      if (profile.width || profile.height) {
-        processor = processor.resize(profile.width, profile.height, {
-          fit: sharp.fit.inside,
+      if (profile.width && profile.height) {
+        processor = processor.resize({
+          width: profile.width,
+          height: profile.height,
+          fit: profile.fit ? sharp.fit[profile.fit] : sharp.fit.contain,
+          position: profile.position || 'centre',
+          background: profile.background || {
+            r: 255,
+            g: 255,
+            b: 255,
+            alpha: 1,
+          },
           withoutEnlargement: true,
         });
-        this.logger.log(
-          `photoWorker | Photo ${fileId} resize to width:${profile.width}, height:${profile.height}`,
-        );
       }
 
       const processedBuffer = await processor.toBuffer();
