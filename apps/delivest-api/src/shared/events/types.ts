@@ -3,8 +3,8 @@ export enum DelivestEvent {
 }
 
 export enum PhotoEvent {
-  PHOTO_CONVERTED = 'avatar.converted',
-  PHOTO_CONVERSION_FAILED = 'avatar.conversion.failed',
+  PRODUCT_PHOTO_CONVERTED = 'product.photo.converted',
+  PRODUCT_PHOTO_CONVERSION_FAILED = 'product.photo.conversion.failed',
 }
 
 export interface PhotoConvertedEvent {

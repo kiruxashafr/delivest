@@ -1,4 +1,5 @@
 import sharp from 'sharp';
+import { PhotoEvent } from '../../shared/events/types.js';
 
 export enum PhotoConvertFormat {
   JPEG = 'jpeg',
@@ -46,4 +47,5 @@ export interface PhotoQueuePayload {
   fileId: string;
   profile: PhotoProfile;
   socketId: string;
+  eventType: PhotoEvent;
 }

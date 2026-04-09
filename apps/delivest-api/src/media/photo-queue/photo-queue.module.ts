@@ -3,8 +3,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaModule } from '../../prisma/prisma.module.js';
 import { PhotoEditorProcessor } from './photo-editor.processor.js';
-import { PhotoQueueService } from './photo-queue.service.js';
 import { MediaModule } from '../media.module.js';
+import { PhotoEditorService } from './photo-editor.service.js';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { MediaModule } from '../media.module.js';
       inject: [ConfigService],
     }),
   ],
-  providers: [PhotoEditorProcessor, PhotoQueueService],
-  exports: [BullModule, PhotoQueueService],
+  providers: [PhotoEditorProcessor, PhotoEditorService],
+  exports: [BullModule, PhotoEditorService],
 })
 export class PhotoQueueModule {}

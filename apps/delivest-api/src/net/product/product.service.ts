@@ -18,11 +18,18 @@ import {
 } from '../../shared/helpers/db-errors.js';
 import { PrismaErrorCode } from '@delivest/common';
 import { UpdateProductDto } from './dto/update.dto.js';
+import { UploadFile } from '../../media/interface/upload-file.interface.js';
+import { PhotoEditorService } from '../../media/photo-queue/photo-editor.service.js';
+import { PHOTO_PROFILES } from '../../shared/helpers/photo-profiles.js';
+import { PhotoEvent } from '../../shared/events/types.js';
 
 @Injectable()
 export class ProductService {
   private readonly logger = new Logger(ProductService.name);
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly photoEditor: PhotoEditorService,
+  ) {}
 
   async findAllByBranch(branchId: string): Promise<ReadProductDto[]>;
   async findAllByBranch(
@@ -227,7 +234,28 @@ export class ProductService {
     }
   }
 
-  private handleProductConstraintError(error: unknown): never {
+  async updatePhoto(
+    file: UploadFile,
+    productId: string,
+    socketId: string,
+  ): Promise<void> {
+    try {
+      await this.photoEditor.uploadAndEditPhoto(
+        file,
+        PHOTO_PROFILES.PRODUCT_CARD,
+        socketId,
+        PhotoEvent.PRODUCT_PHOTO_CONVERTED,
+      );
+    } catch (error) {
+      this.logger.error(
+        `updatePhoto() | Error updating photo for product ${productId}: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw error;
+    }
+  }
+
+  handleProductConstraintError(error: unknown): never {
     if (error instanceof DomainException) {
       throw error;
     }

@@ -4,7 +4,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { PhotoQueuePayload } from '../interface/photo-payload.interface.js';
-import { PhotoConvertedEvent, PhotoEvent } from '../../shared/events/types.js';
+import { PhotoConvertedEvent } from '../../shared/events/types.js';
 import { MediaService } from '../media.service.js';
 import sharp from 'sharp';
 import type { Sharp } from 'sharp';
@@ -41,7 +41,7 @@ export class PhotoEditorProcessor extends WorkerHost {
   }
 
   async process(job: Job<PhotoQueuePayload>): Promise<void> {
-    const { fileId, profile, socketId } = job.data;
+    const { fileId, profile, socketId, eventType } = job.data;
     try {
       const originalBuffer = await this.mediaService.getFileBuffer(fileId);
       const fileInfo = await this.mediaService.findOne(fileId);
@@ -99,7 +99,7 @@ export class PhotoEditorProcessor extends WorkerHost {
         socketId: socketId,
       };
 
-      await this.eventEmitter.emitAsync(PhotoEvent.PHOTO_CONVERTED, resultData);
+      await this.eventEmitter.emitAsync(eventType, resultData);
     } catch (editError) {
       this.logger.error(`photoWorker | Edit is failed ${editError}`);
     }

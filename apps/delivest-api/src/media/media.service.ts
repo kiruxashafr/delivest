@@ -30,7 +30,6 @@ export class MediaService implements OnModuleInit {
   private readonly s3: S3Client;
   private readonly bucket: string;
   private readonly endpointPublic: string;
-  private readonly defaultQuota: number;
 
   constructor(
     private readonly config: ConfigService,
@@ -40,7 +39,6 @@ export class MediaService implements OnModuleInit {
     this.endpointPublic = this.config.getOrThrow<string>(
       'STORAGE_ENDPOINT_PUBLIC',
     );
-    this.defaultQuota = parseInt(config.getOrThrow('STORAGE_QUOTA_DEFAULT'));
 
     this.s3 = new S3Client({
       endpoint: config.getOrThrow<string>('STORAGE_ENDPOINT'),
