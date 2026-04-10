@@ -4,10 +4,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { PhotoQueuePayload } from '../interface/photo-payload.interface.js';
-import { PhotoConvertedEvent } from '../../shared/events/types.js';
 import { MediaService } from '../media.service.js';
 import sharp from 'sharp';
-import type { Sharp } from 'sharp';
+import {
+  PhotoConversionFailedEvent,
+  PhotoConvertedEvent,
+} from '../../shared/events/types.js';
 
 @Processor('photo-editor')
 @Injectable()
@@ -41,22 +43,22 @@ export class PhotoEditorProcessor extends WorkerHost {
   }
 
   async process(job: Job<PhotoQueuePayload>): Promise<void> {
-    const { fileId, profile, socketId, eventType } = job.data;
-    try {
-      const originalBuffer = await this.mediaService.getFileBuffer(fileId);
-      const fileInfo = await this.mediaService.findOne(fileId);
+    const { fileId, profile, socketId, eventType, failEventType } = job.data;
 
-      let processor: Sharp = sharp(originalBuffer);
+    try {
+      const fileInfo = await this.mediaService.findOne(fileId);
+      const s3Stream = await this.mediaService.getFileStream(fileId);
+
+      const transformer = sharp();
 
       if (profile.format) {
-        processor = processor.toFormat(profile.format);
-        this.logger.log(
-          `photoWorker | Photo ${fileId} convert to ${profile.format}`,
-        );
+        transformer.toFormat(profile.format, {
+          quality: profile.quality || 80,
+        });
       }
 
       if (profile.width && profile.height) {
-        processor = processor.resize({
+        transformer.resize({
           width: profile.width,
           height: profile.height,
           fit: profile.fit ? sharp.fit[profile.fit] : sharp.fit.contain,
@@ -71,11 +73,10 @@ export class PhotoEditorProcessor extends WorkerHost {
         });
       }
 
-      const processedBuffer = await processor.toBuffer();
+      const processedBuffer = await s3Stream.pipe(transformer).toBuffer();
 
       let newOriginalName = fileInfo.originalName;
       let mimeType = fileInfo.mimeType;
-
       if (profile.format) {
         const extension = this.EXTENSION_MAP[profile.format];
         mimeType = this.MIME_MAP[profile.format];
@@ -84,24 +85,33 @@ export class PhotoEditorProcessor extends WorkerHost {
           `.${extension}`,
         );
       }
-      const uploadFile = {
+
+      const convertedFile = await this.mediaService.uploadFile({
         buffer: processedBuffer,
         originalName: newOriginalName,
         mimeType: mimeType,
         size: processedBuffer.length,
-      };
+      });
 
-      const convertedFile = await this.mediaService.uploadFile(uploadFile);
-
-      const resultData: PhotoConvertedEvent = {
+      const result: PhotoConvertedEvent = {
         originalFileId: fileId,
         newFileId: convertedFile.id,
         socketId: socketId,
       };
 
-      await this.eventEmitter.emitAsync(eventType, resultData);
+      await this.eventEmitter.emitAsync(eventType, result);
     } catch (editError) {
-      this.logger.error(`photoWorker | Edit is failed ${editError}`);
+      this.logger.error(
+        `photoWorker | Edit failed for file ${fileId}`,
+        editError,
+      );
+      const errorMessage: PhotoConversionFailedEvent = {
+        fileId: fileId,
+        socketId: socketId,
+        error: (editError as Error).message,
+      };
+      await this.eventEmitter.emitAsync(failEventType, errorMessage);
+      throw editError;
     }
   }
 }

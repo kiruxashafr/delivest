@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiConsumes,
   ApiOperation,
   ApiTags,
@@ -101,6 +102,17 @@ export class AdminProductController {
       'Загружает фото продукта и ставит его на обработку (resize + конвертация)',
   })
   @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
   @RequirePermission(Permission.PRODUCT_UPDATE)
   async uploadPhoto(
@@ -112,6 +124,15 @@ export class AdminProductController {
       throw new BadRequestException('Файл не был загружен');
     }
 
-    return this.service.updatePhoto(file, productId, socketId);
+    return this.service.updatePhoto(
+      {
+        buffer: file.buffer,
+        originalName: file.originalname,
+        mimeType: file.mimetype,
+        size: file.size,
+      },
+      productId,
+      socketId,
+    );
   }
 }

@@ -48,4 +48,5 @@ export interface PhotoQueuePayload {
   profile: PhotoProfile;
   socketId: string;
   eventType: PhotoEvent;
+  failEventType: PhotoEvent;
 }

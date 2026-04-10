@@ -22,6 +22,11 @@ import { UploadFile } from '../../media/interface/upload-file.interface.js';
 import { PhotoEditorService } from '../../media/photo-queue/photo-editor.service.js';
 import { PHOTO_PROFILES } from '../../shared/helpers/photo-profiles.js';
 import { PhotoEvent } from '../../shared/events/types.js';
+import type {
+  PhotoConversionFailedEvent,
+  PhotoConvertedEvent,
+} from '../../shared/events/types.js';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class ProductService {
@@ -245,6 +250,7 @@ export class ProductService {
         PHOTO_PROFILES.PRODUCT_CARD,
         socketId,
         PhotoEvent.PRODUCT_PHOTO_CONVERTED,
+        PhotoEvent.PRODUCT_PHOTO_CONVERSION_FAILED,
       );
     } catch (error) {
       this.logger.error(
@@ -255,6 +261,21 @@ export class ProductService {
     }
   }
 
+  @OnEvent(PhotoEvent.PRODUCT_PHOTO_CONVERTED)
+  async handlePhotoConvertedEvent(event: PhotoConvertedEvent): Promise<void> {
+    this.logger.debug(
+      `handlePhotoConvertedEvent() | Received event for file ${event.newFileId}, socket ${event.socketId}`,
+    );
+  }
+
+  @OnEvent(PhotoEvent.PRODUCT_PHOTO_CONVERSION_FAILED)
+  async handlePhotoConversionFailedEvent(
+    event: PhotoConversionFailedEvent,
+  ): Promise<void> {
+    this.logger.debug(
+      `handlePhotoConversionFailedEvent() | Received conversion failed event for file ${event.fileId}, socket ${event.socketId}, error: ${event.error}`,
+    );
+  }
   handleProductConstraintError(error: unknown): never {
     if (error instanceof DomainException) {
       throw error;

@@ -125,25 +125,21 @@ export class MediaService implements OnModuleInit {
     return dto;
   }
 
-  async getFileStream(fileId: string) {
+  async getFileStream(fileId: string): Promise<Readable> {
     const file = await this.prisma.mediaFile.findUnique({
       where: { id: fileId },
     });
-    if (!file) {
-      throw new FileNotFoundException();
-    }
+
+    if (!file) throw new FileNotFoundException();
+
     try {
       const command = new GetObjectCommand({
         Bucket: file.bucket,
         Key: file.key,
       });
 
-      const item = await this.s3.send(command);
-      return {
-        stream: item.Body as Readable,
-        mimeType: file.mimeType,
-        fileName: file.originalName,
-      };
+      const response = await this.s3.send(command);
+      return response.Body as Readable;
     } catch (error) {
       this.logger.error(`getFileStream() | S3 Error for id=${fileId}`, error);
       throw new FileRetrievalFailedException();

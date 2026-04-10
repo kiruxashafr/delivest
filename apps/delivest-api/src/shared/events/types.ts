@@ -14,7 +14,6 @@ export interface PhotoConvertedEvent {
 }
 
 export interface PhotoConversionFailedEvent {
-  userId: string;
   fileId: string;
   error: string;
   socketId: string;

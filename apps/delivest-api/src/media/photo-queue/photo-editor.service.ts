@@ -29,6 +29,7 @@ export class PhotoEditorService {
     profile: PhotoProfile,
     socketId: string,
     eventType: PhotoEvent,
+    failEventType: PhotoEvent,
   ): Promise<void> {
     try {
       const savedFile = await this.mediaService.uploadFile(file);
@@ -41,6 +42,7 @@ export class PhotoEditorService {
         profile: profile,
         socketId: socketId,
         eventType: eventType,
+        failEventType: failEventType,
       };
       await this.sendToPhotoEditor(data);
     } catch (error) {
@@ -60,6 +62,7 @@ export class PhotoEditorService {
           profile: data.profile,
           socketId: data.socketId,
           eventType: data.eventType,
+          failEventType: data.failEventType,
         },
         {
           attempts: 3,
