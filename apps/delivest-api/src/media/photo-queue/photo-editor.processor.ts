@@ -1,38 +1,23 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Injectable, Logger } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 
-import { PhotoQueuePayload } from '../interface/photo-payload.interface.js';
+import { ChildPhotoQueuePayload } from '../interface/photo-payload.interface.js';
 import { MediaService } from '../media.service.js';
 import sharp from 'sharp';
-import {
-  PhotoConversionFailedEvent,
-  PhotoConvertedEvent,
-} from '../../shared/events/types.js';
 import * as mime from 'mime-types';
+import { ChildResult } from '../interface/photo-editor-result.interface.js';
 
 @Processor('photo-editor')
 @Injectable()
 export class PhotoEditorProcessor extends WorkerHost {
   private readonly logger = new Logger(PhotoEditorProcessor.name);
-  constructor(
-    private eventEmitter: EventEmitter2,
-    private readonly mediaService: MediaService,
-  ) {
+  constructor(private readonly mediaService: MediaService) {
     super();
   }
 
-  async process(job: Job<PhotoQueuePayload>): Promise<void> {
-    const {
-      fileId,
-      profile,
-      profileKey,
-      socketId,
-      eventType,
-      failEventType,
-      targetId,
-    } = job.data;
+  async process(job: Job<ChildPhotoQueuePayload>) {
+    const { fileId, profile, profileKey, targetId } = job.data;
 
     try {
       const fileInfo = await this.mediaService.findOne(fileId);
@@ -85,27 +70,23 @@ export class PhotoEditorProcessor extends WorkerHost {
         targetId,
       );
 
-      const result: PhotoConvertedEvent = {
-        targetId: job.data.targetId,
-        originalFileId: fileId,
-        newFileId: convertedFile.id,
-        profileKey: profileKey,
-        socketId: socketId,
+      const result: ChildResult = {
+        key: profileKey,
+        fileId: convertedFile.id,
+        success: true,
       };
-
-      await this.eventEmitter.emitAsync(eventType, result);
+      return result;
     } catch (editError) {
       this.logger.error(
         `photoWorker | Edit failed for file ${fileId}`,
         editError,
       );
-      const errorMessage: PhotoConversionFailedEvent = {
-        fileId: fileId,
-        socketId: socketId,
+      return {
+        key: job.data.profileKey,
+        fileId: null,
         error: (editError as Error).message,
+        success: false,
       };
-      await this.eventEmitter.emitAsync(failEventType, errorMessage);
-      throw editError;
     }
   }
 }

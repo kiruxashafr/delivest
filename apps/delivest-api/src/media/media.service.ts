@@ -245,19 +245,16 @@ export class MediaService implements OnModuleInit {
     }
   }
 
-  async upsertByKey<T extends EntityModelName>(
+  async upsertBatch<T extends EntityModelName>(
     entityName: T,
     targetId: string,
-    profileKey: string,
-    newFileId: string,
+    photos: Record<string, string>,
   ) {
     try {
       const delegate = (this.prisma as unknown as Record<T, PhotoDelegate>)[
         entityName
       ];
-      if (!delegate) {
-        throw new Error(`Prisma model "${entityName}" not found`);
-      }
+      if (!delegate) throw new Error(`Prisma model "${entityName}" not found`);
 
       const entity = await delegate.findUnique({
         where: { id: targetId },
@@ -266,37 +263,45 @@ export class MediaService implements OnModuleInit {
 
       if (!entity) {
         this.logger.warn(
-          `upsertByKey() | Entity ${entityName}:${targetId} not found`,
+          `upsertBatch() | Entity ${entityName}:${targetId} not found`,
         );
         return;
       }
-      const currentPhotos = (entity.photos as Record<string, string>) || {};
-      const oldFileId = currentPhotos[profileKey];
 
-      const updatedEntity = (await delegate.update({
+      const currentPhotos = (entity.photos as Record<string, string>) || {};
+      const oldFileIdsToDelete: string[] = [];
+
+      for (const [key, newFileId] of Object.entries(photos)) {
+        const oldId = currentPhotos[key];
+        if (oldId && oldId !== newFileId) {
+          oldFileIdsToDelete.push(oldId);
+        }
+      }
+
+      const updatedEntity = await delegate.update({
         where: { id: targetId },
         data: {
           photos: {
             ...currentPhotos,
-            [profileKey]: newFileId,
+            ...photos,
           },
         },
         select: { photos: true },
-      })) as { photos: Record<string, string> };
+      });
 
-      if (oldFileId && oldFileId !== newFileId) {
-        this.deleteFile(oldFileId).catch((err) =>
-          this.logger.error(
-            `upsertByKey() | Failed to delete old file ${oldFileId} for ${entityName}:${targetId}`,
-            err,
-          ),
+      if (oldFileIdsToDelete.length > 0) {
+        Promise.all(oldFileIdsToDelete.map((id) => this.deleteFile(id))).catch(
+          (err) => this.logger.error(`upsertBatch() | Cleanup failed`, err),
         );
       }
 
-      return updatedEntity;
+      return {
+        ...updatedEntity,
+        photos: updatedEntity.photos as Record<string, string>,
+      };
     } catch (error) {
       this.logger.error(
-        `upsertByKey() | Failed for ${entityName}:${targetId} with key ${profileKey}`,
+        `upsertBatch() | Failed for ${entityName}:${targetId}`,
         error,
       );
       throw error;

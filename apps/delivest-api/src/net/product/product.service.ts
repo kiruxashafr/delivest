@@ -21,15 +21,13 @@ import { UpdateProductDto } from './dto/update.dto.js';
 import { UploadFile } from '../../media/interface/upload-file.interface.js';
 import { PhotoEditorService } from '../../media/photo-queue/photo-editor.service.js';
 import { PhotoEvent } from '../../shared/events/types.js';
-import type {
-  PhotoConversionFailedEvent,
-  PhotoConvertedEvent,
-} from '../../shared/events/types.js';
+import type { PhotoConversionFailedEvent } from '../../shared/events/types.js';
 import { OnEvent } from '@nestjs/event-emitter';
 import { PRODUCT_PHOTO_PRESETS } from '../../media/photo-configs/presets.js';
 import { MediaService } from '../../media/media.service.js';
 import { NotificationGateway } from '../../notification/notification.gateway.js';
 import { SocketEvent } from '@delivest/types';
+import type { PhotoBatchPayload } from '../../media/interface/photo-editor-result.interface.js';
 
 @Injectable()
 export class ProductService {
@@ -268,23 +266,23 @@ export class ProductService {
   }
 
   @OnEvent(PhotoEvent.PRODUCT_PHOTO_CONVERTED)
-  async handleProductPhoto(
-    event: PhotoConvertedEvent & { profileKey: string },
-  ) {
-    const { targetId, profileKey, newFileId, socketId } = event;
+  async handleProductPhotoBatch(payload: PhotoBatchPayload) {
+    const { targetId, socketId, photos } = payload;
 
-    try {
-      const updatedProductPhoto = await this.mediaService.upsertByKey(
-        'product',
-        targetId,
-        profileKey,
-        newFileId,
-      );
+    const result = await this.mediaService.upsertBatch(
+      'product',
+      targetId,
+      photos,
+    );
+
+    if (result) {
       this.notificationGateway.server
         .to(socketId)
-        .emit(SocketEvent.PHOTO_EDIT_RESULT, updatedProductPhoto);
-    } catch (error) {
-      this.logger.error(`Update failed for ${targetId}`, error);
+        .emit(SocketEvent.PHOTO_EDIT_RESULT, {
+          success: true,
+          targetId,
+          photos: result.photos,
+        });
     }
   }
 
