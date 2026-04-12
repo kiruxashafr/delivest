@@ -24,6 +24,7 @@ import {
   PayloadTooLargeException,
 } from '../shared/exceptions/domain_exception/domain-exception.js';
 import { UploadFile } from './interface/upload-file.interface.js';
+import type { EntityModelName, PhotoDelegate } from '@delivest/types';
 
 @Injectable()
 export class MediaService implements OnModuleInit {
@@ -241,6 +242,64 @@ export class MediaService implements OnModuleInit {
         this.logger.error(`Error checking S3 bucket: ${error.message}`);
         throw error;
       }
+    }
+  }
+
+  async upsertByKey<T extends EntityModelName>(
+    entityName: T,
+    targetId: string,
+    profileKey: string,
+    newFileId: string,
+  ) {
+    try {
+      const delegate = (this.prisma as unknown as Record<T, PhotoDelegate>)[
+        entityName
+      ];
+      if (!delegate) {
+        throw new Error(`Prisma model "${entityName}" not found`);
+      }
+
+      const entity = await delegate.findUnique({
+        where: { id: targetId },
+        select: { photos: true },
+      });
+
+      if (!entity) {
+        this.logger.warn(
+          `upsertByKey() | Entity ${entityName}:${targetId} not found`,
+        );
+        return;
+      }
+      const currentPhotos = (entity.photos as Record<string, string>) || {};
+      const oldFileId = currentPhotos[profileKey];
+
+      const updatedEntity = (await delegate.update({
+        where: { id: targetId },
+        data: {
+          photos: {
+            ...currentPhotos,
+            [profileKey]: newFileId,
+          },
+        },
+        select: { photos: true },
+      })) as { photos: Record<string, string> };
+
+      if (oldFileId && oldFileId !== newFileId) {
+        this.deleteFile(oldFileId).catch((err) =>
+          this.logger.error(
+            `upsertByKey() | Failed to delete old file ${oldFileId} for ${entityName}:${targetId}`,
+            err,
+          ),
+        );
+      }
+
+      return updatedEntity;
+    } catch (error) {
+      this.logger.error(
+        `upsertByKey() | Failed for ${entityName}:${targetId} with key ${profileKey}`,
+        error,
+      );
+      throw error;
     }
   }
 }

@@ -18,7 +18,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    container_name: noted-minio
+    container_name: delivest-minio
     command: server --console-address ":9001" /data/
     ports:
       - "${STORAGE_PORT}:9000"

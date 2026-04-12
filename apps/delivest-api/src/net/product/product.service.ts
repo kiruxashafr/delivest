@@ -28,7 +28,8 @@ import type {
 import { OnEvent } from '@nestjs/event-emitter';
 import { PRODUCT_PHOTO_PRESETS } from '../../media/photo-configs/presets.js';
 import { MediaService } from '../../media/media.service.js';
-import { ProductPhotos } from '../../media/photo-configs/profiles.js';
+import { NotificationGateway } from '../../notification/notification.gateway.js';
+import { SocketEvent } from '@delivest/types';
 
 @Injectable()
 export class ProductService {
@@ -37,6 +38,7 @@ export class ProductService {
     private readonly prisma: PrismaService,
     private readonly photoEditor: PhotoEditorService,
     private readonly mediaService: MediaService,
+    private readonly notificationGateway: NotificationGateway,
   ) {}
 
   async findAllByBranch(branchId: string): Promise<ReadProductDto[]>;
@@ -269,31 +271,18 @@ export class ProductService {
   async handleProductPhoto(
     event: PhotoConvertedEvent & { profileKey: string },
   ) {
-    const { targetId, profileKey, newFileId } = event;
+    const { targetId, profileKey, newFileId, socketId } = event;
 
     try {
-      const product = await this.prisma.product.findUnique({
-        where: { id: targetId },
-        select: { photos: true },
-      });
-
-      const currentPhotos = (product?.photos as ProductPhotos) || {};
-      const oldFileId = currentPhotos[profileKey];
-
-      await this.prisma.product.update({
-        where: { id: targetId },
-        data: {
-          photos: { ...currentPhotos, [profileKey]: newFileId },
-        },
-      });
-
-      if (oldFileId && oldFileId !== newFileId) {
-        this.mediaService
-          .deleteFile(oldFileId)
-          .catch((err) =>
-            this.logger.error(`Failed to delete old resize ${oldFileId}`, err),
-          );
-      }
+      const updatedProductPhoto = await this.mediaService.upsertByKey(
+        'product',
+        targetId,
+        profileKey,
+        newFileId,
+      );
+      this.notificationGateway.server
+        .to(socketId)
+        .emit(SocketEvent.PHOTO_EDIT_RESULT, updatedProductPhoto);
     } catch (error) {
       this.logger.error(`Update failed for ${targetId}`, error);
     }
