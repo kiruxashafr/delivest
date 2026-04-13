@@ -24,7 +24,9 @@ export interface DeleteFromCartRequest {
 
 export interface CartResponse {
   id: string;
-  sessionId: string;
+  sessionId?: string | null;
+  clientId?: string | null;
+  staffId?: string | null;
   items: CartItemResponse[];
   totalPrice: number;
   totalItems: number;
