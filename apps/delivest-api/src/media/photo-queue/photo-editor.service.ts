@@ -7,9 +7,9 @@ import {
 import { MediaService } from '../media.service.js';
 import { FileUploadFailedException } from '../../shared/exceptions/domain_exception/domain-exception.js';
 import { UploadFile } from '../interface/upload-file.interface.js';
-import { PhotoEvent } from '../../shared/events/types.js';
 import { PhotoProfile } from '../photo-configs/profiles.js';
 import { PhotoKey } from '@delivest/common';
+import { DelivestEvent } from '../../shared/events/types.js';
 
 @Injectable()
 export class PhotoEditorService {
@@ -26,8 +26,8 @@ export class PhotoEditorService {
     file: UploadFile,
     configs: { profile: PhotoProfile; key: PhotoKey }[],
     socketId: string,
-    eventType: PhotoEvent,
-    failEventType: PhotoEvent,
+    eventType: DelivestEvent,
+    failEventType: DelivestEvent,
   ): Promise<void> {
     try {
       const savedFile = await this.mediaService.uploadFile(file, targetId);

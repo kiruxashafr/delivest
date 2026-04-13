@@ -5,17 +5,3 @@ export interface ChildResult {
   fileKey: string;
   success: boolean;
 }
-
-export type PhotoMap = Partial<Record<PhotoKey, string>>;
-
-export interface PhotoConversionEvent {
-  targetId: string;
-  socketId: string;
-  photos: PhotoMap;
-}
-
-export interface PhotoConversionFailedEvent {
-  fileId: string;
-  error: string;
-  socketId: string;
-}

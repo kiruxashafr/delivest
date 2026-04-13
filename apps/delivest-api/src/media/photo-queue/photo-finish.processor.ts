@@ -2,13 +2,10 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ParentPhotoQueuePayload } from '../interface/photo-payload.interface.js';
-import {
-  ChildResult,
-  PhotoConversionEvent,
-  PhotoMap,
-} from '../interface/photo-editor-result.interface.js';
+import { ChildResult } from '../interface/photo-editor-result.interface.js';
 import { Logger } from '@nestjs/common/services/index.js';
 import { PHOTO_KEYS } from '@delivest/common';
+import { PhotoConversionEvent, PhotoMap } from '../../shared/events/types.js';
 
 @Processor('photo-notifications')
 export class PhotoFinishProcessor extends WorkerHost {

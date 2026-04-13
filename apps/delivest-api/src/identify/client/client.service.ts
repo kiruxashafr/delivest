@@ -46,6 +46,11 @@ import { AdminReadClientDto } from './dto/admin-read.dto.js';
 import { CreateClientDto } from './dto/create.dto.js';
 import { ReadClientDto } from './dto/read.dto.js';
 import { UpdateClientDto } from './dto/update.dto.js';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import {
+  ClientLoggedInEvent,
+  DelivestEvent,
+} from '../../shared/events/types.js';
 
 @Injectable()
 export class ClientService {
@@ -71,6 +76,7 @@ export class ClientService {
     private readonly jwt: JwtService,
     private readonly prisma: PrismaService,
     private readonly notificationService: NotificationService,
+    private readonly eventEmitter: EventEmitter2,
   ) {
     this.accessTtl = +this.config.get<number>(
       'JWT_ACCESS_TTL_SECONDS_CLIENT',
@@ -292,6 +298,10 @@ export class ClientService {
       await this.checkAuthCode(target, code);
 
       this.logger.log(`loginByCode() | Client logged in | id=${client.id}`);
+      const payload: ClientLoggedInEvent = {
+        clientId: client.id,
+      };
+      this.eventEmitter.emit(DelivestEvent.CLIENT_LOGGED_IN, payload);
       return client;
     } catch (error: unknown) {
       if (error instanceof DomainException) {

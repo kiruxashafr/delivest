@@ -5,7 +5,6 @@ import { CartItemResponse, CartResponse } from '@delivest/types';
 import {
   Cart,
   CartItem,
-  MediaFile,
   PrismaClient,
 } from '../../../generated/prisma/client.js';
 import { NetService } from '../../net/net.service.js';
@@ -248,10 +247,9 @@ export class CartService {
       const product = products.find((p) => p.id === item.productId);
       const price = product?.price ?? 0;
 
-      const photoUrl = this.mediaService.generatePublicUrl({
-        key: product?.photos.product_card,
-        bucket: this.bucket,
-      } as MediaFile);
+      const photoUrl = this.mediaService.generatePublicUrl(
+        product?.photos.product_card ?? '',
+      );
       return {
         productId: item.productId,
         quantity: item.quantity,

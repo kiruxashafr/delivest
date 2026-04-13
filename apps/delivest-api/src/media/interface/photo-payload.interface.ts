@@ -1,13 +1,13 @@
 import { PhotoKey } from '@delivest/common';
-import { PhotoEvent } from '../../shared/events/types.js';
+import { DelivestEvent } from '../../shared/events/types.js';
 import { PhotoProfile } from '../photo-configs/profiles.js';
 
 export interface ParentPhotoQueuePayload {
   targetId: string;
   socketId: string;
   originalFileKey: string;
-  succesEventType: PhotoEvent;
-  failEventType: PhotoEvent;
+  succesEventType: DelivestEvent;
+  failEventType: DelivestEvent;
 }
 
 export interface ChildPhotoQueuePayload {
@@ -15,14 +15,4 @@ export interface ChildPhotoQueuePayload {
   originalFileId: string;
   profile: PhotoProfile;
   profileKey: PhotoKey;
-}
-
-export interface PhotoQueuePayload {
-  targetId: string;
-  fileId: string;
-  profile: PhotoProfile;
-  profileKey: string;
-  socketId: string;
-  eventType: PhotoEvent;
-  failEventType: PhotoEvent;
 }

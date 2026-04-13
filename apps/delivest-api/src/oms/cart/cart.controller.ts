@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,7 +6,6 @@ import {
   Param,
   Patch,
   Post,
-  Req,
 } from '@nestjs/common';
 
 import {
@@ -16,12 +14,11 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger/dist/decorators/index.js';
-import { COOKIE_NAMES } from '@delivest/common';
 import { CartService } from './cart.service.js';
 import { AddToCartDto } from './dto/add-item.dto.js';
-import type { Request } from 'express';
 import { IdParamDto } from './dto/id-param.dto.js';
 import { ReadCartDto } from './dto/read-cart.dto.js';
+import { SessionId } from '../../shared/decorators/session-id.decorator.js';
 
 @ApiTags('Cart (Корзина)')
 @Controller('cart')
@@ -40,8 +37,7 @@ export class CartController {
     description: 'Должен содержать session_id',
     required: true,
   })
-  async getCart(@Req() req: Request): Promise<ReadCartDto> {
-    const sessionId = this.getSessionId(req);
+  async getCart(@SessionId() sessionId: string): Promise<ReadCartDto> {
     return await this.cartService.getCart(sessionId);
   }
 
@@ -57,8 +53,7 @@ export class CartController {
     description: 'Должен содержать session_id',
     required: true,
   })
-  async addItem(@Req() req: Request, @Body() dto: AddToCartDto) {
-    const sessionId = this.getSessionId(req);
+  async addItem(@SessionId() sessionId: string, @Body() dto: AddToCartDto) {
     return await this.cartService.addItem(
       sessionId,
       dto.productId,
@@ -79,10 +74,9 @@ export class CartController {
     required: true,
   })
   async removeOne(
-    @Req() req: Request,
+    @SessionId() sessionId: string,
     @Param() params: IdParamDto,
   ): Promise<ReadCartDto> {
-    const sessionId = this.getSessionId(req);
     return await this.cartService.removeItem(
       sessionId,
       params.productId,
@@ -103,28 +97,10 @@ export class CartController {
     required: true,
   })
   async removeAll(
-    @Req() req: Request,
+    @SessionId() sessionId: string,
     @Param('productId') productId: string,
   ): Promise<ReadCartDto> {
-    const sessionId = this.getSessionId(req);
     return await this.cartService.removeItem(sessionId, productId, true);
-  }
-
-  @Post('validate')
-  @ApiOperation({ summary: 'Принудительная синхронизация и проверка цен' })
-  @ApiHeader({
-    name: 'Cookie',
-    description: 'Должен содержать session_id',
-    required: true,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Корзина успешно синхронизирована',
-    type: ReadCartDto,
-  })
-  async validate(@Req() req: Request): Promise<ReadCartDto> {
-    const sessionId = this.getSessionId(req);
-    return await this.cartService.validateCart(sessionId);
   }
 
   @Delete('clear')
@@ -138,21 +114,8 @@ export class CartController {
     status: 200,
     description: 'Корзина успешно очищена',
   })
-  async clear(@Req() req: Request) {
-    const sessionId = this.getSessionId(req);
+  async clear(@SessionId() sessionId: string) {
     await this.cartService.clearCart(sessionId);
     return { success: true, message: 'Cart cleared' };
-  }
-
-  private getSessionId(req: Request): string {
-    const sessionId = req.cookies[COOKIE_NAMES.SESSION_ID] as string;
-
-    if (!sessionId) {
-      throw new BadRequestException(
-        'Session not initialized. Please refresh page.',
-      );
-    }
-
-    return sessionId;
   }
 }

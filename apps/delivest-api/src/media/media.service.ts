@@ -14,7 +14,6 @@ import { ConfigService } from '@nestjs/config';
 import { ReadFileDto } from './dto/read-file.dto.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { toDto } from '../utils/to-dto.js';
-import { MediaFile } from '../../generated/prisma/client.js';
 import { Readable } from 'stream';
 import {
   BadRequestException,
@@ -88,7 +87,7 @@ export class MediaService implements OnModuleInit {
         },
       });
       const dto = toDto(saved, ReadFileDto);
-      dto.url = this.generatePublicUrl(saved);
+      dto.url = this.generatePublicUrl(saved.key);
 
       return dto;
     } catch (error: unknown) {
@@ -117,7 +116,7 @@ export class MediaService implements OnModuleInit {
     });
     if (!file) throw new FileNotFoundException();
     const dto = toDto(file, ReadFileDto);
-    dto.url = this.generatePublicUrl(file);
+    dto.url = this.generatePublicUrl(file.key);
     return dto;
   }
 
@@ -199,8 +198,8 @@ export class MediaService implements OnModuleInit {
     this.logger.log(`deleteFile() | Delete file ${fileId}`);
   }
 
-  generatePublicUrl(file: MediaFile): string {
-    return `${this.endpointPublic}/${this.bucket}/${file.key}`;
+  generatePublicUrl(fileKey: string): string {
+    return `${this.endpointPublic}/${this.bucket}/${fileKey}`;
   }
 
   async deleteFilesByKeys(keys: string[]) {

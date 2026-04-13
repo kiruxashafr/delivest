@@ -20,17 +20,16 @@ import { PrismaErrorCode } from '@delivest/common';
 import { UpdateProductDto } from './dto/update.dto.js';
 import { UploadFile } from '../../media/interface/upload-file.interface.js';
 import { PhotoEditorService } from '../../media/photo-queue/photo-editor.service.js';
-import { PhotoEvent } from '../../shared/events/types.js';
+import { DelivestEvent, PhotoMap } from '../../shared/events/types.js';
+import type {
+  PhotoConversionEvent,
+  PhotoConversionFailedEvent,
+} from '../../shared/events/types.js';
 import { OnEvent } from '@nestjs/event-emitter';
 import { PRODUCT_PHOTO_PRESETS } from '../../media/photo-configs/presets.js';
 import { MediaService } from '../../media/media.service.js';
 import { NotificationGateway } from '../../notification/notification.gateway.js';
 import { SocketEvent } from '@delivest/types';
-import type {
-  PhotoConversionEvent,
-  PhotoConversionFailedEvent,
-  PhotoMap,
-} from '../../media/interface/photo-editor-result.interface.js';
 
 @Injectable()
 export class ProductService {
@@ -256,8 +255,8 @@ export class ProductService {
         file,
         PRODUCT_PHOTO_PRESETS,
         socketId,
-        PhotoEvent.PRODUCT_PHOTO_CONVERTED,
-        PhotoEvent.PRODUCT_PHOTO_CONVERSION_FAILED,
+        DelivestEvent.PRODUCT_PHOTO_CONVERTED,
+        DelivestEvent.PRODUCT_PHOTO_CONVERSION_FAILED,
       );
     } catch (error) {
       this.logger.error(
@@ -268,7 +267,7 @@ export class ProductService {
     }
   }
 
-  @OnEvent(PhotoEvent.PRODUCT_PHOTO_CONVERTED)
+  @OnEvent(DelivestEvent.PRODUCT_PHOTO_CONVERTED)
   async handleProductPhotoBatch(payload: PhotoConversionEvent) {
     const { targetId, socketId, photos } = payload;
 
@@ -313,7 +312,7 @@ export class ProductService {
     }
   }
 
-  @OnEvent(PhotoEvent.PRODUCT_PHOTO_CONVERSION_FAILED)
+  @OnEvent(DelivestEvent.PRODUCT_PHOTO_CONVERSION_FAILED)
   handlePhotoConversionFailedEvent(event: PhotoConversionFailedEvent) {
     const { fileId, error } = event;
 
