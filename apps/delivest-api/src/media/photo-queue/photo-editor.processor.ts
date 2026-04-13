@@ -17,12 +17,11 @@ export class PhotoEditorProcessor extends WorkerHost {
   }
 
   async process(job: Job<ChildPhotoQueuePayload>) {
-    const { fileId, profile, profileKey, targetId } = job.data;
+    const { originalFileId, profile, profileKey, targetId } = job.data;
 
     try {
-      const fileInfo = await this.mediaService.findOne(fileId);
-      const s3Stream = await this.mediaService.getFileStream(fileId);
-
+      const fileInfo = await this.mediaService.findOne(originalFileId);
+      const s3Stream = await this.mediaService.getFileStream(originalFileId);
       const transformer = sharp();
 
       if (profile.format) {
@@ -69,16 +68,18 @@ export class PhotoEditorProcessor extends WorkerHost {
         },
         targetId,
       );
-
+      this.logger.log(
+        `photoWorker | Success: Photo processed for target[${targetId}] with profile[${profileKey}]. S3 Key: ${convertedFile.key}`,
+      );
       const result: ChildResult = {
         key: profileKey,
-        fileId: convertedFile.id,
+        fileKey: convertedFile.key,
         success: true,
       };
       return result;
     } catch (editError) {
       this.logger.error(
-        `photoWorker | Edit failed for file ${fileId}`,
+        `photoWorker | Edit failed for file ${originalFileId}`,
         editError,
       );
       return {

@@ -1,15 +1,15 @@
-export interface PhotoEditResult {
-  newFileId: string;
-}
+import { PhotoKey } from '@delivest/common';
 
 export interface ChildResult {
-  key: string;
-  fileId: string;
+  key: PhotoKey;
+  fileKey: string;
   success: boolean;
 }
+
+export type PhotoMap = Partial<Record<PhotoKey, string>>;
 
 export interface PhotoBatchPayload {
   targetId: string;
   socketId: string;
-  photos: Record<string, string>;
+  photos: PhotoMap;
 }

@@ -5,6 +5,7 @@ import { CartItemResponse, CartResponse } from '@delivest/types';
 import {
   Cart,
   CartItem,
+  MediaFile,
   PrismaClient,
 } from '../../../generated/prisma/client.js';
 import { NetService } from '../../net/net.service.js';
@@ -19,7 +20,7 @@ import { RedisService } from '../../redis/redis.service.js';
 import { Transactional, TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { MediaService } from '../../media/media.service.js';
-import { PHOTO_KEYS } from '@delivest/common';
+import { ConfigService } from '@nestjs/config/dist/index.js';
 
 export type InternalCartWithItems = Cart & {
   items: CartItem[];
@@ -28,6 +29,7 @@ export type InternalCartWithItems = Cart & {
 @Injectable()
 export class CartService {
   private readonly logger = new Logger(CartService.name);
+  private readonly bucket: string;
   private readonly CART_TTL = 5 * 24 * 60 * 60;
   private readonly CART_CACHE_PREFIX = 'cart:';
   constructor(
@@ -37,8 +39,11 @@ export class CartService {
     private readonly txHost: TransactionHost<
       TransactionalAdapterPrisma<PrismaClient>
     >,
+    private readonly config: ConfigService,
     private readonly mediaService: MediaService,
-  ) {}
+  ) {
+    this.bucket = this.config.getOrThrow<string>('STORAGE_BUCKET_NAME');
+  }
   @Transactional()
   async addItem(
     sessionId: string,
@@ -239,17 +244,14 @@ export class CartService {
     const productIds = cart.items.map((item) => item.productId);
     const products = await this.netService.getProductsByIds(productIds);
 
-    const photoUrlsMap = await this.mediaService.getEntityUrlsMap(
-      'product',
-      productIds,
-      PHOTO_KEYS.PRODUCT_CARD,
-    );
-
     const items: CartItemResponse[] = cart.items.map((item) => {
       const product = products.find((p) => p.id === item.productId);
       const price = product?.price ?? 0;
 
-      const photoUrl = photoUrlsMap[item.productId];
+      const photoUrl = this.mediaService.generatePublicUrl({
+        key: product?.photos.product_card,
+        bucket: this.bucket,
+      } as MediaFile);
       return {
         productId: item.productId,
         quantity: item.quantity,

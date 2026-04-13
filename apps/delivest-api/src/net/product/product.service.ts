@@ -27,7 +27,10 @@ import { PRODUCT_PHOTO_PRESETS } from '../../media/photo-configs/presets.js';
 import { MediaService } from '../../media/media.service.js';
 import { NotificationGateway } from '../../notification/notification.gateway.js';
 import { SocketEvent } from '@delivest/types';
-import type { PhotoBatchPayload } from '../../media/interface/photo-editor-result.interface.js';
+import type {
+  PhotoBatchPayload,
+  PhotoMap,
+} from '../../media/interface/photo-editor-result.interface.js';
 
 @Injectable()
 export class ProductService {
@@ -269,20 +272,44 @@ export class ProductService {
   async handleProductPhotoBatch(payload: PhotoBatchPayload) {
     const { targetId, socketId, photos } = payload;
 
-    const result = await this.mediaService.upsertBatch(
-      'product',
-      targetId,
-      photos,
-    );
+    try {
+      const existingProduct = await this.prisma.product.findUnique({
+        where: { id: targetId },
+        select: { photos: true },
+      });
 
-    if (result) {
+      const updatedProduct = await this.prisma.product.update({
+        where: { id: targetId },
+        data: {
+          photos,
+        },
+      });
+
+      if (existingProduct?.photos) {
+        const oldPhotos = existingProduct.photos as PhotoMap;
+        const newKeys = new Set(Object.values(photos));
+
+        const keysToDelete = Object.values(oldPhotos).filter(
+          (oldKey) => oldKey && !newKeys.has(oldKey),
+        );
+
+        if (keysToDelete.length > 0) {
+          await this.mediaService.deleteFilesByKeys(keysToDelete);
+          this.logger.log(
+            `Deleted ${keysToDelete.length} old photos for product ${targetId}`,
+          );
+        }
+      }
+
       this.notificationGateway.server
         .to(socketId)
         .emit(SocketEvent.PHOTO_EDIT_RESULT, {
           success: true,
           targetId,
-          photos: result.photos as Record<string, string>,
+          photos: updatedProduct.photos,
         });
+    } catch (error) {
+      this.logger.error(`Failed to handle photo batch for ${targetId}`, error);
     }
   }
 

@@ -1,28 +1,21 @@
-import { InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { FlowJob, FlowProducer, Queue } from 'bullmq';
+import { FlowJob, FlowProducer } from 'bullmq';
 import {
   ChildPhotoQueuePayload,
   ParentPhotoQueuePayload,
-  PhotoQueuePayload,
 } from '../interface/photo-payload.interface.js';
-import { PhotoEditResult } from '../interface/photo-editor-result.interface.js';
 import { MediaService } from '../media.service.js';
 import { FileUploadFailedException } from '../../shared/exceptions/domain_exception/domain-exception.js';
 import { UploadFile } from '../interface/upload-file.interface.js';
 import { PhotoEvent } from '../../shared/events/types.js';
 import { PhotoProfile } from '../photo-configs/profiles.js';
+import { PhotoKey } from '@delivest/common';
 
 @Injectable()
 export class PhotoEditorService {
   private readonly logger = new Logger(PhotoEditorService.name);
 
   constructor(
-    @InjectQueue('photo-editor')
-    private readonly photoEditorQueue: Queue<
-      PhotoQueuePayload,
-      PhotoEditResult
-    >,
     @Inject('PHOTO_FLOW_PRODUCER')
     private readonly flow: FlowProducer,
     private readonly mediaService: MediaService,
@@ -31,13 +24,13 @@ export class PhotoEditorService {
   async uploadAndEditMultiple(
     targetId: string,
     file: UploadFile,
-    configs: { profile: PhotoProfile; key: string }[],
+    configs: { profile: PhotoProfile; key: PhotoKey }[],
     socketId: string,
     eventType: PhotoEvent,
     failEventType: PhotoEvent,
   ): Promise<void> {
     try {
-      const savedFile = await this.mediaService.uploadFile(file, 'originals');
+      const savedFile = await this.mediaService.uploadFile(file, targetId);
 
       const flowJob: FlowJob = {
         name: 'photo-finish-hub',
@@ -45,17 +38,19 @@ export class PhotoEditorService {
         data: {
           targetId,
           socketId,
+          originalFileKey: savedFile.key,
           succesEventType: eventType,
           failEventType: failEventType,
-        } as ParentPhotoQueuePayload,
+        } satisfies ParentPhotoQueuePayload,
         children: configs.map((config) => ({
           name: 'photo-editor',
           queueName: 'photo-editor',
           data: {
-            fileId: savedFile.id,
+            originalFileId: savedFile.id,
             profile: config.profile,
             profileKey: config.key,
-          } as ChildPhotoQueuePayload,
+            targetId: targetId,
+          } satisfies ChildPhotoQueuePayload,
           opts: {
             attempts: 3,
             backoff: { type: 'exponential', delay: 2000 },
@@ -63,6 +58,7 @@ export class PhotoEditorService {
           },
         })),
       };
+
       await this.flow.add(flowJob);
 
       this.logger.log(

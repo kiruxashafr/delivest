@@ -2,44 +2,77 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ParentPhotoQueuePayload } from '../interface/photo-payload.interface.js';
-import { ChildResult } from '../interface/photo-editor-result.interface.js';
+import {
+  ChildResult,
+  PhotoBatchPayload,
+  PhotoMap,
+} from '../interface/photo-editor-result.interface.js';
+import { Logger } from '@nestjs/common/services/index.js';
+import { PHOTO_KEYS } from '@delivest/common';
 
 @Processor('photo-notifications')
 export class PhotoFinishProcessor extends WorkerHost {
+  private readonly logger = new Logger(PhotoFinishProcessor.name);
+
   constructor(private eventEmitter: EventEmitter2) {
     super();
   }
 
   async process(job: Job<ParentPhotoQueuePayload>) {
-    const { targetId, socketId, succesEventType, failEventType } = job.data;
+    const {
+      targetId,
+      socketId,
+      originalFileKey,
+      succesEventType,
+      failEventType,
+    } = job.data;
 
     const childrenValues = await job.getChildrenValues<ChildResult>();
-    const photosBatch: Record<string, string> = {};
+    const photosBatch: PhotoMap = {
+      [PHOTO_KEYS.PRODUCT_ORIGINAL]: originalFileKey,
+    };
+
+    const totalChildren = Object.keys(childrenValues).length + 1;
 
     for (const res of Object.values(childrenValues)) {
-      if (res && res.success && res.fileId) {
-        photosBatch[res.key] = res.fileId;
+      if (res && res.success && res.fileKey) {
+        photosBatch[res.key] = res.fileKey;
       }
     }
 
-    const isSuccess = Object.keys(photosBatch).length > 0;
+    const successfulCount = Object.keys(photosBatch).length;
 
-    if (isSuccess) {
-      this.eventEmitter.emit(succesEventType, {
-        targetId,
-        socketId,
-        photos: photosBatch,
-      });
+    const isFullySuccessful =
+      successfulCount === totalChildren && totalChildren > 0;
 
+    const resultPayload: PhotoBatchPayload = {
+      targetId,
+      socketId,
+      photos: photosBatch,
+    };
+
+    if (isFullySuccessful) {
+      this.logger.log(
+        `[PhotoFinishProcessor] Flow SUCCESS for target[${targetId}]. All ${successfulCount} photos processed.`,
+      );
+
+      this.eventEmitter.emit(succesEventType, resultPayload);
       return { status: 'success' };
     } else {
+      const errorMessage = `Partial failure: processed ${successfulCount} out of ${totalChildren} photos`;
+
+      this.logger.error(
+        `[PhotoFinishProcessor] Flow FAILED for target[${targetId}]. ${errorMessage}`,
+      );
+
       this.eventEmitter.emit(failEventType, {
         targetId,
         socketId,
-        message: 'All photo processing tasks failed or returned empty results',
+        message: errorMessage,
+        partialPhotos: photosBatch,
       });
 
-      return { status: 'failed' };
+      return { status: 'failed', reason: errorMessage };
     }
   }
 }
