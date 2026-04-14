@@ -177,6 +177,45 @@ export class CartService {
     }
   }
 
+  @Transactional()
+  async mergeClientCarts(sessionId: string, clientId: string) {
+    try {
+      const guestCart = await this.findGuestCart(sessionId);
+
+      if (!guestCart || guestCart.items.length === 0) {
+        await this.deleteCartFromRedis(sessionId);
+        return await this.refreshCart({ clientId });
+      }
+
+      const userCart = await this.findClientCart(sessionId);
+
+      if (userCart) {
+        await this.txHost.tx.cart.delete({
+          where: { id: userCart.id },
+        });
+      }
+
+      await this.txHost.tx.cart.update({
+        where: { id: guestCart.id },
+        data: {
+          clientId: clientId,
+          sessionId: null,
+        },
+      });
+
+      await this.deleteCartFromRedis(sessionId);
+      await this.deleteCartFromRedis(clientId);
+
+      return await this.refreshCart({ clientId });
+    } catch (error) {
+      this.logger.error(
+        `Failed to merge carts for session ${sessionId} and client ${clientId}`,
+        error,
+      );
+      throw new InternalErrorException('Failed to sync your cart.');
+    }
+  }
+
   async validateCart(ownerId: CartOwner): Promise<ReadCartDto> {
     const response = await this.refreshCart(ownerId);
 
@@ -192,7 +231,8 @@ export class CartService {
     });
 
     if (!cart) {
-      throw new NotFoundException(`Cart for session ${cacheKey} not found`);
+      if (cacheKey) await this.deleteCartFromRedis(cacheKey);
+      return this.emptyCartResponse(ownerId);
     }
 
     const response = await this.mapCartToResponse(
@@ -200,12 +240,47 @@ export class CartService {
     );
 
     if (response.items.length === 0) {
-      await this.deleteCartFromRedis(cacheKey!);
+      if (cacheKey) await this.deleteCartFromRedis(cacheKey);
     } else {
       await this.setCartToRedis(response);
     }
 
     return response;
+  }
+
+  private async findGuestCart(
+    sessionId: string,
+  ): Promise<InternalCartWithItems | null> {
+    return this.txHost.tx.cart.findUnique({
+      where: { sessionId },
+      include: { items: true },
+    });
+  }
+
+  private async findClientCart(
+    clientId: string,
+  ): Promise<InternalCartWithItems | null> {
+    return this.txHost.tx.cart.findUnique({
+      where: { clientId },
+      include: { items: true },
+    });
+  }
+
+  private emptyCartResponse(ownerId: CartOwner): ReadCartDto {
+    return toDto(
+      {
+        id: 'empty',
+        items: [],
+        totalPrice: 0,
+        totalItems: 0,
+        sessionId: ownerId.sessionId ?? null,
+        clientId: ownerId.clientId ?? null,
+        staffId: ownerId.staffId ?? null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      ReadCartDto,
+    );
   }
 
   private async setCartToRedis(cart: ReadCartDto) {
