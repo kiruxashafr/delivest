@@ -226,7 +226,26 @@ export class CartService {
     }
   }
 
-  async validateCart(ownerId: CartOwner): Promise<ReadCartDto> {
+  async validateCart(cartId: string): Promise<ReadCartDto> {
+    const cart = await this.prisma.cart.findUnique({
+      where: { id: cartId },
+      select: {
+        clientId: true,
+        sessionId: true,
+        staffId: true,
+      },
+    });
+
+    if (!cart) {
+      throw new NotFoundException(`Cart with ID ${cartId} not found`);
+    }
+
+    const ownerId: CartOwner = {
+      ...(cart.clientId && { clientId: cart.clientId }),
+      ...(cart.sessionId && { sessionId: cart.sessionId }),
+      ...(cart.staffId && { staffId: cart.staffId }),
+    };
+
     const response = await this.refreshCart(ownerId);
 
     return toDto(response, ReadCartDto);

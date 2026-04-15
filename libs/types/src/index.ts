@@ -8,3 +8,4 @@ export * from "./identify/send-code.js";
 export * from "./oms/cart.js";
 export * from "./media/media.js";
 export * from "./event/socket.event.js";
+export * from "./oms/order.js";

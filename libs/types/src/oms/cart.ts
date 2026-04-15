@@ -1,8 +1,3 @@
-export interface CartItem {
-  productId: string;
-  quantity: number;
-}
-
 export interface CartItemResponse {
   productId: string;
   quantity: number;
