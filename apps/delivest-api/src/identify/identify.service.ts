@@ -2,11 +2,20 @@ import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import * as argon2 from 'argon2';
 import { Permission } from '../../generated/prisma/enums.js';
+import { CreateClientDto } from './client/dto/create.dto.js';
+import { ClientService } from './client/client.service.js';
 
 @Injectable()
 export class IdentityService implements OnApplicationBootstrap {
   private readonly logger = new Logger(IdentityService.name);
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly clientService: ClientService,
+  ) {}
+
+  async createProfileIfNotExist(dto: CreateClientDto) {
+    return await this.clientService.create(dto);
+  }
   async onApplicationBootstrap() {
     await this.seedAdmin();
   }

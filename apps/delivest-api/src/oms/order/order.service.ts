@@ -5,6 +5,7 @@ import { NetService } from '../../net/net.service.js';
 import {
   BadRequestException,
   InternalErrorException,
+  NotFoundException,
 } from '../../shared/exceptions/domain_exception/domain-exception.js';
 import { ReadCartDto } from '../cart/dto/read-cart.dto.js';
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
@@ -12,11 +13,12 @@ import { ConfigService } from '@nestjs/config';
 import { OrderValidationPayload, ValidateOrderRequest } from '@delivest/types';
 import { Transactional, TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
-import { PrismaClient } from '../../../generated/prisma/client.js';
+import { OrderStatus, PrismaClient } from '../../../generated/prisma/client.js';
 import { type ICreateOrderInternal } from './interfaces/create.interface.js';
 import { toDto } from '../../utils/to-dto.js';
 import { ReadOrderDto } from './dto/read.dto.js';
 import { ReadValidateOrderDto } from './dto/read-validate.dto.js';
+import { OrderStatusContext } from './order-status.context.js';
 
 @Injectable()
 export class OrderService {
@@ -33,6 +35,7 @@ export class OrderService {
     private readonly txHost: TransactionHost<
       TransactionalAdapterPrisma<PrismaClient>
     >,
+    private readonly statusContext: OrderStatusContext,
   ) {
     this.validationSecret = this.config.getOrThrow<string>(
       'ORDER_VALIDATION_SECRET',
@@ -81,6 +84,8 @@ export class OrderService {
 
         await this.cartService.deleteCart(cart.id);
 
+        await this.statusContext.execute(order);
+
         this.logger.log(`Order #${order.orderNumber} created successfully`);
 
         return toDto(order, ReadOrderDto);
@@ -90,6 +95,45 @@ export class OrderService {
       throw new InternalErrorException(
         'Не удалось сохранить заказ. Попробуйте позже.',
       );
+    }
+  }
+
+  @Transactional()
+  async updateStatus(id: string, newStatus: OrderStatus) {
+    const order = await this.txHost.tx.order.findUnique({
+      where: { id },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${id} not found`);
+    }
+
+    if (order.status === newStatus) {
+      return toDto(order, ReadOrderDto);
+    }
+
+    try {
+      const updatedOrder = await this.txHost.tx.order.update({
+        where: { id },
+        data: { status: newStatus },
+        include: {
+          items: true,
+        },
+      });
+
+      this.logger.log(
+        `updateStatus() | Order #${updatedOrder.orderNumber} status changed: ${order.status} -> ${newStatus}`,
+      );
+
+      await this.statusContext.execute(updatedOrder);
+
+      return toDto(updatedOrder, ReadOrderDto);
+    } catch (error) {
+      this.logger.error(
+        `updateStatus() | Failed to update status for order #${id}`,
+        error,
+      );
+      throw new InternalErrorException('Не удалось обновить статус заказа');
     }
   }
   async validateOrder(dto: ValidateOrderRequest) {
