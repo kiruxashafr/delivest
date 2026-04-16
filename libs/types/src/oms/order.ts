@@ -44,3 +44,8 @@ export interface OrderResponse {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface UpdateOrderStatusRequest {
+  orderId: string;
+  status: OrderStatus;
+}

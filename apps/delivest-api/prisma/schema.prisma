@@ -175,40 +175,44 @@ model MediaFile {
 
 model Order {
   id          String @id @default(uuid())
-  orderNumber Int    @unique @default(autoincrement())
+  orderNumber Int    @unique @default(autoincrement()) @map("order_number")
 
-  clientId String?
-  staffId  String?
+  clientId String? @map("client_id")
+  staffId  String? @map("staff_id")
 
   status       OrderStatus  @default(PENDING)
-  deliveryType DeliveryType
+  deliveryType DeliveryType @map("delivery_type")
 
-  totalPrice    Int
-  deliveryPrice Int @default(0)
+  totalPrice    Int @map("total_price")
+  deliveryPrice Int @default(0) @map("delivery_price")
 
   address String?
   comment String?
   phone   String
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   items OrderItem[]
+
+  @@map("orders")
 }
 
 model OrderItem {
   id      String @id @default(uuid())
-  orderId String
+  orderId String @map("order_id")
   order   Order  @relation(fields: [orderId], references: [id])
 
-  productId String
+  productId String @map("product_id")
 
   title    String
-  price    Decimal
+  price    Int
   quantity Int
 
   modifiers Json?
+
+  @@map("order_items")
 }
 
 enum DeliveryType {

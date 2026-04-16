@@ -1,6 +1,7 @@
 import { Body, Controller, Patch, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiHeader,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -15,14 +16,19 @@ import { CreateOrderDto } from './dto/create.dto.js';
 import { ValidateOrderDto } from './dto/validate.dto.js';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto.js';
 
-@ApiTags('Orders (Заказы)')
+@ApiTags('Admin-orders (Заказы-crm)')
 @UseGuards(OptionalJwtClientAuthGuard)
-@ApiBearerAuth('client-auth')
+@ApiHeader({
+  name: 'Cookie',
+  description: 'Может содержать session_id для неавторизованных пользователей',
+  required: false,
+})
 @Controller('orders')
-export class OrderController {
+export class AdminOrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post('validate')
+  @ApiBearerAuth('client-auth')
   @ApiOperation({
     summary: 'Валидация корзины перед созданием заказа (получение токена)',
   })
@@ -38,6 +44,7 @@ export class OrderController {
   }
 
   @Post()
+  @ApiBearerAuth('client-auth')
   @ApiOperation({ summary: 'Создать новый заказ' })
   @ApiResponse({
     status: 201,
@@ -45,12 +52,12 @@ export class OrderController {
     type: ReadOrderDto,
   })
   async createOrder(
-    @CurrentClient('sub') authClientId: string,
+    @CurrentClient('sub') clientId: string,
     @Body() dto: CreateOrderDto,
   ): Promise<ReadOrderDto> {
     return await this.orderService.createOrder({
       ...dto,
-      clientId: authClientId,
+      clientId,
       status: OrderStatus.PENDING,
     });
   }

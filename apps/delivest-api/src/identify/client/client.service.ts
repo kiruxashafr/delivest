@@ -189,7 +189,7 @@ export class ClientService {
 
   async create(dto: CreateClientDto): Promise<Client> {
     try {
-      const client = await this.prisma.client.upsert({
+      const client = await this.txHost.tx.client.upsert({
         where: { phone: dto.phone },
         update: {},
         create: {

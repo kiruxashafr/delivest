@@ -258,13 +258,13 @@ export class CartService {
 
   async deleteCart(cartId: string) {
     try {
-      const cart = await this.prisma.cart.findUnique({
+      const cart = await this.txHost.tx.cart.findUnique({
         where: { id: cartId },
       });
 
       if (!cart) return;
 
-      await this.prisma.cart.delete({
+      await this.txHost.tx.cart.delete({
         where: { id: cartId },
       });
 

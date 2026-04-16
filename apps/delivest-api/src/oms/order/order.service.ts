@@ -127,7 +127,12 @@ export class OrderService {
 
       await this.statusContext.execute(updatedOrder);
 
-      return toDto(updatedOrder, ReadOrderDto);
+      const finalOrder = await this.txHost.tx.order.findUniqueOrThrow({
+        where: { id },
+        include: { items: true },
+      });
+
+      return toDto(finalOrder, ReadOrderDto);
     } catch (error) {
       this.logger.error(
         `updateStatus() | Failed to update status for order #${id}`,
