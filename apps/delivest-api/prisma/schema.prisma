@@ -21,6 +21,7 @@ model Client {
 
 model Staff {
   id           String  @id @default(uuid())
+  branchId     String  @map("branch_id")
   login        String  @unique
   passwordHash String  @map("password_hash")
   name         String?

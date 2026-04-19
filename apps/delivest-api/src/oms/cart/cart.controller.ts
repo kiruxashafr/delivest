@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Patch,
   Post,
   UseGuards,
@@ -58,7 +57,11 @@ export class CartController {
     @CurrentCartOwner() owner: CartOwner,
     @Body() dto: AddToCartDto,
   ): Promise<ReadCartDto> {
-    return await this.cartService.addItem(owner, dto.productId, dto.quantity);
+    return await this.cartService.addItem(
+      dto.cartId,
+      dto.productId,
+      dto.quantity,
+    );
   }
 
   @Patch('remove')
@@ -73,24 +76,10 @@ export class CartController {
     @Body() dto: RemoveFromCartDto,
   ): Promise<ReadCartDto> {
     return await this.cartService.removeItem(
-      owner,
+      dto.cartId,
       dto.productId,
       dto.deleteAll,
     );
-  }
-
-  @Delete('item/:productId')
-  @ApiOperation({ summary: 'Полностью удалить позицию из корзины' })
-  @ApiResponse({
-    status: 200,
-    description: 'Товар успешно удален',
-    type: ReadCartDto,
-  })
-  async removeAll(
-    @CurrentCartOwner() owner: CartOwner,
-    @Param('productId') productId: string,
-  ): Promise<ReadCartDto> {
-    return await this.cartService.removeItem(owner, productId, true);
   }
 
   @Delete('clear')

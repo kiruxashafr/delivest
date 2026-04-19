@@ -51,7 +51,7 @@ export class CartService {
   }
   @Transactional()
   async addItem(
-    ownerId: CartOwner,
+    cartId: string,
     productId: string,
     quantity: number,
   ): Promise<ReadCartDto> {
@@ -61,17 +61,10 @@ export class CartService {
         throw new NotFoundException(`Product with ID ${productId} not found`);
       }
 
-      const where = ownerId as Prisma.CartWhereUniqueInput;
-
-      const cart = await this.txHost.tx.cart.upsert({
-        where,
-        update: {},
-        create: ownerId,
-      });
       await this.txHost.tx.cartItem.upsert({
         where: {
           cartId_productId: {
-            cartId: cart.id,
+            cartId: cartId,
             productId: productId,
           },
         },
@@ -79,21 +72,19 @@ export class CartService {
           quantity: { increment: quantity },
         },
         create: {
-          cartId: cart.id,
+          cartId: cartId,
           productId: productId,
           quantity: quantity,
         },
       });
 
-      return toDto(await this.refreshCart(ownerId), ReadCartDto);
+      return toDto(await this.refreshCart(cartId), ReadCartDto);
     } catch (error) {
       if (error instanceof DomainException) {
         throw error;
       }
-      const cacheKey = ownerId.clientId || ownerId.staffId || ownerId.sessionId;
-
       this.logger.error(
-        `Failed to add item ${productId} to cart for owner ${cacheKey}`,
+        `Failed to add item ${productId} to cart ${cartId}`,
         error,
       );
       throw new InternalErrorException(
@@ -103,15 +94,14 @@ export class CartService {
   }
 
   async removeItem(
-    ownerId: CartOwner,
+    cartId: string,
     productId: string,
     deleteAll: boolean = false,
   ) {
     try {
-      const cartWhere = ownerId as Prisma.CartWhereUniqueInput;
       const cartItem = await this.prisma.cartItem.findFirst({
         where: {
-          cart: cartWhere,
+          cartId: cartId,
           productId,
         },
       });
@@ -133,7 +123,7 @@ export class CartService {
         });
       }
 
-      return toDto(await this.refreshCart(ownerId), ReadCartDto);
+      return toDto(await this.refreshCart(cartId), ReadCartDto);
     } catch (error) {
       this.logger.error(
         `Failed to remove item ${productId}`,
@@ -144,19 +134,20 @@ export class CartService {
   }
 
   async getCart(ownerId: CartOwner): Promise<ReadCartDto> {
-    const cartWhere = ownerId as Prisma.CartWhereUniqueInput;
+    const where = ownerId as Prisma.CartWhereUniqueInput;
 
-    const cart = await this.prisma.cart.findFirst({
-      where: cartWhere,
+    const cart = await this.prisma.cart.upsert({
+      where,
+      create: ownerId,
+      update: {},
     });
-    if (cart?.id) {
-      const cachedCart = await this.getCartFromRedis(cart?.id);
-      if (cachedCart) {
-        return toDto(cachedCart, ReadCartDto);
-      }
+
+    const cachedCart = await this.getCartFromRedis(cart.id);
+    if (cachedCart) {
+      return toDto(cachedCart, ReadCartDto);
     }
 
-    return toDto(await this.refreshCart(ownerId), ReadCartDto);
+    return this.refreshCart(cart.id);
   }
 
   async clearCart(ownerId: CartOwner) {
@@ -192,36 +183,37 @@ export class CartService {
       const guestCart = await this.findGuestCart(sessionId);
 
       if (!guestCart || guestCart.items.length === 0) {
-        return await this.refreshCart({ clientId });
+        const cart = await this.txHost.tx.cart.upsert({
+          where: { clientId },
+          create: { clientId },
+          update: {},
+        });
+
+        return await this.refreshCart(cart.id);
       }
 
       const clientCart = await this.findClientCart(clientId);
 
       if (clientCart) {
-        await this.txHost.tx.cart.delete({
-          where: { id: clientCart.id },
-        });
+        await this.txHost.tx.cart.delete({ where: { id: clientCart.id } });
+        await this.deleteCartFromRedis(clientCart.id);
       }
 
-      await this.txHost.tx.cart.update({
+      const updatedCart = await this.txHost.tx.cart.update({
         where: { id: guestCart.id },
         data: {
           clientId: clientId,
           sessionId: null,
         },
       });
-      if (clientCart?.id) {
-        await this.deleteCartFromRedis(clientCart.id);
-      }
-      if (guestCart?.id) {
-        await this.deleteCartFromRedis(guestCart.id);
-      }
+
+      await this.deleteCartFromRedis(guestCart.id);
+
       this.logger.log(
-        `Cart merged: session ${sessionId} -> client ${clientId}. `,
+        `Cart merged: session ${sessionId} -> client ${clientId}`,
       );
 
-      const newCart = await this.refreshCart({ clientId });
-      return toDto(newCart, ReadCartDto);
+      return await this.refreshCart(updatedCart.id);
     } catch (error) {
       this.logger.error(
         `Failed to merge carts for session ${sessionId} and client ${clientId}`,
@@ -245,13 +237,7 @@ export class CartService {
       throw new NotFoundException(`Cart with ID ${cartId} not found`);
     }
 
-    const ownerId: CartOwner = {
-      ...(cart.clientId && { clientId: cart.clientId }),
-      ...(cart.sessionId && { sessionId: cart.sessionId }),
-      ...(cart.staffId && { staffId: cart.staffId }),
-    };
-
-    const response = await this.refreshCart(ownerId);
+    const response = await this.refreshCart(cartId);
 
     return toDto(response, ReadCartDto);
   }
@@ -279,16 +265,14 @@ export class CartService {
     }
   }
 
-  private async refreshCart(ownerId: CartOwner) {
-    const where = ownerId as Prisma.CartWhereUniqueInput;
-    const cacheKey = ownerId.clientId || ownerId.staffId || ownerId.sessionId;
+  private async refreshCart(cartId: string) {
     const cart = await this.txHost.tx.cart.findUnique({
-      where,
+      where: { id: cartId },
       include: { items: true },
     });
 
     if (!cart) {
-      return this.emptyCartResponse(ownerId);
+      throw new NotFoundException(`Cart with ID ${cartId} not found`);
     }
 
     const response = await this.mapCartToResponse(
@@ -296,7 +280,7 @@ export class CartService {
     );
 
     if (response.items.length === 0) {
-      if (cacheKey) await this.deleteCartFromRedis(cart.id);
+      await this.deleteCartFromRedis(cart.id);
     } else {
       await this.setCartToRedis(response);
     }
@@ -320,23 +304,6 @@ export class CartService {
       where: { clientId },
       include: { items: true },
     });
-  }
-
-  private emptyCartResponse(ownerId: CartOwner): ReadCartDto {
-    return toDto(
-      {
-        id: 'empty',
-        items: [],
-        totalPrice: 0,
-        totalItems: 0,
-        sessionId: ownerId.sessionId ?? null,
-        clientId: ownerId.clientId ?? null,
-        staffId: ownerId.staffId ?? null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      ReadCartDto,
-    );
   }
 
   private async setCartToRedis(cart: ReadCartDto) {

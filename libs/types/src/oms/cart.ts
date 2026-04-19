@@ -8,11 +8,13 @@ export interface CartItemResponse {
 }
 
 export interface AddToCartRequest {
+  cartId: string;
   productId: string;
   quantity: number;
 }
 
 export interface RemoveFromCartRequest {
+  cartId: string;
   productId: string;
   deleteAll: boolean;
 }
