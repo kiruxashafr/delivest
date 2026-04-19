@@ -5,6 +5,14 @@ import { IsString, Matches } from 'class-validator';
 
 export class CreateStaffDto implements CreateStaffRequest {
   @ApiProperty({
+    description: 'Айди филиала',
+    example: 'rest-123',
+    required: true,
+  })
+  @IsString()
+  branchId: string;
+
+  @ApiProperty({
     description: 'Логин работника',
     example: 'staff',
     required: true,

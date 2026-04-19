@@ -13,6 +13,7 @@ export interface AccessStaffTokenPayload extends RefreshStaffTokenPayload {
 }
 
 export interface CreateStaffRequest {
+  branchId: string;
   login: string;
   password: string;
   roleId: string;
@@ -36,6 +37,7 @@ export interface LoginStaffRequest {
 
 export interface StaffResponse {
   id: string;
+  branchId: string;
   login: string;
   roleId: string;
   name?: string;

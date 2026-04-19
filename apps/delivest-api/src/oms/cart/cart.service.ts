@@ -150,11 +150,9 @@ export class CartService {
     return this.refreshCart(cart.id);
   }
 
-  async clearCart(ownerId: CartOwner) {
+  async clearCart(cartId: string) {
     try {
-      const where = ownerId as Prisma.CartWhereUniqueInput;
-
-      const cart = await this.prisma.cart.findUnique({ where });
+      const cart = await this.prisma.cart.findUnique({ where: { id: cartId } });
 
       if (!cart) {
         return;
@@ -165,9 +163,8 @@ export class CartService {
       if (error instanceof DomainException) {
         throw error;
       }
-      const cacheKey = ownerId.clientId || ownerId.staffId || ownerId.sessionId;
 
-      this.logger.error(`Failed to clear cart for session ${cacheKey}`, error);
+      this.logger.error(`Failed to clear cart ${cartId}`, error);
       throw new InternalErrorException(
         'Failed to clear cart. Please try again later.',
       );

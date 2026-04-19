@@ -130,19 +130,21 @@ export class StaffService {
     }
   }
 
-  async create(dto: CreateStaffDto): Promise<Staff> {
+  async create(dto: CreateStaffDto): Promise<ReadStaffDto> {
     try {
       const passwordHash = await argon2.hash(dto.password);
       const staff = await this.prisma.staff.create({
         data: {
+          branchId: dto.branchId,
           login: dto.login,
           passwordHash: passwordHash,
           roleId: dto.roleId,
+          name: dto.name,
         },
       });
 
       this.logger.log(`create() | Staff id=${staff.id} is created`);
-      return staff;
+      return toDto(staff, ReadStaffDto);
     } catch (error: unknown) {
       this.logger.error(
         `create() | ${(error as Error).message}`,

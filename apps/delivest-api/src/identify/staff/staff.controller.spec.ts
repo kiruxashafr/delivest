@@ -79,29 +79,25 @@ describe('StaffController', () => {
   });
 
   describe('register', () => {
-    it('should register staff and return access token', async () => {
+    it('should register staff and return created staff data', async () => {
       const dto = {
         login: 'new_manager',
         password: 'password',
         roleId: 'role-1',
         name: 'Иван Иванов',
       };
-      const mockStaff = { id: 'staff-2' };
-      const accessToken = 'access_token_reg';
-      const refreshToken = 'refresh_token_reg';
+      const mockStaff = {
+        id: 'staff-2',
+        login: 'new_manager',
+        name: 'Иван Иванов',
+      };
 
       service.create.mockResolvedValue(mockStaff as any);
-      service.generateAccessToken.mockResolvedValue(accessToken);
-      service.generateRefreshToken.mockResolvedValue(refreshToken);
 
-      const result = await controller.register(mockResponse, dto);
+      const result = await controller.register(dto as any);
 
       expect(service.create).toHaveBeenCalledWith(dto);
-      expect(service.setRefreshCookie).toHaveBeenCalledWith(
-        mockResponse,
-        refreshToken,
-      );
-      expect(result).toEqual({ accessToken });
+      expect(result).toEqual(mockStaff);
     });
   });
 

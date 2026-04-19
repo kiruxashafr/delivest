@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Patch,
   Post,
   UseGuards,
@@ -82,14 +83,14 @@ export class CartController {
     );
   }
 
-  @Delete('clear')
+  @Delete('clear/:id')
   @ApiOperation({ summary: 'Очистить всю корзину' })
   @ApiResponse({
     status: 200,
     description: 'Корзина успешно очищена',
   })
-  async clear(@CurrentCartOwner() owner: CartOwner) {
-    await this.cartService.clearCart(owner);
+  async clear(@Param('id') id: string) {
+    await this.cartService.clearCart(id);
     return { success: true, message: 'Cart cleared' };
   }
 }
