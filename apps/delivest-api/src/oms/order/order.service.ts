@@ -162,7 +162,7 @@ export class OrderService {
     return toDto(result, ReadValidateOrderDto);
   }
 
-  async getOrder(id: string): Promise<ReadOrderDto> {
+  async findOne(id: string): Promise<ReadOrderDto> {
     const order = await this.prisma.order.findUnique({
       where: { id },
       include: {
@@ -177,7 +177,31 @@ export class OrderService {
     return toDto(order, ReadOrderDto);
   }
 
-  async getOrdersForClient(clientId: string): Promise<ReadOrderDto[]> {
+  async findAllByBranch(
+    branchId: string,
+    startDate?: Date,
+    endDate?: Date,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<ReadOrderDto[]> {
+    const orders = await this.prisma.order.findMany({
+      where: {
+        branchId,
+        createdAt: {
+          ...(startDate && { gte: startDate }),
+          ...(endDate && { lte: endDate }),
+        },
+      },
+      include: { items: true },
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return orders.map((order) => toDto(order, ReadOrderDto));
+  }
+
+  async findByClient(clientId: string): Promise<ReadOrderDto[]> {
     const orders = await this.prisma.order.findMany({
       where: { clientId },
       include: {

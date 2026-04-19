@@ -1,4 +1,4 @@
-import { Body, Controller, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiHeader,
@@ -17,6 +17,7 @@ import { JwtStaffAuthGuard } from '../../identify/index.js';
 import { AclGuard } from '../../identify/acl/guards/acl.guard.js';
 import { Permission } from '../../../generated/prisma/enums.js';
 import { RequirePermission } from '../../identify/acl/decorators/require-permission.decorator.js';
+import { FindOrdersDto } from './dto/find-orders.dto.js';
 
 @ApiTags('Admin-orders (Заказы-crm)')
 @ApiHeader({
@@ -29,6 +30,26 @@ import { RequirePermission } from '../../identify/acl/decorators/require-permiss
 @Controller('orders')
 export class AdminOrderController {
   constructor(private readonly orderService: OrderService) {}
+
+  @Get()
+  @ApiOperation({
+    summary: 'Получить список заказов филиала с пагинацией и фильтрами',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Список заказов',
+    type: [ReadOrderDto],
+  })
+  @RequirePermission(Permission.ORDER_READ)
+  async findAll(@Body() dto: FindOrdersDto): Promise<ReadOrderDto[]> {
+    return await this.orderService.findAllByBranch(
+      dto.branchId!,
+      dto.startDate,
+      dto.endDate,
+      dto.page,
+      dto.limit,
+    );
+  }
 
   @Post('validate')
   @ApiOperation({
