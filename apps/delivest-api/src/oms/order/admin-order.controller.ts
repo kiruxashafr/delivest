@@ -20,6 +20,7 @@ import { AclGuard } from '../../identify/acl/guards/acl.guard.js';
 import { Permission } from '../../../generated/prisma/enums.js';
 import { RequirePermission } from '../../identify/acl/decorators/require-permission.decorator.js';
 import { FindOrdersDto } from './dto/find-orders.dto.js';
+import { type AccessStaffTokenPayload } from '@delivest/types';
 
 @ApiTags('Admin-orders (Заказы-crm)')
 @ApiHeader({
@@ -43,7 +44,10 @@ export class AdminOrderController {
     type: [ReadOrderDto],
   })
   @RequirePermission(Permission.ORDER_READ)
-  async findAll(@Body() dto: FindOrdersDto): Promise<ReadOrderDto[]> {
+  async findAll(
+    @Body() dto: FindOrdersDto,
+    @CurrentStaff() staff: AccessStaffTokenPayload,
+  ): Promise<ReadOrderDto[]> {
     return await this.orderService.findAllByBranch(
       dto.branchId!,
       dto.orderStatus,
@@ -51,6 +55,7 @@ export class AdminOrderController {
       dto.endDate,
       dto.page,
       dto.limit,
+      staff,
     );
   }
 
@@ -79,13 +84,13 @@ export class AdminOrderController {
   })
   @RequirePermission(Permission.ORDER_CREATE)
   async createOrder(
-    @CurrentStaff('sub') staffId: string,
+    @CurrentStaff() staff: AccessStaffTokenPayload,
     @Body() dto: AdminCreateOrderDto,
   ): Promise<ReadOrderDto> {
     return await this.orderService.createOrder(
       dto,
       dto.clientId,
-      staffId,
+      staff,
       dto.status,
     );
   }
@@ -98,11 +103,15 @@ export class AdminOrderController {
     type: ReadOrderDto,
   })
   @RequirePermission(Permission.ORDER_UPDATE)
-  async addItem(@Body() dto: AddToOrderDto): Promise<ReadOrderDto> {
+  async addItem(
+    @Body() dto: AddToOrderDto,
+    @CurrentStaff() staff: AccessStaffTokenPayload,
+  ): Promise<ReadOrderDto> {
     return await this.orderService.addItem(
       dto.orderId,
       dto.productId,
       dto.quantity,
+      staff,
     );
   }
 
@@ -132,7 +141,10 @@ export class AdminOrderController {
     type: ReadOrderDto,
   })
   @RequirePermission(Permission.ORDER_UPDATE)
-  async updateStatus(@Body() dto: UpdateOrderStatusDto): Promise<ReadOrderDto> {
-    return await this.orderService.updateStatus(dto.orderId, dto.status);
+  async updateStatus(
+    @Body() dto: UpdateOrderStatusDto,
+    @CurrentStaff() staff: AccessStaffTokenPayload,
+  ): Promise<ReadOrderDto> {
+    return await this.orderService.updateStatus(dto.orderId, dto.status, staff);
   }
 }

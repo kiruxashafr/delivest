@@ -4,6 +4,8 @@ import * as argon2 from 'argon2';
 import { Permission } from '../../generated/prisma/enums.js';
 import { CreateClientDto } from './client/dto/create.dto.js';
 import { ClientService } from './client/client.service.js';
+import { AccessStaffTokenPayload } from '@delivest/types';
+import { BranchAbilityService } from './staff/branch-ability.service.js';
 
 @Injectable()
 export class IdentityService implements OnApplicationBootstrap {
@@ -11,6 +13,7 @@ export class IdentityService implements OnApplicationBootstrap {
   constructor(
     private readonly prisma: PrismaService,
     private readonly clientService: ClientService,
+    private readonly branchAbilityService: BranchAbilityService,
   ) {}
 
   async createProfileIfNotExist(dto: CreateClientDto) {
@@ -18,6 +21,20 @@ export class IdentityService implements OnApplicationBootstrap {
   }
   async onApplicationBootstrap() {
     await this.seedAdmin();
+  }
+
+  checkBranchAbility(staffToken: AccessStaffTokenPayload, branchId: string) {
+    return this.branchAbilityService.hasAccess(staffToken, branchId);
+  }
+
+  applyBranchAbility<T>(
+    staffToken: AccessStaffTokenPayload,
+    requestedBranchId?: string | string[],
+  ): T {
+    return this.branchAbilityService.applyBranchPolicy<T>(
+      staffToken,
+      requestedBranchId,
+    );
   }
 
   private async seedAdmin() {

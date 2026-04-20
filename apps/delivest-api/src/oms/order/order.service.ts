@@ -14,6 +14,7 @@ import { ReadCartDto } from '../cart/dto/read-cart.dto.js';
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import {
+  type AccessStaffTokenPayload,
   OrderItem,
   OrderValidationPayload,
   ValidateOrderRequest,
@@ -26,6 +27,7 @@ import { ReadOrderDto } from './dto/read.dto.js';
 import { ReadValidateOrderDto } from './dto/read-validate.dto.js';
 import { OrderStatusContext } from './order-status.context.js';
 import { CreateOrderDto } from './dto/create.dto.js';
+import { IdentityService } from '../../identify/identify.service.js';
 
 @Injectable()
 export class OrderService {
@@ -39,6 +41,7 @@ export class OrderService {
     private readonly cartService: CartService,
     private readonly netService: NetService,
     private readonly jwtService: JwtService,
+    private readonly identityService: IdentityService,
     private readonly txHost: TransactionHost<
       TransactionalAdapterPrisma<PrismaClient>
     >,
@@ -54,27 +57,33 @@ export class OrderService {
   async createOrder(
     dto: CreateOrderDto,
     clientId?: string,
-    staffId?: string,
+    staffPayload?: AccessStaffTokenPayload,
     status: OrderStatus = 'PENDING',
   ): Promise<ReadOrderDto> {
-    const tokenPayload = await this.decodeAndVerifyToken(dto.validationToken);
+    const orderPayload = await this.decodeAndVerifyToken(dto.validationToken);
 
+    if (staffPayload) {
+      this.identityService.checkBranchAbility(
+        staffPayload,
+        orderPayload.branchId,
+      );
+    }
     try {
       return await this.txHost.tx.$transaction(async (tx) => {
         const order = await tx.order.create({
           data: {
-            branchId: tokenPayload.branchId,
+            branchId: orderPayload.branchId,
             clientId: clientId,
-            staffId: staffId,
+            staffId: staffPayload?.sub,
             status: status,
-            deliveryType: tokenPayload.deliveryType,
-            totalPrice: this.calculateTotalPrice(tokenPayload.items),
-            address: tokenPayload.address,
-            comment: tokenPayload.comment,
-            phone: tokenPayload.phone,
+            deliveryType: orderPayload.deliveryType,
+            totalPrice: this.calculateTotalPrice(orderPayload.items),
+            address: orderPayload.address,
+            comment: orderPayload.comment,
+            phone: orderPayload.phone,
 
             items: {
-              create: tokenPayload.items.map((item) => ({
+              create: orderPayload.items.map((item) => ({
                 productId: item.productId,
                 title: item.title,
                 price: item.price,
@@ -87,7 +96,7 @@ export class OrderService {
           },
         });
 
-        await this.cartService.deleteCart(tokenPayload.cartId);
+        await this.cartService.deleteCart(orderPayload.cartId);
 
         await this.statusContext.execute(order);
 
@@ -96,6 +105,9 @@ export class OrderService {
         return toDto(order, ReadOrderDto);
       });
     } catch (error) {
+      if (error instanceof DomainException) {
+        throw error;
+      }
       this.logger.error('Failed to create order in database', error);
       throw new InternalErrorException(
         'Не удалось сохранить заказ. Попробуйте позже.',
@@ -104,13 +116,21 @@ export class OrderService {
   }
 
   @Transactional()
-  async updateStatus(id: string, newStatus: OrderStatus) {
+  async updateStatus(
+    orderId: string,
+    newStatus: OrderStatus,
+    staffPayload?: AccessStaffTokenPayload,
+  ): Promise<ReadOrderDto> {
     const order = await this.txHost.tx.order.findUnique({
-      where: { id },
+      where: { id: orderId },
     });
 
     if (!order) {
-      throw new NotFoundException(`Order with ID ${id} not found`);
+      throw new NotFoundException(`Order with ID ${orderId} not found`);
+    }
+
+    if (staffPayload) {
+      this.identityService.checkBranchAbility(staffPayload, order?.branchId);
     }
 
     if (order.status === newStatus) {
@@ -119,7 +139,7 @@ export class OrderService {
 
     try {
       const updatedOrder = await this.txHost.tx.order.update({
-        where: { id },
+        where: { id: orderId },
         data: { status: newStatus },
         include: {
           items: true,
@@ -133,14 +153,17 @@ export class OrderService {
       await this.statusContext.execute(updatedOrder);
 
       const finalOrder = await this.txHost.tx.order.findUniqueOrThrow({
-        where: { id },
+        where: { id: orderId },
         include: { items: true },
       });
 
       return toDto(finalOrder, ReadOrderDto);
     } catch (error) {
+      if (error instanceof DomainException) {
+        throw error;
+      }
       this.logger.error(
-        `updateStatus() | Failed to update status for order #${id}`,
+        `updateStatus() | Failed to update status for order #${orderId}`,
         error,
       );
       throw new InternalErrorException('Не удалось обновить статус заказа');
@@ -184,7 +207,11 @@ export class OrderService {
     endDate?: Date,
     page: number = 1,
     limit: number = 20,
+    staffPayload?: AccessStaffTokenPayload,
   ): Promise<ReadOrderDto[]> {
+    if (staffPayload) {
+      this.identityService.checkBranchAbility(staffPayload, branchId);
+    }
     const orders = await this.prisma.order.findMany({
       where: {
         branchId,
@@ -222,6 +249,7 @@ export class OrderService {
     orderId: string,
     productId: string,
     quantity: number,
+    staffPayload?: AccessStaffTokenPayload,
   ): Promise<ReadOrderDto> {
     try {
       const product = await this.netService.getProductById(productId);
@@ -252,6 +280,13 @@ export class OrderService {
         include: { items: true },
       });
 
+      if (staffPayload) {
+        this.identityService.checkBranchAbility(
+          staffPayload,
+          updatedOrder.branchId,
+        );
+      }
+
       return toDto(updatedOrder, ReadOrderDto);
     } catch (error) {
       if (error instanceof DomainException) {
@@ -266,8 +301,13 @@ export class OrderService {
       );
     }
   }
-
-  async removeItem(orderId: string, productId: string, deleteAll: boolean) {
+  @Transactional()
+  async removeItem(
+    orderId: string,
+    productId: string,
+    deleteAll: boolean,
+    staffPayload?: AccessStaffTokenPayload,
+  ): Promise<ReadOrderDto> {
     try {
       const orderItem = await this.prisma.orderItem.findFirst({
         where: {
@@ -297,6 +337,12 @@ export class OrderService {
         where: { id: orderId },
         include: { items: true },
       });
+      if (staffPayload) {
+        this.identityService.checkBranchAbility(
+          staffPayload,
+          updatedOrder.branchId,
+        );
+      }
 
       return toDto(updatedOrder, ReadOrderDto);
     } catch (error) {
