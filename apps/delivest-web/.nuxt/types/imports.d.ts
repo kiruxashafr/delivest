@@ -2,6 +2,7 @@
 export {}
 declare global {
   const abortNavigation: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/router').abortNavigation
+  const acceptHMRUpdate: typeof import('../../../../node_modules/.pnpm/@pinia+nuxt@0.11.3_magicast@0.5.2_pinia@3.0.4_typescript@5.9.3_vue@3.5.30_typescript@5.9.3__/node_modules/@pinia/nuxt/dist/runtime/composables').acceptHMRUpdate
   const addRouteMiddleware: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/router').addRouteMiddleware
   const callOnce: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/once').callOnce
   const cancelIdleCallback: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/compat/idle-callback').cancelIdleCallback
@@ -24,6 +25,7 @@ declare global {
   const definePayloadPlugin: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/nuxt').definePayloadPlugin
   const definePayloadReducer: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/payload').definePayloadReducer
   const definePayloadReviver: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/payload').definePayloadReviver
+  const defineStore: typeof import('../../../../node_modules/.pnpm/@pinia+nuxt@0.11.3_magicast@0.5.2_pinia@3.0.4_typescript@5.9.3_vue@3.5.30_typescript@5.9.3__/node_modules/@pinia/nuxt/dist/runtime/composables').defineStore
   const effect: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').effect
   const effectScope: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').effectScope
   const getAppManifest: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/manifest').getAppManifest
@@ -87,6 +89,7 @@ declare global {
   const shallowReadonly: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').shallowReadonly
   const shallowRef: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').shallowRef
   const showError: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/error').showError
+  const storeToRefs: typeof import('../../../../node_modules/.pnpm/@pinia+nuxt@0.11.3_magicast@0.5.2_pinia@3.0.4_typescript@5.9.3_vue@3.5.30_typescript@5.9.3__/node_modules/@pinia/nuxt/dist/runtime/composables').storeToRefs
   const toRaw: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').toRaw
   const toRef: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').toRef
   const toRefs: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').toRefs
@@ -99,9 +102,11 @@ declare global {
   const useAppConfig: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/config').useAppConfig
   const useAsyncData: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/asyncData').useAsyncData
   const useAttrs: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').useAttrs
+  const useConfirm: typeof import('primevue/useconfirm').useConfirm
   const useCookie: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/cookie').useCookie
   const useCssModule: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').useCssModule
   const useCssVars: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').useCssVars
+  const useDialog: typeof import('primevue/usedialog').useDialog
   const useError: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/error').useError
   const useFetch: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/fetch').useFetch
   const useHead: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/head').useHead
@@ -114,8 +119,9 @@ declare global {
   const useModel: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').useModel
   const useNuxtApp: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/nuxt').useNuxtApp
   const useNuxtData: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/asyncData').useNuxtData
-  const useNuxtDevTools: typeof import('../../../../node_modules/.pnpm/@nuxt+devtools@3.2.4_vite@7.3.1_@types+node@24.12.0_jiti@2.6.1_terser@5.46.1_yaml@2.8.2__vue@3.5.30_typescript@5.9.3_/node_modules/@nuxt/devtools/dist/runtime/use-nuxt-devtools').useNuxtDevTools
+  const usePinia: typeof import('../../../../node_modules/.pnpm/@pinia+nuxt@0.11.3_magicast@0.5.2_pinia@3.0.4_typescript@5.9.3_vue@3.5.30_typescript@5.9.3__/node_modules/@pinia/nuxt/dist/runtime/composables').usePinia
   const usePreviewMode: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/preview').usePreviewMode
+  const usePrimeVue: typeof import('primevue/config').usePrimeVue
   const useRequestEvent: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/ssr').useRequestEvent
   const useRequestFetch: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/ssr').useRequestFetch
   const useRequestHeader: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/ssr').useRequestHeader
@@ -164,7 +170,9 @@ declare global {
   const useShadowRoot: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').useShadowRoot
   const useSlots: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').useSlots
   const useState: typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/state').useState
+  const useStyle: typeof import('primevue/usestyle').useStyle
   const useTemplateRef: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').useTemplateRef
+  const useToast: typeof import('primevue/usetoast').useToast
   const useTransitionState: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').useTransitionState
   const watch: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').watch
   const watchEffect: typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue').watchEffect
@@ -188,6 +196,7 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface ComponentCustomProperties {
     readonly abortNavigation: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/router')['abortNavigation']>
+    readonly acceptHMRUpdate: UnwrapRef<typeof import('../../../../node_modules/.pnpm/@pinia+nuxt@0.11.3_magicast@0.5.2_pinia@3.0.4_typescript@5.9.3_vue@3.5.30_typescript@5.9.3__/node_modules/@pinia/nuxt/dist/runtime/composables')['acceptHMRUpdate']>
     readonly addRouteMiddleware: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/router')['addRouteMiddleware']>
     readonly callOnce: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/once')['callOnce']>
     readonly cancelIdleCallback: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/compat/idle-callback')['cancelIdleCallback']>
@@ -210,6 +219,7 @@ declare module 'vue' {
     readonly definePayloadPlugin: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/nuxt')['definePayloadPlugin']>
     readonly definePayloadReducer: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/payload')['definePayloadReducer']>
     readonly definePayloadReviver: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/payload')['definePayloadReviver']>
+    readonly defineStore: UnwrapRef<typeof import('../../../../node_modules/.pnpm/@pinia+nuxt@0.11.3_magicast@0.5.2_pinia@3.0.4_typescript@5.9.3_vue@3.5.30_typescript@5.9.3__/node_modules/@pinia/nuxt/dist/runtime/composables')['defineStore']>
     readonly effect: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['effect']>
     readonly effectScope: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['effectScope']>
     readonly getAppManifest: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/manifest')['getAppManifest']>
@@ -273,6 +283,7 @@ declare module 'vue' {
     readonly shallowReadonly: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['shallowRef']>
     readonly showError: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/error')['showError']>
+    readonly storeToRefs: UnwrapRef<typeof import('../../../../node_modules/.pnpm/@pinia+nuxt@0.11.3_magicast@0.5.2_pinia@3.0.4_typescript@5.9.3_vue@3.5.30_typescript@5.9.3__/node_modules/@pinia/nuxt/dist/runtime/composables')['storeToRefs']>
     readonly toRaw: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['toRaw']>
     readonly toRef: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['toRefs']>
@@ -285,9 +296,11 @@ declare module 'vue' {
     readonly useAppConfig: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/config')['useAppConfig']>
     readonly useAsyncData: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/asyncData')['useAsyncData']>
     readonly useAttrs: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['useAttrs']>
+    readonly useConfirm: UnwrapRef<typeof import('primevue/useconfirm')['useConfirm']>
     readonly useCookie: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/cookie')['useCookie']>
     readonly useCssModule: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['useCssVars']>
+    readonly useDialog: UnwrapRef<typeof import('primevue/usedialog')['useDialog']>
     readonly useError: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/error')['useError']>
     readonly useFetch: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/fetch')['useFetch']>
     readonly useHead: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/head')['useHead']>
@@ -300,8 +313,9 @@ declare module 'vue' {
     readonly useModel: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['useModel']>
     readonly useNuxtApp: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/nuxt')['useNuxtApp']>
     readonly useNuxtData: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/asyncData')['useNuxtData']>
-    readonly useNuxtDevTools: UnwrapRef<typeof import('../../../../node_modules/.pnpm/@nuxt+devtools@3.2.4_vite@7.3.1_@types+node@24.12.0_jiti@2.6.1_terser@5.46.1_yaml@2.8.2__vue@3.5.30_typescript@5.9.3_/node_modules/@nuxt/devtools/dist/runtime/use-nuxt-devtools')['useNuxtDevTools']>
+    readonly usePinia: UnwrapRef<typeof import('../../../../node_modules/.pnpm/@pinia+nuxt@0.11.3_magicast@0.5.2_pinia@3.0.4_typescript@5.9.3_vue@3.5.30_typescript@5.9.3__/node_modules/@pinia/nuxt/dist/runtime/composables')['usePinia']>
     readonly usePreviewMode: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/preview')['usePreviewMode']>
+    readonly usePrimeVue: UnwrapRef<typeof import('primevue/config')['usePrimeVue']>
     readonly useRequestEvent: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/ssr')['useRequestEvent']>
     readonly useRequestFetch: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/ssr')['useRequestFetch']>
     readonly useRequestHeader: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/ssr')['useRequestHeader']>
@@ -350,7 +364,9 @@ declare module 'vue' {
     readonly useShadowRoot: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['useShadowRoot']>
     readonly useSlots: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['useSlots']>
     readonly useState: UnwrapRef<typeof import('../../../../node_modules/.pnpm/nuxt@4.4.2_@babel+core@7.29.0_@babel+plugin-proposal-decorators@7.29.0_@babel+core@7.29_c9d4761d76b81c009f9f1f507b59eee5/node_modules/nuxt/dist/app/composables/state')['useState']>
+    readonly useStyle: UnwrapRef<typeof import('primevue/usestyle')['useStyle']>
     readonly useTemplateRef: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['useTemplateRef']>
+    readonly useToast: UnwrapRef<typeof import('primevue/usetoast')['useToast']>
     readonly useTransitionState: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['useTransitionState']>
     readonly watch: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('../../../../node_modules/.pnpm/vue@3.5.30_typescript@5.9.3/node_modules/vue')['watchEffect']>

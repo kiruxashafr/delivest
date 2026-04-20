@@ -15,7 +15,55 @@ import { RuntimeConfig as UserRuntimeConfig, PublicRuntimeConfig as UserPublicRu
    },
   }
   interface SharedPublicRuntimeConfig {
+   primevue: {
+      usePrimeVue: boolean,
 
+      autoImport: boolean,
+
+      resolvePath: any,
+
+      importPT: any,
+
+      importTheme: {
+         from: string,
+      },
+
+      loadStyles: boolean,
+
+      options: {
+         ripple: boolean,
+
+         inputVariant: string,
+      },
+
+      components: Array<{
+
+      }>,
+
+      directives: Array<{
+
+      }>,
+
+      composables: Array<{
+
+      }>,
+
+      config: Array<{
+
+      }>,
+
+      services: Array<{
+
+      }>,
+
+      styles: Array<{
+
+      }>,
+
+      injectStylesAsString: Array<any>,
+
+      injectStylesAsStringToTop: Array<string>,
+   },
   }
 declare module '@nuxt/schema' {
   interface RuntimeConfig extends UserRuntimeConfig {}

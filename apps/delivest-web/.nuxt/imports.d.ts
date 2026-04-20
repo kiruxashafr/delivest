@@ -29,4 +29,9 @@ export { withCtx, withDirectives, withKeys, withMemo, withModifiers, withScopeId
 export { requestIdleCallback, cancelIdleCallback } from '#app/compat/idle-callback';
 export { setInterval } from '#app/compat/interval';
 export { defineLazyHydrationComponent } from '#app/composables/lazy-hydration';
-export { useNuxtDevTools } from '../../../node_modules/.pnpm/@nuxt+devtools@3.2.4_vite@7.3.1_@types+node@24.12.0_jiti@2.6.1_terser@5.46.1_yaml@2.8.2__vue@3.5.30_typescript@5.9.3_/node_modules/@nuxt/devtools/dist/runtime/use-nuxt-devtools';
+export { defineStore, acceptHMRUpdate, usePinia, storeToRefs } from '../../../node_modules/.pnpm/@pinia+nuxt@0.11.3_magicast@0.5.2_pinia@3.0.4_typescript@5.9.3_vue@3.5.30_typescript@5.9.3__/node_modules/@pinia/nuxt/dist/runtime/composables';
+export { usePrimeVue } from 'primevue/config';
+export { useStyle } from 'primevue/usestyle';
+export { useConfirm } from 'primevue/useconfirm';
+export { useToast } from 'primevue/usetoast';
+export { useDialog } from 'primevue/usedialog';
