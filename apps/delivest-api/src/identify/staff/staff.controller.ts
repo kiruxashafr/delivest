@@ -154,4 +154,23 @@ export class StaffController {
   async findOne(@Param() dto: GetStaffDto): Promise<ReadStaffDto> {
     return this.service.findOne(dto.id);
   }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Logout user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Logout successful',
+    schema: {
+      example: {
+        message: 'Logged out successfully',
+      },
+    },
+  })
+  @ApiCookieAuth('refreshToken')
+  logout(@Res({ passthrough: true }) res: Response) {
+    this.service.clearRefreshTokenCookie(res);
+
+    return { message: 'Logged out successfully' };
+  }
 }

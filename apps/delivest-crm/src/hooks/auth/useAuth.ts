@@ -15,7 +15,7 @@ export function useAuth() {
       return data;
     },
     enabled: computed(() => !!authStore.accessToken),
-    staleTime: 1000 * 60 * 15,
+    staleTime: 1000 * 20,
   });
 
   const loginMutation = useMutation({

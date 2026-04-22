@@ -33,6 +33,7 @@ import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { LoginStaffDto } from './dto/login.dto.js';
 import { Response } from 'express';
 import { UpdateStaffDto } from './dto/update.dto.js';
+import { isDev } from '../../utils/env.js';
 
 @Injectable()
 export class StaffService {
@@ -42,6 +43,7 @@ export class StaffService {
   private readonly refreshTtl: number;
   private readonly accessSecret: string;
   private readonly refreshSecret: string;
+  private readonly cookieDomain: string;
   constructor(
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
@@ -61,6 +63,7 @@ export class StaffService {
       'JWT_REFRESH_SECRET_STAFF',
       '',
     );
+    this.cookieDomain = config.getOrThrow<string>('COOKIE_DOMAIN');
   }
 
   async findOne(id: string): Promise<ReadStaffDto> {
@@ -339,6 +342,18 @@ export class StaffService {
       sameSite: 'strict',
       path: '/',
       maxAge: refreshMaxAge,
+    });
+  }
+
+  clearRefreshTokenCookie(res: Response): void {
+    const isDevelopment = isDev();
+    res.cookie('refreshToken', '', {
+      expires: new Date(0),
+      httpOnly: true,
+      path: '/',
+      secure: !isDevelopment,
+      sameSite: isDevelopment ? 'lax' : 'none',
+      domain: isDevelopment ? undefined : this.cookieDomain,
     });
   }
 

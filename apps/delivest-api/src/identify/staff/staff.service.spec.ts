@@ -96,6 +96,7 @@ describe('StaffService', () => {
                 JWT_ACCESS_SECRET_STAFF: 'ACCESS_SECRET_STAFF',
                 JWT_REFRESH_SECRET_STAFF: 'REFRESH_SECRET_STAFF',
                 NODE_ENV: 'test',
+                COOKIE_DOMAIN: 'localhost',
               };
               return config[key as keyof typeof config] || null;
             }),
