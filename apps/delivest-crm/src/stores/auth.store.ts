@@ -26,7 +26,7 @@ export const useAuthStore = defineStore("auth", {
         const { data } = await api.get<StaffResponse>("/staff/me");
         this.user = data;
       } catch (e) {
-        this.logout();
+        await this.logout();
       }
     },
 
@@ -35,10 +35,10 @@ export const useAuthStore = defineStore("auth", {
       this.accessToken = data.accessToken;
     },
 
-    logout() {
+    async logout() {
       this.accessToken = "";
       this.user = null;
-      router.push({ name: "login" });
+      await router.push({ name: "login" });
     },
 
     async init() {

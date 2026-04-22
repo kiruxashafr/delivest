@@ -29,7 +29,7 @@ const handleLogin = async () => {
       password: form.password
     });
     toast.add({ severity: 'success', summary: t('auth.success_title'), life: 3000 });
-    router.push({ name: 'dashboard' });
+    await router.push({ name: 'dashboard' });
   } catch (e: any) {
     toast.add({ 
       severity: 'error', 
@@ -45,7 +45,6 @@ const handleLogin = async () => {
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-(--surface-ground) p-4">
-    
     <Card class="w-full max-w-[24rem] shadow-lg">
       <template #title>
         <h2 class="m-0 text-center text-2xl font-semibold text-(--text-color)">
@@ -54,10 +53,15 @@ const handleLogin = async () => {
       </template>
       
       <template #content>
-        <form @submit.prevent="handleLogin" class="flex flex-col gap-6">
-          
+        <form
+          class="flex flex-col gap-6"
+          @submit.prevent="handleLogin"
+        >
           <div class="flex flex-col gap-2">
-            <label for="login" class="text-sm font-medium text-(--text-color-secondary)">
+            <label
+              for="login"
+              class="text-sm font-medium text-(--text-color-secondary)"
+            >
               {{ t('auth.login_label') }}
             </label>
             <InputText 
@@ -71,14 +75,17 @@ const handleLogin = async () => {
           </div>
 
           <div class="flex flex-col gap-2">
-            <label for="password" class="text-sm font-medium text-(--text-color-secondary)">
+            <label
+              for="password"
+              class="text-sm font-medium text-(--text-color-secondary)"
+            >
               {{ t('auth.password_label') }}
             </label>
             <Password 
               id="password" 
               v-model="form.password" 
               :feedback="false" 
-              toggleMask 
+              toggle-mask 
               required 
               :placeholder="t('auth.password_placeholder')"
               :disabled="loading" 
@@ -93,10 +100,8 @@ const handleLogin = async () => {
             :loading="loading" 
             class="w-full mt-2" 
           />
-          
         </form>
       </template>
     </Card>
-
   </div>
 </template>
