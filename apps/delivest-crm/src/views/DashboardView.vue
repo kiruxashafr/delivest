@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth.store';
 import { useI18n } from 'vue-i18n';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
+import { useAuth } from '@/hooks/auth/useAuth';
 
 const { t } = useI18n();
-const authStore = useAuthStore();
 
+
+const { profile, logout } = useAuth();
 const handleLogout = () => {
-  authStore.logout();
+  void logout();
 };
 </script>
 
@@ -38,7 +39,7 @@ const handleLogout = () => {
       <template #content>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div
-            v-for="(value, key) in authStore.user"
+            v-for="(value, key) in profile.data.value"
             :key="key"
             class="flex flex-col border-b border-(--surface-border) pb-2"
           >

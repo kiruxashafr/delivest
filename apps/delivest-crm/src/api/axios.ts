@@ -13,7 +13,7 @@ const api = axios.create({
   withCredentials: true,
 });
 
-api.interceptors.request.use((config: CustomAxiosRequestConfig) => {
+api.interceptors.request.use(config => {
   const authStore = useAuthStore();
   const token = authStore.accessToken;
 
@@ -26,32 +26,29 @@ api.interceptors.request.use((config: CustomAxiosRequestConfig) => {
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: unknown) => {
-    if (!axios.isAxiosError(error)) {
-      return Promise.reject(error instanceof Error ? error : new Error(String(error)));
-    }
+    const authStore = useAuthStore();
 
-    const originalRequest = error.config as CustomAxiosRequestConfig;
+    if (axios.isAxiosError(error)) {
+      const originalRequest = error.config as CustomAxiosRequestConfig | undefined;
 
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      originalRequest._retry = true;
-      const authStore = useAuthStore();
+      if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+        originalRequest._retry = true;
 
-      try {
-        await authStore.refresh();
-        const newToken = authStore.accessToken;
+        try {
+          const newToken = await authStore.refresh();
 
-        if (newToken && originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          if (newToken && originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return api(originalRequest);
+          }
+        } catch (refreshError) {
+          return Promise.reject(refreshError instanceof Error ? refreshError : new Error(String(refreshError)));
         }
-
-        return api(originalRequest);
-      } catch (refreshError) {
-        authStore.logout();
-        return Promise.reject(refreshError instanceof Error ? refreshError : new Error(String(refreshError)));
       }
     }
 
-    return Promise.reject(error);
+    const finalError = error instanceof Error ? error : new Error(String(error));
+    return Promise.reject(finalError);
   },
 );
 

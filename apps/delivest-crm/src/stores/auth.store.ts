@@ -1,13 +1,13 @@
 import { defineStore } from "pinia";
-import api from "../api/axios";
-import type { LoginStaffRequest, StaffResponse, TokenStaffResponse } from "@delivest/types";
 import router from "@/router";
+import type { TokenStaffResponse } from "@delivest/types";
+import axios from "@/api/axios";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    user: null as StaffResponse | null,
     accessToken: "" as string,
     isInitialized: false,
+    refreshPromise: null as Promise<string | null> | null,
   }),
 
   getters: {
@@ -15,45 +15,45 @@ export const useAuthStore = defineStore("auth", {
   },
 
   actions: {
-    async login(dto: LoginStaffRequest) {
-      const { data } = await api.post<TokenStaffResponse>("/staff/login", dto);
-      this.accessToken = data.accessToken;
-      await this.fetchMe();
+    setToken(token: string) {
+      this.accessToken = token;
     },
 
-    async fetchMe() {
-      try {
-        const { data } = await api.get<StaffResponse>("/staff/me");
-        this.user = data;
-      } catch (e) {
-        await this.logout();
-      }
-    },
-
-    async refresh() {
-      const { data } = await api.get<TokenStaffResponse>("/staff/refresh");
-      this.accessToken = data.accessToken;
+    setInitialized(status: boolean) {
+      this.isInitialized = status;
     },
 
     async logout() {
       this.accessToken = "";
-      this.user = null;
       await router.push({ name: "login" });
     },
 
-    async init() {
-      try {
-        await this.refresh();
-        await this.fetchMe();
-      } catch {
-      } finally {
-        this.isInitialized = true;
-      }
+    async refresh(): Promise<string | null> {
+      if (this.refreshPromise) return this.refreshPromise;
+
+      this.refreshPromise = (async () => {
+        try {
+          const { data } = await axios.get<TokenStaffResponse>(`${import.meta.env.VITE_API_URL}/staff/refresh`, {
+            withCredentials: true,
+          });
+
+          const token = data.accessToken;
+          this.setToken(token);
+          return token;
+        } catch {
+          await this.logout();
+          return null;
+        } finally {
+          this.refreshPromise = null;
+        }
+      })();
+
+      return this.refreshPromise;
     },
   },
   persist: {
     key: "auth-storage",
     storage: localStorage,
-    pick: ["accessToken", "user"],
+    pick: ["accessToken"],
   },
 });

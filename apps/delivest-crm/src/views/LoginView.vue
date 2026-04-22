@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { useAuthStore } from '@/stores/auth.store';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useToast } from "primevue/usetoast";
@@ -9,11 +8,14 @@ import Card from 'primevue/card';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import Button from 'primevue/button';
+import { useAuth } from '@/hooks/auth/useAuth';
+import axios from 'axios';
+import type { ApiError } from '@/types/api';
 
 const { t } = useI18n();
-const authStore = useAuthStore();
 const router = useRouter();
 const toast = useToast();
+const { login } = useAuth();
 
 const loading = ref(false);
 const form = reactive({
@@ -22,23 +24,32 @@ const form = reactive({
 });
 
 const handleLogin = async () => {
-  loading.value = true;
   try {
-    await authStore.login({
+    await login.mutateAsync({
       login: form.login,
       password: form.password
     });
-    toast.add({ severity: 'success', summary: t('auth.success_title'), life: 3000 });
+
+    toast.add({ 
+      severity: 'success', 
+      summary: t('auth.success_title'), 
+      life: 3000 
+    });
+    
     await router.push({ name: 'dashboard' });
-  } catch (e: any) {
+  } catch (error) {
+    let errorMessage = t('auth.login_error');
+    
+    if (axios.isAxiosError<ApiError>(error)) {
+      errorMessage = error.response?.data?.message ?? errorMessage;
+    }
+
     toast.add({ 
       severity: 'error', 
       summary: t('auth.error_title'), 
-      detail: e.response?.data?.message || t('auth.login_error'), 
+      detail: errorMessage, 
       life: 5000 
     });
-  } finally {
-    loading.value = false;
   }
 };
 </script>
