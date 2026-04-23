@@ -33,6 +33,7 @@ import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { LoginStaffDto } from './dto/login.dto.js';
 import { Response } from 'express';
 import { UpdateStaffDto } from './dto/update.dto.js';
+import { isDev, isProd } from '../../utils/env.js';
 
 @Injectable()
 export class StaffService {
@@ -42,6 +43,7 @@ export class StaffService {
   private readonly refreshTtl: number;
   private readonly accessSecret: string;
   private readonly refreshSecret: string;
+
   constructor(
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
@@ -67,14 +69,20 @@ export class StaffService {
     try {
       const staff = await this.prisma.staff.findUnique({
         where: { id: id },
+        include: { branches: true, role: true },
       });
 
       if (!staff) {
         this.logger.warn(`findOne() | <staff> not found | id=${id}`);
         throw new UserNotFoundException('Staff not found');
       }
+      const staffWithIds = {
+        ...staff,
+        branchIds: staff.branches.map((b) => b.branchId),
+        permissions: staff.role.permissions,
+      };
 
-      return toDto(staff, ReadStaffDto);
+      return toDto(staffWithIds, ReadStaffDto);
     } catch (error: unknown) {
       if (error instanceof DomainException) {
         throw error;
@@ -91,6 +99,7 @@ export class StaffService {
     try {
       const staff = await this.prisma.staff.findUnique({
         where: { login: login },
+        include: { branches: true },
       });
 
       if (!staff) {
@@ -98,7 +107,12 @@ export class StaffService {
         throw new UserNotFoundException('Staff not found');
       }
 
-      return toDto(staff, ReadStaffDto);
+      const staffWithIds = {
+        ...staff,
+        branchIds: staff.branches.map((b) => b.branchId),
+      };
+
+      return toDto(staffWithIds, ReadStaffDto);
     } catch (error: unknown) {
       if (error instanceof DomainException) {
         throw error;
@@ -115,9 +129,16 @@ export class StaffService {
     try {
       const staff = await this.prisma.staff.findMany({
         where: { deletedAt: null },
+        include: { branches: true },
       });
 
-      return staff.map((s) => toDto(s, ReadStaffDto));
+      return staff.map((s) => {
+        const staffWithIds = {
+          ...s,
+          branchIds: s.branches.map((b) => b.branchId),
+        };
+        return toDto(staffWithIds, ReadStaffDto);
+      });
     } catch (error: unknown) {
       if (error instanceof DomainException) {
         throw error;
@@ -269,17 +290,15 @@ export class StaffService {
       where: { login: dto.login },
     });
     if (!staff) {
-      throw new NotFoundException();
+      throw new InvalidCredentialsException('Неверный логин или пароль');
     }
-    if (!staff.passwordHash) {
-      throw new UserNotRegisteredException();
-    }
+
     const isPasswordValid = await argon2.verify(
       staff.passwordHash,
       dto.password,
     );
     if (!isPasswordValid) {
-      throw new InvalidCredentialsException();
+      throw new InvalidCredentialsException('Неверный логин или пароль');
     }
     return staff;
   }
@@ -317,10 +336,20 @@ export class StaffService {
 
     res.cookie(COOKIE_NAMES.STAFF_REFRESH_TOKEN, token, {
       httpOnly: true,
-      secure: this.config.get<string>('NODE_ENV') === 'production',
-      sameSite: 'strict',
+      secure: isProd(),
+      sameSite: isDev() ? 'lax' : 'none',
       path: '/',
       maxAge: refreshMaxAge,
+    });
+  }
+
+  clearRefreshTokenCookie(res: Response): void {
+    res.cookie(COOKIE_NAMES.STAFF_REFRESH_TOKEN, '', {
+      expires: new Date(0),
+      httpOnly: true,
+      path: '/',
+      secure: isProd(),
+      sameSite: isDev() ? 'lax' : 'none',
     });
   }
 

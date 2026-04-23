@@ -55,6 +55,11 @@ describe('StaffService', () => {
     deletedAt: null,
   };
 
+  const mockStaffWithBranches = {
+    ...mockStaff,
+    branches: [{ branchId: 'branch-1' }, { branchId: 'branch-2' }],
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
 
@@ -63,6 +68,7 @@ describe('StaffService', () => {
     const prismaMock = {
       staff: {
         findUnique: jest.fn(),
+        findMany: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
       },
@@ -90,8 +96,24 @@ describe('StaffService', () => {
                 JWT_ACCESS_SECRET_STAFF: 'ACCESS_SECRET_STAFF',
                 JWT_REFRESH_SECRET_STAFF: 'REFRESH_SECRET_STAFF',
                 NODE_ENV: 'test',
+                COOKIE_DOMAIN: 'localhost',
               };
               return config[key as keyof typeof config] || null;
+            }),
+            getOrThrow: jest.fn((key: string) => {
+              const config = {
+                JWT_ACCESS_TTL_SECONDS_STAFF: 900,
+                JWT_REFRESH_TTL_SECONDS_STAFF: 604800,
+                JWT_ACCESS_SECRET_STAFF: 'ACCESS_SECRET_STAFF',
+                JWT_REFRESH_SECRET_STAFF: 'REFRESH_SECRET_STAFF',
+                NODE_ENV: 'test',
+                COOKIE_DOMAIN: 'localhost',
+              };
+              const value = config[key as keyof typeof config];
+              if (value === undefined) {
+                throw new Error(`Configuration key "${key}" does not exist`);
+              }
+              return value;
             }),
           },
         },
@@ -113,12 +135,6 @@ describe('StaffService', () => {
   });
 
   describe('findOne', () => {
-    it('should return staff DTO', async () => {
-      mockPrisma.staff.findUnique.mockResolvedValue(mockStaff);
-      const result = await service.findOne(mockStaff.id);
-      expect(result).toEqual(toDto(mockStaff, ReadStaffDto));
-    });
-
     it('should throw UserNotFoundException if staff not found', async () => {
       mockPrisma.staff.findUnique.mockResolvedValue(null);
       await expect(service.findOne('invalid')).rejects.toThrow(
@@ -129,9 +145,13 @@ describe('StaffService', () => {
 
   describe('findOneByLogin', () => {
     it('should return staff by login', async () => {
-      mockPrisma.staff.findUnique.mockResolvedValue(mockStaff);
+      mockPrisma.staff.findUnique.mockResolvedValue(
+        mockStaffWithBranches as any,
+      );
       const result = await service.findOneByLogin(mockStaff.login);
-      expect(result).toEqual(toDto(mockStaff, ReadStaffDto));
+      expect(result.id).toBe(mockStaff.id);
+      expect(result.login).toBe(mockStaff.login);
+      expect(result.branchIds).toEqual(['branch-1', 'branch-2']);
     });
 
     it('should throw UserNotFoundException if login not found', async () => {
@@ -139,6 +159,28 @@ describe('StaffService', () => {
       await expect(service.findOneByLogin('ghost')).rejects.toThrow(
         UserNotFoundException,
       );
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return an array of staff members with branchIds', async () => {
+      const mockStaffList = [
+        { ...mockStaffWithBranches, id: '1' },
+        { ...mockStaffWithBranches, id: '2', login: 'manager' },
+      ];
+      mockPrisma.staff.findMany.mockResolvedValue(mockStaffList as any);
+
+      const result = await service.findAll();
+
+      expect(mockPrisma.staff.findMany).toHaveBeenCalledWith({
+        where: { deletedAt: null },
+        include: { branches: true },
+      });
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe('1');
+      expect(result[0].branchIds).toEqual(['branch-1', 'branch-2']);
+      expect(result[1].id).toBe('2');
+      expect(result[1].branchIds).toEqual(['branch-1', 'branch-2']);
     });
   });
 

@@ -1,12 +1,15 @@
 import { defineStore } from "pinia";
-import api from "../api/axios";
-import type { LoginStaffRequest, StaffResponse, TokenStaffResponse } from "@delivest/types";
+import router from "@/router";
+import type { StaffResponse, TokenStaffResponse } from "@delivest/types";
+import axios from "axios";
+import api from "@/api/axios";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    user: null as StaffResponse | null,
+    staff: null as StaffResponse | null,
     accessToken: "" as string,
     isInitialized: false,
+    refreshPromise: null as Promise<string | null> | null,
   }),
 
   getters: {
@@ -14,40 +17,81 @@ export const useAuthStore = defineStore("auth", {
   },
 
   actions: {
-    async login(dto: LoginStaffRequest) {
-      const { data } = await api.post<TokenStaffResponse>("/staff/login", dto);
-      this.accessToken = data.accessToken;
-      await this.fetchMe();
+    setToken(token: string) {
+      this.accessToken = token;
     },
 
-    async fetchMe() {
+    async logout() {
       try {
-        const { data } = await api.get<StaffResponse>("/staff/me");
-        this.user = data;
-      } catch (e) {
-        this.logout();
+        await api.post("/staff/logout");
+      } catch (error) {
+        console.error("Server logout failed:", error);
+      } finally {
+        this.setToken("");
+        this.staff = null;
+        router.push({ name: "login" });
       }
     },
 
-    async refresh() {
-      const { data } = await api.get<TokenStaffResponse>("/staff/refresh");
-      this.accessToken = data.accessToken;
+    async refresh(): Promise<string | null> {
+      if (this.refreshPromise) return this.refreshPromise;
+
+      this.refreshPromise = (async () => {
+        try {
+          const { data } = await axios.get<TokenStaffResponse>(`${import.meta.env.VITE_API_URL}/staff/refresh`, {
+            withCredentials: true,
+          });
+
+          const token = data.accessToken;
+          this.setToken(token);
+          return token;
+        } catch (e) {
+          this.logout();
+          return null;
+        } finally {
+          this.refreshPromise = null;
+        }
+      })();
+
+      return this.refreshPromise;
     },
 
-    logout() {
-      this.accessToken = "";
-      this.user = null;
-      window.location.href = "/login";
+    async getMe() {
+      try {
+        const { data } = await api.get("/staff/me");
+        this.staff = data;
+        return data;
+      } catch (e) {
+        this.staff = null;
+      }
+    },
+
+    async login(login: string, password: string) {
+      try {
+        const { data } = await api.post<TokenStaffResponse>("/staff/login", { login, password });
+        this.setToken(data.accessToken);
+        await this.getMe();
+      } catch (e) {
+        throw e;
+      }
     },
 
     async init() {
+      if (this.isInitialized) return;
+
       try {
         await this.refresh();
-        await this.fetchMe();
-      } catch {
+        await this.getMe();
+      } catch (e) {
+        this.logout();
       } finally {
         this.isInitialized = true;
       }
     },
+  },
+  persist: {
+    key: "auth-storage",
+    storage: localStorage,
+    pick: ["accessToken"],
   },
 });
