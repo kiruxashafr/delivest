@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { mainMiddleware } from "./middleware/main.middleware";
+import { authMiddleware } from "./middleware/auth.middleware";
+import { branchMiddleware } from "./middleware/brench.middleware";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,7 +8,7 @@ const router = createRouter({
     {
       path: "/login",
       name: "login",
-      component: () => import("../views/LoginView.vue"),
+      component: () => import("../views/auth/LoginView.vue"),
       meta: { guestOnly: true },
     },
 
@@ -19,30 +20,39 @@ const router = createRouter({
         {
           path: "",
           name: "dashboard",
-          component: () => import("../views/DashboardView.vue"),
+          component: () => import("../views/dashboard/DashboardView.vue"),
         },
         {
           path: "orders",
           name: "orders",
 
-          component: () => import("../views/dashboard/OrdersView.vue"),
+          component: () => import("../views/orders/OrdersView.vue"),
         },
       ],
     },
     {
       path: "/select-branch",
       name: "select-branch",
-      component: () => import("../views/SelectBranchView.vue"),
+      component: () => import("../views/branches/SelectBranchView.vue"),
       meta: { requiresAuth: true },
     },
     {
       path: "/:pathMatch(.*)*",
       name: "not-found",
-      component: () => import("@/views/NotFoundView.vue"),
+      component: () => import("@/views/errors/NotFoundView.vue"),
     },
   ],
 });
 
-router.beforeEach(mainMiddleware);
+router.beforeEach(async (to, from) => {
+  const middlewares = [authMiddleware, branchMiddleware];
 
+  for (const middleware of middlewares) {
+    const result = await middleware(to, from);
+
+    if (result !== true) {
+      return result;
+    }
+  }
+});
 export default router;

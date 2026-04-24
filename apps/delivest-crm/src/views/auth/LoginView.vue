@@ -11,9 +11,11 @@ import Button from "primevue/button";
 import axios from "axios";
 import type { ApiError } from "@/types/api";
 import { useAuthStore } from "@/stores/auth.store";
+import { useBranchStore } from "@/stores/branch.store";
 
 const { t } = useI18n();
 const router = useRouter();
+const branchStore = useBranchStore();
 const toast = useToast();
 const { login } = useAuthStore();
 const loading = ref(false);
@@ -32,7 +34,14 @@ const handleLogin = async () => {
       life: 3000,
     });
 
-    await router.push({ name: "dashboard" });
+    if (branchStore.isBranchSelected) {
+      await router.push({
+        name: "dashboard",
+        params: { branchAlias: branchStore.activeBranchAlias },
+      });
+    } else {
+      await router.push({ name: "select-branch" });
+    }
   } catch (error) {
     let errorMessage = t("auth.login_error");
 
