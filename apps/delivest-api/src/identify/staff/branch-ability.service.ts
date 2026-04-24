@@ -7,10 +7,9 @@ import { Prisma } from '../../../generated/prisma/client.js';
 export class BranchAbilityService {
   applyBranchPolicy(
     staffTokenPaylod: AccessStaffTokenPayload,
-    requestedIds?: string | string[],
   ): Prisma.BranchWhereInput {
     if (staffTokenPaylod?.permissions?.includes('ADMIN')) {
-      return {};
+      return { deletedAt: null };
     }
 
     const staffBranchIds = staffTokenPaylod?.branchIds ?? [];
@@ -19,26 +18,8 @@ export class BranchAbilityService {
       throw new ForbiddenException('Вы не привязаны ни к одному филиалу');
     }
 
-    let authorizedIds: string[];
-
-    if (
-      !requestedIds ||
-      (Array.isArray(requestedIds) && requestedIds.length === 0)
-    ) {
-      authorizedIds = staffBranchIds;
-    } else {
-      const requested = Array.isArray(requestedIds)
-        ? requestedIds
-        : [requestedIds];
-      authorizedIds = requested.filter((id) => staffBranchIds.includes(id));
-    }
-
-    if (authorizedIds.length === 0) {
-      throw new ForbiddenException('У вас нет доступа к выбранным филиалам');
-    }
-
     return {
-      id: { in: authorizedIds },
+      id: { in: staffBranchIds },
       deletedAt: null,
     };
   }

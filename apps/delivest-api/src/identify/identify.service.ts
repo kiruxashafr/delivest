@@ -30,12 +30,8 @@ export class IdentityService implements OnApplicationBootstrap {
 
   applyBranchAbility(
     staffToken: AccessStaffTokenPayload,
-    requestedBranchId?: string | string[],
   ): Prisma.BranchWhereInput {
-    return this.branchAbilityService.applyBranchPolicy(
-      staffToken,
-      requestedBranchId,
-    );
+    return this.branchAbilityService.applyBranchPolicy(staffToken);
   }
 
   private async seedAdmin() {
