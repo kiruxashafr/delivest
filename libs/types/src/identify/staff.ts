@@ -1,5 +1,4 @@
-import { Permission } from "../../../../apps/delivest-api/generated/prisma/enums.js";
-import { Permission as PrismaPermission } from "../../../../apps/delivest-api/generated/prisma/enums.js";
+import { Permission } from "@common/constants.js";
 
 export interface RefreshStaffTokenPayload {
   sub: string;
@@ -62,6 +61,3 @@ export interface FindByLoginRequest {
 export interface TokenStaffResponse {
   accessToken: string;
 }
-
-export const PermissionsConst = PrismaPermission;
-export const Permissions: typeof PrismaPermission = PrismaPermission;

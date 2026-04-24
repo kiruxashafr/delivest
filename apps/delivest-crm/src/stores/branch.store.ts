@@ -1,19 +1,42 @@
-import { Permissions, type BranchResponce } from "@delivest/types";
+import type { BranchResponce } from "@delivest/types";
 import { defineStore } from "pinia";
-import { useAuthStore } from "./auth.store";
+import api from "@/api/axios";
 
 export const useBranchStore = defineStore("branch", {
   state: () => ({
     branches: [] as BranchResponce[],
-    activeBranchId: null as string | null,
+    activeBranchId: localStorage.getItem("selectedBranchId") as string | null,
   }),
+
   getters: {
-    avaliableBranches: state => {
-      const authStore = useAuthStore();
-      const staff = authStore.staff;
-      if (!staff) return [];
-      if (staff.permissions.includes(Permissions.ADMIN)) return state.branches;
+    activeBranch: state => {
+      return state.branches.find(b => b.id === state.activeBranchId) || null;
+    },
+    isBranchSelected: state => !!state.activeBranchId,
+  },
+
+  actions: {
+    async fetchBranches() {
+      try {
+        const { data } = await api.get<BranchResponce[]>("/admin/branch/all");
+        this.branches = data;
+
+        if (this.branches.length === 1 && !this.activeBranchId) {
+          this.setActiveBranch(this.branches[0].id);
+        }
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    },
+
+    setActiveBranch(branchId: string) {
+      this.activeBranchId = branchId;
+      localStorage.setItem("selectedBranchId", branchId);
+    },
+
+    clearActiveBranch() {
+      this.activeBranchId = null;
+      localStorage.removeItem("selectedBranchId");
     },
   },
-  actions: {},
 });

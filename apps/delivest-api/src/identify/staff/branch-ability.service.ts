@@ -1,18 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { ForbiddenException } from '../../shared/exceptions/domain_exception/domain-exception.js';
 import { AccessStaffTokenPayload } from '@delivest/types';
+import { Prisma } from '../../../generated/prisma/client.js';
 
 @Injectable()
 export class BranchAbilityService {
-  applyBranchPolicy<T>(
+  applyBranchPolicy(
     staffTokenPaylod: AccessStaffTokenPayload,
     requestedIds?: string | string[],
-  ): T {
-    if (staffTokenPaylod.permissions.includes('ADMIN')) {
-      return {} as T;
+  ): Prisma.BranchWhereInput {
+    if (staffTokenPaylod?.permissions?.includes('ADMIN')) {
+      return {};
     }
 
-    const staffBranchIds = staffTokenPaylod.branchIds ?? [];
+    const staffBranchIds = staffTokenPaylod?.branchIds ?? [];
+
     if (staffBranchIds.length === 0) {
       throw new ForbiddenException('Вы не привязаны ни к одному филиалу');
     }
@@ -36,18 +38,19 @@ export class BranchAbilityService {
     }
 
     return {
-      branchId: { in: authorizedIds },
-    } as unknown as T;
+      id: { in: authorizedIds },
+      deletedAt: null,
+    };
   }
 
   hasAccess(
     staffTokenPaylod: AccessStaffTokenPayload,
     branchId: string,
   ): boolean {
-    if (staffTokenPaylod.permissions.includes('ADMIN')) {
+    if (staffTokenPaylod?.permissions?.includes('ADMIN')) {
       return true;
     }
     if (!branchId) return false;
-    return staffTokenPaylod.branchIds?.includes(branchId) ?? false;
+    return staffTokenPaylod?.branchIds?.includes(branchId) ?? false;
   }
 }

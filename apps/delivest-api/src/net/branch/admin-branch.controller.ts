@@ -17,13 +17,19 @@ import { JwtStaffAuthGuard } from '../../identify/index.js';
 import { AclGuard } from '../../identify/acl/guards/acl.guard.js';
 import { RequirePermission } from '../../identify/acl/decorators/require-permission.decorator.js';
 import { UpdateBranchDto } from './dto/update.dto.js';
+import { CurrentStaff } from '../../shared/decorators/current-staff.decorator.js';
+import { type AccessStaffTokenPayload } from '@delivest/types';
+import { IdentityService } from '../../identify/identify.service.js';
 
 @ApiTags('Admin-branch (Филиалы-crm)')
 @Controller('admin/branch')
 @ApiBearerAuth('staff-auth')
 @UseGuards(JwtStaffAuthGuard, AclGuard)
 export class AdminBranchController {
-  constructor(private readonly service: BranchService) {}
+  constructor(
+    private readonly service: BranchService,
+    private readonly identifyService: IdentityService,
+  ) {}
 
   @Post('create')
   @ApiOperation({ summary: 'Создать филиал' })
@@ -35,8 +41,12 @@ export class AdminBranchController {
   @Get('all')
   @ApiOperation({ summary: 'Получить все филиалы' })
   @RequirePermission(Permission.BRANCH_READ)
-  async findAll(): Promise<AdminReadBranchDto[]> {
-    return await this.service.findAll(true);
+  async findAll(
+    @CurrentStaff() staff: AccessStaffTokenPayload,
+  ): Promise<AdminReadBranchDto[]> {
+    const branchFilter = this.identifyService.applyBranchAbility(staff);
+
+    return await this.service.findAll(true, branchFilter);
   }
 
   @Get(':id')

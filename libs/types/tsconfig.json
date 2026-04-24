@@ -12,7 +12,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@prisma-generated/*": ["../../apps/delivest-api/generated/*"]
+      "@prisma-generated/*": ["../../apps/delivest-api/generated/*"],
+      "@common/*": ["../../libs/common/src/*"]
     }
   },
   "include": ["src/**/*"],

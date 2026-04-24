@@ -6,6 +6,7 @@ import { CreateClientDto } from './client/dto/create.dto.js';
 import { ClientService } from './client/client.service.js';
 import { AccessStaffTokenPayload } from '@delivest/types';
 import { BranchAbilityService } from './staff/branch-ability.service.js';
+import { Prisma } from '../../generated/prisma/client.js';
 
 @Injectable()
 export class IdentityService implements OnApplicationBootstrap {
@@ -27,11 +28,11 @@ export class IdentityService implements OnApplicationBootstrap {
     return this.branchAbilityService.hasAccess(staffToken, branchId);
   }
 
-  applyBranchAbility<T>(
+  applyBranchAbility(
     staffToken: AccessStaffTokenPayload,
     requestedBranchId?: string | string[],
-  ): T {
-    return this.branchAbilityService.applyBranchPolicy<T>(
+  ): Prisma.BranchWhereInput {
+    return this.branchAbilityService.applyBranchPolicy(
       staffToken,
       requestedBranchId,
     );

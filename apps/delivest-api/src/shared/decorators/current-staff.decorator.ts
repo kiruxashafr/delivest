@@ -6,6 +6,8 @@ export const CurrentStaff = createParamDecorator(
   (key: keyof AccessStaffTokenPayload, ctx: ExecutionContext) => {
     const req = ctx.switchToHttp().getRequest<Request>();
 
-    return key ? req.staff?.[key] : req.client;
+    const staff = req.staff;
+
+    return key ? staff?.[key] : staff;
   },
 );

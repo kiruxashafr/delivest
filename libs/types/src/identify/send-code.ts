@@ -11,7 +11,7 @@ export interface ZvonokSuccessResponse {
 
 export interface ZvonokErrorResponse {
   status: "error";
-  data: string | Record<string, any>;
+  data: string | Record<string, unknown>;
 }
 
 export type ZvonokResponse = ZvonokSuccessResponse | ZvonokErrorResponse;

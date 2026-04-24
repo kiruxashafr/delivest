@@ -18,6 +18,7 @@ import {
 } from '../../shared/helpers/db-errors.js';
 import { AdminReadBranchDto } from './dto/admin-read.dto.js';
 import { UpdateBranchDto } from './dto/update.dto.js';
+import { Prisma } from '../../../generated/prisma/client.js';
 
 @Injectable()
 export class BranchService {
@@ -25,13 +26,25 @@ export class BranchService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(): Promise<ReadBranchDto[]>;
-  async findAll(extended: true): Promise<AdminReadBranchDto[]>;
+
+  async findAll(
+    extended: true,
+
+    branchFilter?: Prisma.BranchWhereInput,
+  ): Promise<AdminReadBranchDto[]>;
+
   async findAll(
     extended?: boolean,
+
+    branchFilter?: Prisma.BranchWhereInput,
   ): Promise<ReadBranchDto[] | AdminReadBranchDto[]> {
     try {
       const branches = await this.prisma.branch.findMany({
-        where: { deletedAt: null },
+        where: {
+          deletedAt: null,
+
+          ...branchFilter,
+        },
       });
 
       return branches.map((branch) =>
@@ -41,7 +54,9 @@ export class BranchService {
       );
     } catch (error) {
       if (error instanceof DomainException) throw error;
+
       this.logger.error(`findAll() | error: ${(error as Error).stack}`);
+
       throw new BadRequestException();
     }
   }
