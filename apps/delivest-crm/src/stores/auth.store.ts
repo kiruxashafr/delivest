@@ -3,6 +3,7 @@ import router from "@/router";
 import type { StaffResponse, TokenStaffResponse } from "@delivest/types";
 import axios from "axios";
 import api from "@/api/axios";
+import { useBranchStore } from "./branch.store";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -80,8 +81,13 @@ export const useAuthStore = defineStore("auth", {
       if (this.isInitialized) return;
 
       try {
-        await this.refresh();
-        await this.getMe();
+        const token = await this.refresh();
+        if (token) {
+          await this.getMe();
+
+          const branchStore = useBranchStore();
+          await branchStore.fetchBranches();
+        }
       } catch (e) {
         this.logout();
       } finally {

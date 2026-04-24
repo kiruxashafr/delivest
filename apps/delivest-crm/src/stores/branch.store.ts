@@ -13,6 +13,10 @@ export const useBranchStore = defineStore("branch", {
       return state.branches.find(b => b.id === state.activeBranchId) || null;
     },
     isBranchSelected: state => !!state.activeBranchId,
+    activeBranchAlias: state => {
+      const branch = state.branches.find(b => b.id === state.activeBranchId);
+      return branch?.alias || "";
+    },
   },
 
   actions: {
@@ -32,6 +36,15 @@ export const useBranchStore = defineStore("branch", {
     setActiveBranch(branchId: string) {
       this.activeBranchId = branchId;
       localStorage.setItem("selectedBranchId", branchId);
+    },
+
+    setActiveBranchByAlias(alias: string) {
+      const branch = this.branches.find(b => b.alias === alias);
+      if (branch) {
+        this.setActiveBranch(branch.id);
+        return true;
+      }
+      return false;
     },
 
     clearActiveBranch() {

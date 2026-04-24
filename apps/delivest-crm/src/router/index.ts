@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { authMiddleware } from "./middleware/auth.middleware";
+import { mainMiddleware } from "./middleware/main.middleware";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,10 +10,29 @@ const router = createRouter({
       component: () => import("../views/LoginView.vue"),
       meta: { guestOnly: true },
     },
+
     {
-      path: "/",
-      name: "dashboard",
-      component: () => import("../views/DashboardView.vue"),
+      path: "/:branchAlias",
+      component: () => import("../layouts/DashboardLayout.vue"),
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: "",
+          name: "dashboard",
+          component: () => import("../views/DashboardView.vue"),
+        },
+        {
+          path: "orders",
+          name: "orders",
+
+          component: () => import("../views/dashboard/OrdersView.vue"),
+        },
+      ],
+    },
+    {
+      path: "/select-branch",
+      name: "select-branch",
+      component: () => import("../views/SelectBranchView.vue"),
       meta: { requiresAuth: true },
     },
     {
@@ -24,6 +43,6 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach(authMiddleware);
+router.beforeEach(mainMiddleware);
 
 export default router;
