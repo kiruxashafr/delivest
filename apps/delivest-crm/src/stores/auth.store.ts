@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
-import router from "@/router";
 import type { StaffResponse, TokenStaffResponse } from "@delivest/types";
 import axios from "axios";
 import api from "@/api/axios";
 import { useBranchStore } from "./branch.store";
+import router from "@/router";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -28,8 +28,11 @@ export const useAuthStore = defineStore("auth", {
       } catch (error) {
         console.error("Server logout failed:", error);
       } finally {
+        localStorage.clear();
         this.setToken("");
         this.staff = null;
+        const branchStore = useBranchStore();
+        branchStore.$reset();
         router.push({ name: "login" });
       }
     },
@@ -72,6 +75,8 @@ export const useAuthStore = defineStore("auth", {
         const { data } = await api.post<TokenStaffResponse>("/staff/login", { login, password });
         this.setToken(data.accessToken);
         await this.getMe();
+        const branchStore = useBranchStore();
+        await branchStore.fetchBranches();
       } catch (e) {
         throw e;
       }

@@ -14,6 +14,7 @@ declare module 'vue' {
     AppHeader: typeof import('./src/components/header/AppHeader.vue')['default']
     AppMenu: typeof import('./src/components/app-menu/AppMenu.vue')['default']
     Avatar: typeof import('primevue/avatar')['default']
+    BranchCard: typeof import('./src/components/branch/BranchCard.vue')['default']
     Button: typeof import('primevue/button')['default']
     Divider: typeof import('primevue/divider')['default']
     Drawer: typeof import('primevue/drawer')['default']

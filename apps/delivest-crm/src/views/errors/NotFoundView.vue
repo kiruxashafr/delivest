@@ -19,7 +19,7 @@ const { t } = useI18n();
       </p>
 
       <router-link
-        to="/"
+        to="select-branch"
         class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg shadow-indigo-200 active:scale-95">
         <svg
           xmlns="http://www.w3.org/2000/svg"
