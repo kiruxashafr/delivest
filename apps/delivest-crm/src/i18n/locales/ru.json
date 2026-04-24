@@ -44,7 +44,11 @@
     "lightTheme": "Светлая тема",
     "darkTheme": "Темная тема",
     "staff": "Сотрудник",
-    "accessYes": "Доступ разрешен"
+    "accessYes": "Доступ разрешен",
+    "administration": "Панель администратора",
+    "admin_panel": "Админ",
+    "all_staff": "Сотрудники",
+    "system_logs": "Филиалы"
   },
   "common": {
     "select": "Выбрать",

@@ -4,6 +4,7 @@ import axios from "axios";
 import api from "@/api/axios";
 import { useBranchStore } from "./branch.store";
 import router from "@/router";
+import { Permission } from "@delivest/common";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -15,6 +16,32 @@ export const useAuthStore = defineStore("auth", {
 
   getters: {
     isLoggedIn: state => !!state.accessToken,
+
+    hasPermission: state => {
+      return (perm: Permission): boolean => {
+        const perms = state.staff?.permissions;
+        if (!perms) return false;
+        return perms.includes(Permission.ADMIN) || perms.includes(perm);
+      };
+    },
+
+    canAny: state => {
+      return (perms: Permission[]): boolean => {
+        if (!state.staff) return false;
+        if (state.staff.permissions.includes("ADMIN")) return true;
+
+        return perms.some(p => state.staff!.permissions.includes(p));
+      };
+    },
+
+    canAll: state => {
+      return (perms: Permission[]): boolean => {
+        if (!state.staff) return false;
+        if (state.staff.permissions.includes("ADMIN")) return true;
+
+        return perms.every(p => state.staff!.permissions.includes(p));
+      };
+    },
   },
 
   actions: {
