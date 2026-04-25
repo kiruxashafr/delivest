@@ -41,11 +41,15 @@ const selectBranch = (id: string) => {
         class="grid gap-4"
         :class="[branchStore.branches.length > 1 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 max-w-md mx-auto']">
         <template v-if="branchStore.isLoading && branchStore.branches.length === 0">
-          <BranchCard v-for="i in 4" :key="i" loading />
+          <BranchSelectCard v-for="i in 4" :key="i" loading />
         </template>
 
         <template v-else-if="branchStore.branches.length > 0">
-          <BranchCard v-for="branch in branchStore.branches" :key="branch.id" :branch="branch" @select="selectBranch" />
+          <BranchSelectCard
+            v-for="branch in branchStore.branches"
+            :key="branch.id"
+            :branch="branch"
+            @select="selectBranch" />
         </template>
 
         <div

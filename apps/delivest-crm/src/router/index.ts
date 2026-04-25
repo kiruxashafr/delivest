@@ -28,12 +28,18 @@ const router = createRouter({
 
           component: () => import("../views/orders/OrdersView.vue"),
         },
+        {
+          path: "branches",
+          name: "branches",
+
+          component: () => import("../views/branches/BranchListView.vue"),
+        },
       ],
     },
     {
       path: "/select-branch",
       name: "select-branch",
-      component: () => import("../views/branches/SelectBranchView.vue"),
+      component: () => import("../views/branches/BranchSelectView.vue"),
       meta: { requiresAuth: true },
     },
     {

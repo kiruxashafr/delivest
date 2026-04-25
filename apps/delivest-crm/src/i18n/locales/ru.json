@@ -18,6 +18,51 @@
     "logout_button": "Выйти"
   },
   "branches": {
+    "list": {
+      "title": "Филиалы",
+      "subtitle": "Управление списком всех отделений компании",
+      "add_button": "Добавить филиал",
+      "empty": "Филиалы не найдены",
+      "switch_confirm_msg": "Вы действительно хотите перейти в филиал",
+      "switch_confirm_title": "Подтвердите переход на страницу другого филиала"
+    },
+    "create": {
+      "title": "Новый филиал",
+      "success_summary": "Успешно",
+      "success_detail": "Филиал успешно создан",
+      "error_summary": "Ошибка",
+      "error_detail": "Не удалось создать филиал"
+    },
+    "update": {
+      "title": "Редактировать филиал",
+      "success_summary": "Успешно",
+      "success_detail": "Данные филиала обновлены",
+      "error_summary": "Ошибка",
+      "error_detail": "Не удалось сохранить изменения"
+    },
+    "form": {
+      "name": "Название филиала",
+      "name_placeholder_new": "Например: Центральный офис",
+      "alias": "Алиас (короткое имя)",
+      "alias_placeholder": "Например: central",
+      "alias_hint": "Используется для URL и идентификации",
+      "address": "Адрес",
+      "address_placeholder_new": "Укажите фактический адрес филиала",
+      "description": "Описание",
+      "description_placeholder": "Укажите описание филиала",
+      "phone": "Номер телефона",
+      "phone_format": "Формат: +7 и 10 цифр номера",
+      "address_placeholder": "Укажите адрес филиала",
+      "name_placeholder": "Напрмер: Наугорское шоссе"
+    },
+    "delete": {
+      "title": "Подтверждение удаления",
+      "confirmation_text": "Вы уверены, что хотите удалить филиал",
+      "success_summary": "Успешно",
+      "success_detail": "Филиал \"{name}\" удален",
+      "error_summary": "Ошибка",
+      "error_detail": "Не удалось удалить филиал"
+    },
     "select_title": "Выберите филиал",
     "select_subtitle": "Для продолжения работы выберите доступную точку",
     "no_branches": "У вас нет доступных филиалов. Обратитесь к администратору.",
@@ -36,7 +81,7 @@
   },
   "menu": {
     "orders": "Заказы",
-    "branch": "Филиал",
+    "branch": "Филиалы",
     "products": "Товары",
     "categories": "Категории",
     "employees": "Сотрудники",
@@ -48,12 +93,18 @@
     "administration": "Панель администратора",
     "admin_panel": "Админ",
     "all_staff": "Сотрудники",
-    "system_logs": "Филиалы"
+    "system_logs": "Филиалы",
+    "organization": "Организация"
   },
   "common": {
     "select": "Выбрать",
     "loading": "Загрузка конфигурации...",
     "error": "Произошла ошибка",
-    "search": "Поиск..."
+    "search": "Поиск...",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "create": "Создать",
+    "confirm": "Подтвердить"
   }
 }

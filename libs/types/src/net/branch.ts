@@ -5,6 +5,9 @@ export interface FindBranchRequest {
 export interface CreateBranchRequest {
   name: string;
   alias: string;
+  address?: string;
+  phone?: string;
+  description?: string;
 }
 
 export interface BranchResponce {
@@ -13,6 +16,7 @@ export interface BranchResponce {
   alias: string;
   description?: string;
   address?: string;
+  phone?: string;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date | null;

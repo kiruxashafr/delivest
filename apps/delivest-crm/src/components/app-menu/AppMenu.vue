@@ -19,8 +19,8 @@ const menuItems = computed(() => [
     command: () => router.push({ name: "orders", params: { branchAlias: branchStore.activeBranchAlias } }),
   },
   {
-    label: t("menu.branch"),
-    icon: "pi pi-building",
+    label: t("menu.organization"),
+    icon: "pi pi-sitemap",
     visible: authStore.canAny([Permission.PRODUCT_READ, Permission.CATEGORY_READ, Permission.STAFF_READ]),
     items: [
       {
@@ -37,6 +37,12 @@ const menuItems = computed(() => [
         label: t("menu.employees"),
         icon: "pi pi-users",
         visible: authStore.hasPermission(Permission.STAFF_READ),
+      },
+      {
+        label: t("menu.branch"),
+        icon: "pi pi-building",
+        visible: authStore.hasPermission(Permission.STAFF_READ),
+        command: () => router.push({ name: "branches" }),
       },
     ].filter(item => item.visible !== false),
   },
@@ -55,7 +61,7 @@ const adminMenuItems = computed(() => [
       {
         label: t("menu.system_logs"),
         icon: "pi pi-building",
-        command: () => router.push({ name: "admin-logs" }),
+        command: () => router.push({ name: "branches" }),
       },
     ],
   },

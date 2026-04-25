@@ -14,6 +14,7 @@ import "dayjs/locale/ru";
 import relativeTime from "dayjs/plugin/relativeTime";
 import i18n from "./i18n";
 import ToastService from "primevue/toastservice";
+import { ConfirmationService } from "primevue";
 
 dayjs.locale("ru");
 dayjs.extend(relativeTime);
@@ -25,6 +26,7 @@ pinia.use(piniaPluginPersistedstate);
 
 app.use(router);
 app.use(i18n);
+app.use(ConfirmationService);
 app.use(PrimeVue, {
   theme: {
     preset: MyPreset,

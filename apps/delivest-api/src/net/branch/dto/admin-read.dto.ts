@@ -15,6 +15,18 @@ export class AdminReadBranchDto implements BranchResponce {
   @Expose()
   name!: string;
 
+  @ApiProperty()
+  @Expose()
+  description!: string;
+
+  @ApiProperty()
+  @Expose()
+  phone!: string;
+
+  @ApiProperty()
+  @Expose()
+  address!: string;
+
   @ApiProperty({ example: '2026-04-05T10:00:00.000Z' })
   @Expose()
   createdAt!: Date;

@@ -106,10 +106,10 @@ export class BranchService {
 
   async create(dto: CreateBranchDto): Promise<AdminReadBranchDto> {
     try {
-      const newCategory = await this.prisma.branch.create({
+      const newBranch = await this.prisma.branch.create({
         data: { ...dto },
       });
-      return toDto(newCategory, AdminReadBranchDto);
+      return toDto(newBranch, AdminReadBranchDto);
     } catch (error) {
       this.logger.error(
         `create() | ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -147,17 +147,28 @@ export class BranchService {
     const internalCode = getInternalErrorCode(error);
     const modelName = getPrismaModelName(error);
 
+    const modelTranslations: Record<string, string> = {
+      Branch: 'Филиал',
+      User: 'Пользователь',
+    };
+
+    const translatedModel = modelName
+      ? modelTranslations[modelName] || modelName
+      : 'Запись';
+
     if (internalCode === PrismaErrorCode.RECORD_NOT_FOUND) {
-      throw new NotFoundException(`${modelName || 'Record'} not found`);
+      throw new NotFoundException(`${translatedModel} не найден(а)`);
     }
 
     if (internalCode === PrismaErrorCode.UNIQUE_VIOLATION) {
       if (modelName === 'Branch') {
-        throw new BadRequestException('Branch with this name already exists');
+        throw new BadRequestException(
+          'Филиал с таким названием уже существует',
+        );
       }
-      throw new DuplicateValueException();
+      throw new DuplicateValueException('Такое значение уже используется');
     }
 
-    throw new BadRequestException('Database operation failed');
+    throw new BadRequestException(' Ошибка при работе с базой данных');
   }
 }
