@@ -94,7 +94,9 @@
     "admin_panel": "Админ",
     "all_staff": "Сотрудники",
     "system_logs": "Филиалы",
-    "organization": "Организация"
+    "organization": "Организация",
+    "team": "Команда",
+    "role": "Должности"
   },
   "common": {
     "select": "Выбрать",

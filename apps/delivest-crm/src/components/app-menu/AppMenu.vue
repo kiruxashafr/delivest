@@ -34,15 +34,29 @@ const menuItems = computed(() => [
         visible: authStore.hasPermission(Permission.CATEGORY_READ),
       },
       {
-        label: t("menu.employees"),
-        icon: "pi pi-users",
-        visible: authStore.hasPermission(Permission.STAFF_READ),
-      },
-      {
         label: t("menu.branch"),
         icon: "pi pi-building",
         visible: authStore.hasPermission(Permission.STAFF_READ),
         command: () => router.push({ name: "branches" }),
+      },
+      {
+        label: t("menu.team"),
+        icon: "pi pi-users",
+        visible: authStore.hasPermission(Permission.STAFF_READ),
+        items: [
+          {
+            label: t("menu.employees"),
+            icon: "pi pi-user",
+            visible: authStore.hasPermission(Permission.STAFF_READ),
+            command: () => router.push({ name: "branches" }),
+          },
+          {
+            label: t("menu.role"),
+            icon: "pi pi-tags",
+            visible: authStore.hasPermission(Permission.ROLE_READ),
+            command: () => router.push({ name: "branches" }),
+          },
+        ],
       },
     ].filter(item => item.visible !== false),
   },
