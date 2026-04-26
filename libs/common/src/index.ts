@@ -4,3 +4,4 @@ export * from "./db-error-codes.js";
 export * from "./event-bus.port.js";
 export * from "./auth-code-sender.port.js";
 export * from "./photo-keys.js";
+export * from "./permissions.js";

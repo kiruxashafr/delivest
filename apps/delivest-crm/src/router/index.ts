@@ -32,20 +32,26 @@ const router = createRouter({
           path: "branch",
           name: "branch",
 
-          component: () => import("../views/branches/BranchEditView.vue"),
+          component: () => import("../views/branch/BranchEditView.vue"),
         },
         {
           path: "admin-branches",
           name: "admin-branches",
 
-          component: () => import("../views/branches/BranchAdminView.vue"),
+          component: () => import("../views/branch/BranchAdminView.vue"),
+        },
+        {
+          path: "role",
+          name: "role",
+
+          component: () => import("../views/role/RoleAdminView.vue"),
         },
       ],
     },
     {
       path: "/select-branch",
       name: "select-branch",
-      component: () => import("../views/branches/BranchSelectView.vue"),
+      component: () => import("../views/branch/BranchSelectView.vue"),
       meta: { requiresAuth: true },
     },
     {

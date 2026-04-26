@@ -1,43 +1,45 @@
 import { ref } from "vue";
-import { useBranchStore } from "@/stores/branch.store";
-import { useToast } from "primevue";
+import { useRoleStore } from "@/stores/role.store";
+import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
 import { isAxiosError } from "axios";
-import type { BranchResponce, CreateBranchRequest, UpdateBranchRequest } from "@delivest/types";
+import type { RoleResponse, CreateRoleRequest, UpdateRoleRequest } from "@delivest/types";
 
-export function useBranchForm() {
+export function useRoleForm() {
   const { t } = useI18n();
-  const branchStore = useBranchStore();
+  const roleStore = useRoleStore();
   const toast = useToast();
   const isSubmitting = ref(false);
 
   const handleError = (error: any, type: "create" | "update" | "delete") => {
-    let errorMessage = t(`branches.${type}.error_detail`);
+    let errorMessage = t(`roles.${type}.error_detail`);
+
     if (isAxiosError(error)) {
       const serverData = error.response?.data;
       if (serverData?.message) {
         errorMessage = Array.isArray(serverData.message) ? serverData.message[0] : serverData.message;
       }
     }
+
     toast.add({
       severity: "error",
-      summary: t(`branches.${type}.error_summary`),
+      summary: t(`roles.${type}.error_summary`),
       detail: errorMessage,
       life: 5000,
     });
   };
 
-  const remove = async (branch: BranchResponce | null) => {
-    if (!branch) return { success: false };
+  const remove = async (role: RoleResponse | null) => {
+    if (!role) return { success: false };
 
     isSubmitting.value = true;
     try {
-      await branchStore.deleteBranch(branch.id);
+      await roleStore.deleteRole(role.id);
 
       toast.add({
         severity: "success",
-        summary: t("branches.delete.success_summary"),
-        detail: t("branches.delete.success_detail", { name: branch.name }),
+        summary: t("roles.delete.success_summary"),
+        detail: t("roles.delete.success_detail", { name: role.name }),
         life: 3000,
       });
       return { success: true };
@@ -49,22 +51,22 @@ export function useBranchForm() {
     }
   };
 
-  const submit = async (id: string | null, data: CreateBranchRequest | UpdateBranchRequest) => {
+  const submit = async (id: string | null, data: CreateRoleRequest | UpdateRoleRequest) => {
     isSubmitting.value = true;
     const isUpdate = !!id;
     const action = isUpdate ? "update" : "create";
 
     try {
       if (isUpdate && id) {
-        await branchStore.updateBranch(id, data as UpdateBranchRequest);
+        await roleStore.updateRole(id, data as UpdateRoleRequest);
       } else {
-        await branchStore.createBranch(data as CreateBranchRequest);
+        await roleStore.createRole(data as CreateRoleRequest);
       }
 
       toast.add({
         severity: "success",
-        summary: t(`branches.${action}.success_summary`),
-        detail: t(`branches.${action}.success_detail`),
+        summary: t(`roles.${action}.success_summary`),
+        detail: t(`roles.${action}.success_detail`),
         life: 3000,
       });
       return { success: true, data };

@@ -54,7 +54,7 @@ const menuItems = computed(() => [
             label: t("menu.role"),
             icon: "pi pi-tags",
             visible: authStore.hasPermission(Permission.ROLE_READ),
-            command: () => router.push({ name: "branches" }),
+            command: () => router.push({ name: "role" }),
           },
         ],
       },
@@ -68,9 +68,23 @@ const adminMenuItems = computed(() => [
     icon: "pi pi-shield",
     items: [
       {
-        label: t("menu.all_staff"),
+        label: t("menu.team"),
         icon: "pi pi-users",
-        command: () => router.push({ name: "admin-staff" }),
+        visible: authStore.hasPermission(Permission.STAFF_READ),
+        items: [
+          {
+            label: t("menu.employees"),
+            icon: "pi pi-user",
+            visible: authStore.hasPermission(Permission.STAFF_READ),
+            command: () => router.push({ name: "admin-branches" }),
+          },
+          {
+            label: t("menu.role"),
+            icon: "pi pi-tags",
+            visible: authStore.hasPermission(Permission.ROLE_READ),
+            command: () => router.push({ name: "role" }),
+          },
+        ],
       },
       {
         label: t("menu.system_logs"),
@@ -83,7 +97,7 @@ const adminMenuItems = computed(() => [
 </script>
 
 <template>
-  <div class="flex flex-col h-full p-4 bg-surface-0 dark:bg-surface-900 transition-colors duration-300">
+  <div class="flex flex-col h-full p-4 bg-surface-0 dark:bg-surface-900 transition-colors">
     <SidebarUserInfo :user="authStore.staff" />
 
     <div class="flex-1 overflow-y-auto">

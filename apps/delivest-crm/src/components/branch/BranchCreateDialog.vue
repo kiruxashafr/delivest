@@ -2,6 +2,7 @@
 import Dialog from "primevue/dialog";
 import BranchForm from "./BranchForm.vue";
 import { useBranchForm } from "@/composables/useBranchForm";
+import type { CreateBranchRequest } from "@delivest/types";
 
 const props = defineProps<{
   visible: boolean;
@@ -13,7 +14,7 @@ const { submit, isSubmitting } = useBranchForm();
 
 const close = () => emit("update:visible", false);
 
-const handleCreate = async (formData: any) => {
+const handleCreate = async (formData: CreateBranchRequest) => {
   const { success } = await submit(null, formData);
 
   if (success) {

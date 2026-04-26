@@ -1,4 +1,4 @@
-import { Permission } from "@common/constants.js";
+import { Permission } from "@prisma-generated/prisma/enums.js";
 
 export interface CreateRoleRequest {
   name: string;

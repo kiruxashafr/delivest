@@ -1,11 +1,20 @@
 <script setup lang="ts">
+import { useRoleStore } from "@/stores/role.store";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-defineProps<{
+const props = defineProps<{
   user: { name?: string; roleId?: string } | null;
 }>();
 
 const { t } = useI18n();
+const roleStore = useRoleStore();
+
+const displayRoleName = computed(() => {
+  if (!props.user?.roleId) return t("menu.accessYes");
+
+  return roleStore.getRoleNameById(props.user.roleId) || t("menu.accessYes");
+});
 </script>
 
 <template>
@@ -21,7 +30,7 @@ const { t } = useI18n();
         {{ user.name || t("menu.staff") }}
       </span>
       <span class="text-xs text-surface-500 dark:text-surface-400 truncate">
-        {{ user.roleId || t("menu.accessYes") }}
+        {{ displayRoleName }}
       </span>
     </div>
   </div>

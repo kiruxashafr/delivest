@@ -3,7 +3,7 @@ import Dialog from "primevue/dialog";
 import { useBranchForm } from "@/composables/useBranchForm";
 import { useRoute, useRouter } from "vue-router";
 import { useBranchStore } from "@/stores/branch.store";
-import type { BranchResponce } from "@delivest/types";
+import type { BranchResponce, UpdateBranchRequest } from "@delivest/types";
 
 const props = defineProps<{
   visible: boolean;
@@ -19,11 +19,11 @@ const { submit, isSubmitting } = useBranchForm();
 
 const close = () => emit("update:visible", false);
 
-const handleSave = async (formData: any) => {
+const handleSave = async (formData: UpdateBranchRequest) => {
   if (!props.branch) return;
 
   const oldAlias = props.branch.alias;
-  const newAlias = formData.alias;
+  const newAlias = formData.alias || "";
 
   const { success } = await submit(props.branch.id, formData);
 

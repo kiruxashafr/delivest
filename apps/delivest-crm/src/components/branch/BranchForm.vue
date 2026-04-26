@@ -5,10 +5,11 @@ import Textarea from "primevue/textarea";
 import InputMask from "primevue/inputmask";
 import Button from "primevue/button";
 import { useI18n } from "vue-i18n";
+import type { BranchResponce, CreateBranchRequest } from "@delivest/types";
 
 const { t } = useI18n();
 const props = defineProps<{
-  initialData?: any;
+  initialData?: BranchResponce | CreateBranchRequest;
   loading?: boolean;
   submitLabel?: string;
 }>();
@@ -26,7 +27,15 @@ const form = ref({
 watch(
   () => props.initialData,
   val => {
-    if (val) form.value = { ...val };
+    if (val) {
+      Object.assign(form.value, {
+        name: val.name || "",
+        alias: val.alias || "",
+        address: val.address || "",
+        description: val.description || "",
+        phone: val.phone || "",
+      });
+    }
   },
   { immediate: true },
 );

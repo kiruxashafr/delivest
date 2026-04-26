@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import api from "@/api/axios";
 import type { RoleResponse, CreateRoleRequest, UpdateRoleRequest } from "@delivest/types";
+import { Permission } from "@delivest/common";
 
 export const useRoleStore = defineStore("role", {
   state: () => ({
@@ -12,6 +13,22 @@ export const useRoleStore = defineStore("role", {
   getters: {
     getRoleById: state => {
       return (id: string) => state.roles.find((r: RoleResponse) => r.id === id);
+    },
+    getRoleNameById: state => {
+      return (id?: string) => {
+        if (!id) return null;
+        const role = state.roles.find((r: RoleResponse) => r.id === id);
+        return role ? role.name : null;
+      };
+    },
+    availableRoles: state => {
+      const PROTECTED_PERMISSIONS = [Permission.ADMIN];
+
+      return state.roles.filter((role: RoleResponse) => {
+        const isProtected = role.permissions.some(p => PROTECTED_PERMISSIONS.includes(p));
+
+        return !isProtected;
+      });
     },
     roleNames: state => state.roles.map((r: RoleResponse) => r.name),
   },
