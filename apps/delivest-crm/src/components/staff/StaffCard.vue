@@ -43,7 +43,7 @@ const roleStore = useRoleStore();
         {{ staff.name || staff.login }}
       </h3>
       <p class="text-sm text-(--surface-500) truncate">
-        {{ roleStore.getRoleNameById(staff.roleId) }} • {{ staff.branchIds.length }} филиалов
+        {{ roleStore.getRoleNameById(staff.roleId) }} • {{ staff.branchIds ? staff.branchIds.length : 0 }} филиалов
       </p>
     </div>
 

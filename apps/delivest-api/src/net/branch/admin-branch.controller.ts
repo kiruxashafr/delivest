@@ -40,7 +40,6 @@ export class AdminBranchController {
 
   @Get('all')
   @ApiOperation({ summary: 'Получить все филиалы' })
-  @RequirePermission(Permission.BRANCH_READ)
   async findAll(
     @CurrentStaff() staff: AccessStaffTokenPayload,
   ): Promise<AdminReadBranchDto[]> {

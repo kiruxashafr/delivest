@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useStaffStore } from "@/stores/staff.store";
 import { useRoleStore } from "@/stores/role.store";
 import { useBranchStore } from "@/stores/branch.store";
@@ -29,6 +29,18 @@ onMounted(async () => {
   }
   if (branchStore.branches.length === 0) {
     await branchStore.fetchBranches();
+  }
+});
+
+watch(isEditVisible, newVal => {
+  if (!newVal) {
+    selectedStaff.value = null;
+  }
+});
+
+watch(isDeleteVisible, newVal => {
+  if (!newVal) {
+    selectedStaff.value = null;
   }
 });
 
@@ -97,9 +109,9 @@ const openDelete = (staff: StaffResponse) => {
       </template>
     </div>
 
-    <StaffCreateDialog v-model:visible="isCreateVisible" />
+    <StaffCreateDialog v-model:visible="isCreateVisible" @created="staffStore.fetchAllStaff()" />
 
-    <StaffEditDialog v-model:visible="isEditVisible" :staff="selectedStaff" />
+    <StaffEditDialog v-model:visible="isEditVisible" :staff="selectedStaff" @saved="staffStore.fetchAllStaff()" />
 
     <StaffDeleteDialog v-model:visible="isDeleteVisible" :staff="selectedStaff" @deleted="staffStore.fetchAllStaff()" />
   </div>

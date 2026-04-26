@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import { useStaffStore } from "@/stores/staff.store";
 import { useRoleStore } from "@/stores/role.store";
 import { useBranchStore } from "@/stores/branch.store";
@@ -29,6 +29,18 @@ onMounted(async () => {
   }
   if (branchStore.branches.length === 0) {
     await branchStore.fetchBranches();
+  }
+});
+
+watch(isEditVisible, newVal => {
+  if (!newVal) {
+    selectedStaff.value = null;
+  }
+});
+
+watch(isDeleteVisible, newVal => {
+  if (!newVal) {
+    selectedStaff.value = null;
   }
 });
 
