@@ -87,7 +87,12 @@ const onSubmit = () => emit("submit", { ...form.value });
       <label class="text-sm font-bold text-(--surface-900)">
         {{ t("staff.form.password") }}
       </label>
-      <Password v-model="form.password" :placeholder="t('staff.form.password_placeholder')" toggleMask />
+      <Password
+        v-model="form.password"
+        :placeholder="t('staff.form.password_placeholder')"
+        toggleMask
+        fluid
+        input-class="w-full" />
     </div>
 
     <div class="flex flex-col gap-2 max-w-md">

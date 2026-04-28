@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useBranchStore } from "@/stores/branch.store";
 import { useBranchForm } from "@/composables/useBranchForm";
+import type { CreateBranchRequest, UpdateBranchRequest } from "@delivest/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -11,7 +12,7 @@ const { submit, isSubmitting } = useBranchForm();
 
 const branch = computed(() => branchStore.branches.find(b => b.alias === route.params.branchAlias));
 
-const onSave = async (formData: any) => {
+const onSave = async (formData: CreateBranchRequest | UpdateBranchRequest) => {
   if (!branch.value?.id) return;
 
   const oldAlias = branch.value.alias;
@@ -20,7 +21,7 @@ const onSave = async (formData: any) => {
   const { success } = await submit(branch.value.id, formData);
 
   if (success) {
-    if (oldAlias !== newAlias) {
+    if (newAlias && oldAlias !== newAlias) {
       await branchStore.fetchBranches();
       branchStore.setActiveBranchByAlias(newAlias);
 

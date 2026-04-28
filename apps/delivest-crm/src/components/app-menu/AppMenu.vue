@@ -32,6 +32,7 @@ const menuItems = computed(() => [
         label: t("menu.categories"),
         icon: "pi pi-tags",
         visible: authStore.hasPermission(Permission.CATEGORY_READ),
+        command: () => router.push({ name: "categories" }),
       },
       {
         label: t("menu.branch"),

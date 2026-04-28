@@ -95,7 +95,7 @@ const handleBranchSwitch = (branch: BranchResponce) => {
           :key="branch.id"
           :branch="branch"
           :active="branchStore.activeBranchId === branch.id"
-          @click="handleBranchSwitch(branch)">
+          @select="handleBranchSwitch(branch)">
           <template #actions>
             <Button
               icon="pi pi-pencil"

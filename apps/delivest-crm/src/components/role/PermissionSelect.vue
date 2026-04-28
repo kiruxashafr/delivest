@@ -94,7 +94,8 @@ const togglePermission = (perm: Permission) => {
           <div class="flex flex-col">
             <span class="font-bold text-sm text-(--surface-800)">{{ group.label }}</span>
             <span v-if="group.selectedCount > 0" class="text-xs text-primary font-medium">
-              {{ t("role.selected") }}: {{ group.selectedCount }} {{ t("role.out-of") }} {{ group.items.length }}
+              {{ t("roles.list.selected") }}: {{ group.selectedCount }} {{ t("roles.list.out-of") }}
+              {{ group.items.length }}
             </span>
           </div>
         </div>
