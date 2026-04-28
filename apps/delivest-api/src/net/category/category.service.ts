@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
-
 import {
   BadRequestException,
   DomainException,
@@ -41,7 +40,6 @@ export class CategoryService {
     branchId: string,
     extended: true,
   ): Promise<AdminReadCategoryDto[]>;
-
   async findAllByBranch(
     branchId: string,
     extended?: boolean,
@@ -59,15 +57,14 @@ export class CategoryService {
           : toDto(category, ReadCategoryDto),
       );
     } catch (error) {
-      if (error instanceof DomainException) {
-        throw error;
-      }
+      if (error instanceof DomainException) throw error;
       this.logger.error(
-        `findAllByBranch() | error find all category by branch ${branchId} ${(error as Error).stack}`,
+        `findAllByBranch() failed | branchId: ${branchId} | error: ${(error as Error).message}`,
       );
       throw new BadRequestException();
     }
   }
+
   async findOne(categoryId: string): Promise<ReadCategoryDto>;
   async findOne(
     categoryId: string,
@@ -79,9 +76,7 @@ export class CategoryService {
   ): Promise<ReadCategoryDto | AdminReadCategoryDto> {
     try {
       const category = await this.prisma.category.findUnique({
-        where: {
-          id: categoryId,
-        },
+        where: { id: categoryId },
       });
       if (!category) {
         throw new NotFoundException();
@@ -90,15 +85,14 @@ export class CategoryService {
         ? toDto(category, AdminReadCategoryDto)
         : toDto(category, ReadCategoryDto);
     } catch (error) {
-      if (error instanceof DomainException) {
-        throw error;
-      }
+      if (error instanceof DomainException) throw error;
       this.logger.error(
-        `findOneByBranch() | error find category ${categoryId}  ${(error as Error).stack}`,
+        `findOne() failed | categoryId: ${categoryId} | error: ${(error as Error).message}`,
       );
       throw new BadRequestException();
     }
   }
+
   @Transactional()
   async update(
     dto: UpdateCategoryDto,
@@ -107,9 +101,7 @@ export class CategoryService {
     try {
       const updatedCategory = await this.txHost.tx.category.update({
         where: { id: dto.categoryId },
-        data: {
-          ...dto,
-        },
+        data: { ...dto },
       });
 
       if (staffToken) {
@@ -119,16 +111,14 @@ export class CategoryService {
         );
       }
 
+      this.logger.log(
+        `update() success | Category updated | id: ${dto.categoryId}`,
+      );
       return toDto(updatedCategory, AdminReadCategoryDto);
     } catch (error) {
-      if (error instanceof DomainException) {
-        throw error;
-      }
       this.logger.error(
-        `update(${dto.categoryId}) | error: ${(error as Error).message}`,
-        (error as Error).stack,
+        `update() failed | id: ${dto.categoryId} | error: ${(error as Error).message}`,
       );
-
       this.handleProductConstraintError(error);
     }
   }
@@ -144,13 +134,14 @@ export class CategoryService {
       const newCategory = await this.txHost.tx.category.create({
         data: { ...dto },
       });
+
+      this.logger.log(
+        `create() success | Category created | id: ${newCategory.id} | branchId: ${dto.branchId}`,
+      );
       return toDto(newCategory, AdminReadCategoryDto);
     } catch (error) {
-      if (error instanceof DomainException) {
-        throw error;
-      }
       this.logger.error(
-        `create() | ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `create() failed | branchId: ${dto.branchId} | error: ${(error as Error).message}`,
       );
       this.handleProductConstraintError(error);
     }
@@ -165,6 +156,7 @@ export class CategoryService {
       const category = await this.txHost.tx.category.findUnique({
         where: { id: id },
       });
+
       if (staffToken && category) {
         this.identityService.checkBranchAbility(staffToken, category?.branchId);
       }
@@ -174,16 +166,13 @@ export class CategoryService {
         data: { deletedAt: new Date() },
       });
 
-      this.logger.log(`softDelete() | Category soft-deleted | id=${id}`);
-    } catch (error) {
-      if (error instanceof DomainException) {
-        throw error;
-      }
-      this.logger.error(
-        `softDelete() | Error | id=${id}`,
-        (error as Error).stack,
+      this.logger.log(
+        `softDelete() success | Category soft-deleted | id: ${id}`,
       );
-
+    } catch (error) {
+      this.logger.error(
+        `softDelete() failed | id: ${id} | error: ${(error as Error).message}`,
+      );
       this.handleProductConstraintError(error);
     }
   }
@@ -194,6 +183,7 @@ export class CategoryService {
     }
 
     if (!isPrismaError(error)) {
+      this.logger.error(`Unexpected DB error: ${(error as Error).stack}`);
       throw error;
     }
 

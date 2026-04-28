@@ -52,7 +52,7 @@ export class ZvonokAuthAdapter {
     );
 
     try {
-      this.logger.debug(`Sending Zvonok TellCode to ${payload.phone}`);
+      this.logger.log(`Sending Zvonok TellCode to ${payload.phone}`);
 
       const { data } = await axios.post<ZvonokResponse>(this.apiUrl, params, {
         httpsAgent: this.proxyAgent,

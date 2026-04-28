@@ -61,6 +61,7 @@ export class RoleService {
         },
       });
 
+      this.logger.log(`update() | role ${id} is updated`);
       return toDto(updatedRole, ReadRoleDto);
     } catch (error: unknown) {
       if (error instanceof DomainException) {
@@ -78,9 +79,6 @@ export class RoleService {
     this.logger.log(`create() | name=${dto.name}`);
 
     try {
-      this.logger.debug(
-        `create() | Creating role with data: ${JSON.stringify(dto)}`,
-      );
       const role = await this.prisma.role.create({
         data: {
           name: dto.name,

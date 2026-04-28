@@ -95,10 +95,11 @@ export class BranchService {
         data: dto,
       });
 
+      this.logger.log(`update() | branch ${id} is updated`);
       return toDto(updated, AdminReadBranchDto);
     } catch (error) {
       this.logger.error(
-        `update() | id: ${id} | error: ${(error as Error).stack}`,
+        `update() failed | id: ${id} | Error: ${(error as Error).message}`,
       );
       this.handleProductConstraintError(error);
     }
@@ -109,11 +110,12 @@ export class BranchService {
       const newBranch = await this.prisma.branch.create({
         data: { ...dto },
       });
+      this.logger.log(
+        `create() success | Branch created | id: ${newBranch.id}`,
+      );
       return toDto(newBranch, AdminReadBranchDto);
     } catch (error) {
-      this.logger.error(
-        `create() | ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
+      this.logger.error(`create() failed | Error: ${(error as Error).message}`);
       this.handleProductConstraintError(error);
     }
   }
@@ -124,11 +126,10 @@ export class BranchService {
         where: { id: id },
         data: { deletedAt: new Date() },
       });
-      this.logger.log(`softDelete() | Category soft-deleted | id=${id}`);
+      this.logger.log(`softDelete() success | Branch soft-deleted | id: ${id}`);
     } catch (error) {
       this.logger.error(
-        `softDelete() | Error | id=${id}`,
-        (error as Error).stack,
+        `softDelete() failed | id: ${id} | Error: ${(error as Error).message}`,
       );
 
       this.handleProductConstraintError(error);

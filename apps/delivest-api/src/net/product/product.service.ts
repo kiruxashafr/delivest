@@ -103,6 +103,54 @@ export class ProductService {
     }
   }
 
+  async findByName(branchId: string, name: string): Promise<ReadProductDto[]>;
+
+  async findByName(
+    branchId: string,
+
+    name: string,
+
+    extended: true,
+  ): Promise<AdminReadProductDto[]>;
+
+  async findByName(
+    branchId: string,
+
+    name: string,
+
+    extended?: boolean,
+  ): Promise<ReadProductDto[] | AdminReadProductDto[]> {
+    try {
+      const products = await this.prisma.product.findMany({
+        where: {
+          branchId,
+
+          name: {
+            contains: name,
+
+            mode: 'insensitive',
+          },
+
+          deletedAt: null,
+        },
+      });
+
+      return products.map((product) =>
+        extended
+          ? toDto(product, AdminReadProductDto)
+          : toDto(product, ReadProductDto),
+      );
+    } catch (error) {
+      this.logger.error(
+        `findByName(${name}) in branch ${branchId} | error: ${
+          (error as Error).message
+        }`,
+      );
+
+      this.handleProductConstraintError(error);
+    }
+  }
+
   async findManyByIds(ids: string[]): Promise<ReadProductDto[]>;
   async findManyByIds(
     ids: string[],
@@ -156,7 +204,7 @@ export class ProductService {
         : toDto(product, ReadProductDto);
     } catch (error) {
       this.logger.error(
-        `findOne(${productId}) | error: ${(error as Error).message}`,
+        `findOne() failed | productId: ${productId} | error: ${(error as Error).message}`,
       );
       this.handleProductConstraintError(error);
     }
@@ -172,48 +220,44 @@ export class ProductService {
       }
 
       const newProduct = await this.prisma.product.create({ data: { ...dto } });
+
+      this.logger.log(
+        `create() success | Product created | id: ${newProduct.id} | branchId: ${dto.branchId}`,
+      );
       return toDto(newProduct, AdminReadProductDto);
     } catch (error) {
       this.logger.error(
-        `create() | ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `create() failed | branchId: ${dto.branchId} | error: ${(error as Error).message}`,
       );
       this.handleProductConstraintError(error);
     }
   }
 
-  async findByName(branchId: string, name: string): Promise<ReadProductDto[]>;
-  async findByName(
-    branchId: string,
-    name: string,
-    extended: true,
-  ): Promise<AdminReadProductDto[]>;
-  async findByName(
-    branchId: string,
-    name: string,
-    extended?: boolean,
-  ): Promise<ReadProductDto[] | AdminReadProductDto[]> {
+  @Transactional()
+  async update(
+    dto: UpdateProductDto,
+    staffPayload?: AccessStaffTokenPayload,
+  ): Promise<AdminReadProductDto> {
     try {
-      const products = await this.prisma.product.findMany({
-        where: {
-          branchId,
-          name: {
-            contains: name,
-            mode: 'insensitive',
-          },
-          deletedAt: null,
-        },
+      const updatedProduct = await this.txHost.tx.product.update({
+        where: { id: dto.productId },
+        data: { ...dto },
       });
 
-      return products.map((product) =>
-        extended
-          ? toDto(product, AdminReadProductDto)
-          : toDto(product, ReadProductDto),
+      if (staffPayload) {
+        this.identityService.checkBranchAbility(
+          staffPayload,
+          updatedProduct.branchId,
+        );
+      }
+
+      this.logger.log(
+        `update() success | Product updated | id: ${dto.productId}`,
       );
+      return toDto(updatedProduct, AdminReadProductDto);
     } catch (error) {
       this.logger.error(
-        `findByName(${name}) in branch ${branchId} | error: ${
-          (error as Error).message
-        }`,
+        `update() failed | id: ${dto.productId} | error: ${(error as Error).message}`,
       );
       this.handleProductConstraintError(error);
     }
@@ -229,6 +273,7 @@ export class ProductService {
         where: { id: id },
         data: { deletedAt: new Date() },
       });
+
       if (staffPayload) {
         this.identityService.checkBranchAbility(
           staffPayload,
@@ -236,45 +281,13 @@ export class ProductService {
         );
       }
 
-      this.logger.log(`softDelete() | Product soft-deleted | id=${id}`);
+      this.logger.log(
+        `softDelete() success | Product soft-deleted | id: ${id}`,
+      );
     } catch (error) {
       this.logger.error(
-        `softDelete() | Error | id=${id}`,
-        (error as Error).stack,
+        `softDelete() failed | id: ${id} | error: ${(error as Error).message}`,
       );
-
-      this.handleProductConstraintError(error);
-    }
-  }
-  @Transactional()
-  async update(
-    dto: UpdateProductDto,
-    staffPayload?: AccessStaffTokenPayload,
-  ): Promise<AdminReadProductDto> {
-    try {
-      const updatedProduct = await this.txHost.tx.product.update({
-        where: { id: dto.productId },
-        data: {
-          ...dto,
-        },
-      });
-      if (staffPayload) {
-        this.identityService.checkBranchAbility(
-          staffPayload,
-          updatedProduct.branchId,
-        );
-      }
-
-      return toDto(updatedProduct, AdminReadProductDto);
-    } catch (error) {
-      if (error instanceof DomainException) {
-        throw error;
-      }
-      this.logger.error(
-        `update(${dto.productId}) | error: ${(error as Error).message}`,
-        (error as Error).stack,
-      );
-
       this.handleProductConstraintError(error);
     }
   }
@@ -290,13 +303,13 @@ export class ProductService {
         where: { id: productId },
       });
 
-      if (!product) {
+      if (!product)
         throw new NotFoundException(`Product with ID ${productId} not found`);
-      }
 
       if (staffPayload) {
         this.identityService.checkBranchAbility(staffPayload, product.branchId);
       }
+
       await this.photoEditor.uploadAndEditMultiple(
         productId,
         file,
@@ -305,10 +318,13 @@ export class ProductService {
         DelivestEvent.PRODUCT_PHOTO_CONVERTED,
         DelivestEvent.PRODUCT_PHOTO_CONVERSION_FAILED,
       );
+
+      this.logger.log(
+        `updatePhoto() initialized | product: ${productId} | job sent to queue`,
+      );
     } catch (error) {
       this.logger.error(
-        `updatePhoto() | Error updating photo for product ${productId}: ${(error as Error).message}`,
-        (error as Error).stack,
+        `updatePhoto() failed | productId: ${productId} | error: ${(error as Error).message}`,
       );
       throw error;
     }
@@ -324,17 +340,14 @@ export class ProductService {
         select: { photos: true },
       });
 
-      const updatedProduct = await this.prisma.product.update({
+      await this.prisma.product.update({
         where: { id: targetId },
-        data: {
-          photos,
-        },
+        data: { photos },
       });
 
       if (existingProduct?.photos) {
         const oldPhotos = existingProduct.photos as PhotoMap;
         const newKeys = new Set(Object.values(photos));
-
         const keysToDelete = Object.values(oldPhotos).filter(
           (oldKey) => oldKey && !newKeys.has(oldKey),
         );
@@ -342,20 +355,26 @@ export class ProductService {
         if (keysToDelete.length > 0) {
           await this.mediaService.deleteFilesByKeys(keysToDelete);
           this.logger.log(
-            `Deleted ${keysToDelete.length} old photos for product ${targetId}`,
+            `handleProductPhotoBatch() | Cleanup | Deleted ${keysToDelete.length} old photos for product ${targetId}`,
           );
         }
       }
+
+      this.logger.log(
+        `handleProductPhotoBatch() success | Product photos updated | id: ${targetId}`,
+      );
 
       this.notificationGateway.server
         .to(socketId)
         .emit(SocketEvent.PHOTO_EDIT_RESULT, {
           success: true,
           targetId,
-          photos: updatedProduct.photos,
+          photos,
         });
     } catch (error) {
-      this.logger.error(`Failed to handle photo batch for ${targetId}`, error);
+      this.logger.error(
+        `handleProductPhotoBatch() failed | product: ${targetId} | error: ${(error as Error).message}`,
+      );
     }
   }
 
@@ -364,15 +383,15 @@ export class ProductService {
     const { fileId, error } = event;
 
     this.logger.error(
-      `Photo conversion failed File: ${fileId}. Error: ${error}`,
+      `Photo conversion failed | file: ${fileId} | error: ${error}`,
     );
   }
+
   handleProductConstraintError(error: unknown): never {
-    if (error instanceof DomainException) {
-      throw error;
-    }
+    if (error instanceof DomainException) throw error;
 
     if (!isPrismaError(error)) {
+      this.logger.error(`Unexpected system error: ${(error as Error).stack}`);
       throw error;
     }
 

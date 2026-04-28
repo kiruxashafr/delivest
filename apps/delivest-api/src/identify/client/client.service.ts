@@ -218,6 +218,8 @@ export class ClientService {
         },
       });
 
+      this.logger.log(`update() | Client id=${id} is updated`);
+
       return toDto(updatedClient, AdminReadClientDto);
     } catch (error: unknown) {
       if (error instanceof DomainException) {

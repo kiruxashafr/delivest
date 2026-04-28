@@ -201,6 +201,7 @@ export class StaffService {
           branches: true,
         },
       });
+      this.logger.log(`update() | Staff id=${dto.id} is updated`);
 
       return toDto(updatedStaff, ReadStaffDto);
     } catch (error: unknown) {
