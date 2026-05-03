@@ -37,7 +37,6 @@ defineEmits<{
 
     <div class="flex-1 min-w-0">
       <h3 class="font-bold text-(--surface-900) truncate leading-tight">{{ category.name }}</h3>
-      <p class="text-sm text-(--surface-500) truncate mt-1">Порядок: {{ category.order }}</p>
     </div>
 
     <div class="flex items-center gap-2 ml-auto" @click.stop>

@@ -81,7 +81,7 @@ model Branch {
 model Category {
   id    String @id @default(uuid())
   name  String
-  order Int
+  order Float
 
   branch   Branch    @relation(fields: [branchId], references: [id])
   branchId String    @map("branch_id")
@@ -91,6 +91,7 @@ model Category {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
+  @@unique([branchId, order])
   @@map("categories")
 }
 

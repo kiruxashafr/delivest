@@ -22,7 +22,10 @@ const close = () => emit("update:visible", false);
 const handleSave = async (formData: CategoryFormData) => {
   if (!props.category) return;
 
-  const { success } = await submit(props.category.id, formData);
+  const { success } = await submit(props.category.id, {
+    ...formData,
+    categoryId: props.category.id,
+  });
 
   if (success) {
     emit("saved");
@@ -40,7 +43,7 @@ const handleSave = async (formData: CategoryFormData) => {
     :draggable="false"
     class="p-fluid w-full max-w-md">
     <CategoryForm
-      :initialData="props.category"
+      :initialData="props.category ?? undefined"
       :loading="isSubmitting"
       :submitLabel="$t('common.save')"
       @submit="handleSave"

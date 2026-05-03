@@ -45,12 +45,10 @@ export class CategoryService {
     extended?: boolean,
   ): Promise<ReadCategoryDto[] | AdminReadCategoryDto[]> {
     try {
-      const categories = await this.prisma.category.findMany({
+      const categories = await this.txHost.tx.category.findMany({
         where: { branchId: branchId, deletedAt: null },
+        orderBy: { order: 'asc' },
       });
-      if (categories.length === 0) {
-        throw new NotFoundException();
-      }
       return categories.map((category) =>
         extended
           ? toDto(category, AdminReadCategoryDto)
@@ -133,8 +131,12 @@ export class CategoryService {
       if (staffToken) {
         this.identityService.checkBranchAbility(staffToken, dto.branchId);
       }
+      const maxOrder = await this.getMaxCategoryOrderForBranch(dto.branchId);
       const newCategory = await this.txHost.tx.category.create({
-        data: { ...dto },
+        data: {
+          ...dto,
+          order: maxOrder + 1000,
+        },
       });
 
       this.logger.log(
@@ -177,6 +179,50 @@ export class CategoryService {
       );
       this.handleProductConstraintError(error);
     }
+  }
+  @Transactional()
+  async reorderCategoriesForBranch(branchId: string) {
+    const categories = await this.txHost.tx.category.findMany({
+      where: { branchId, deletedAt: null },
+      orderBy: { order: 'asc' },
+    });
+
+    if (categories.length === 0) return;
+
+    await Promise.all(
+      categories.map((cat, index) =>
+        this.txHost.tx.category.update({
+          where: { id: cat.id },
+          data: { order: -(index + 1) },
+        }),
+      ),
+    );
+
+    await Promise.all(
+      categories.map((cat, index) =>
+        this.txHost.tx.category.update({
+          where: { id: cat.id },
+          data: { order: (index + 1) * 1000 },
+        }),
+      ),
+    );
+
+    this.logger.log(
+      `reorderCategoriesForBranch() | Reorder completed for branch ${branchId}. Total categories: ${categories.length}`,
+    );
+  }
+
+  private async getMaxCategoryOrderForBranch(
+    branchId: string,
+  ): Promise<number> {
+    const lastCategory = await this.txHost.tx.category.findFirst({
+      orderBy: {
+        order: 'desc',
+      },
+      where: { branchId },
+    });
+
+    return lastCategory?.order ?? 0;
   }
 
   private handleProductConstraintError(error: unknown): never {

@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
 import api from "@/api/axios";
 import type { CategoryResponse, CreateCategoryRequest, UpdateCategoryRequest } from "@delivest/types";
+import { useBranchStore } from "./branch.store";
 
 export const useCategoryStore = defineStore("category", {
   state: () => ({
     categories: [] as CategoryResponse[],
-    currentCategory: null as CategoryResponse | null,
     isLoading: false,
   }),
 
@@ -19,6 +19,18 @@ export const useCategoryStore = defineStore("category", {
   },
 
   actions: {
+    async fetchByActiveBranch() {
+      const branchStore = useBranchStore();
+      const activeBranch = branchStore.activeBranch;
+
+      if (!activeBranch) {
+        console.warn("Попытка загрузить категории без активного филиала");
+        return;
+      }
+
+      return await this.fetchByBranch(activeBranch.id);
+    },
+
     async fetchByBranch(branchId: string) {
       this.isLoading = true;
       try {
@@ -37,7 +49,6 @@ export const useCategoryStore = defineStore("category", {
       this.isLoading = true;
       try {
         const { data } = await api.get<CategoryResponse>(`/category/${id}`);
-        this.currentCategory = data;
         return data;
       } catch (error) {
         console.error(`Error fetching category ${id}:`, error);
@@ -58,22 +69,18 @@ export const useCategoryStore = defineStore("category", {
       }
     },
 
-    async updateCategory(id: string, payload: UpdateCategoryRequest) {
+    async updateCategory(payload: UpdateCategoryRequest) {
       try {
-        const { data } = await api.patch<CategoryResponse>(`/admin/category/update/${id}`, payload);
+        const { data } = await api.patch<CategoryResponse>(`/admin/category/update/${payload.categoryId}`, payload);
 
-        const index = this.categories.findIndex(category => category.id === id);
+        const index = this.categories.findIndex(category => category.id === payload.categoryId);
         if (index !== -1) {
           this.categories[index] = data;
         }
 
-        if (this.currentCategory?.id === id) {
-          this.currentCategory = data;
-        }
-
         return data;
       } catch (error) {
-        console.error(`Error updating category ${id}:`, error);
+        console.error(`Error updating category ${payload.categoryId}:`, error);
         throw error;
       }
     },
@@ -82,9 +89,6 @@ export const useCategoryStore = defineStore("category", {
       try {
         await api.delete(`/admin/category/delete/${id}`);
         this.categories = this.categories.filter(category => category.id !== id);
-        if (this.currentCategory?.id === id) {
-          this.currentCategory = null;
-        }
       } catch (error) {
         console.error(`Error deleting category ${id}:`, error);
         throw error;
@@ -93,7 +97,6 @@ export const useCategoryStore = defineStore("category", {
 
     clearCategories() {
       this.categories = [];
-      this.currentCategory = null;
     },
   },
 });

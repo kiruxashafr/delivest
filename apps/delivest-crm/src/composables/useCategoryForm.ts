@@ -59,7 +59,7 @@ export function useCategoryForm() {
 
     try {
       if (isUpdate && id) {
-        await categoryStore.updateCategory(id, data as UpdateCategoryRequest);
+        await categoryStore.updateCategory(data as UpdateCategoryRequest);
       } else {
         await categoryStore.createCategory(data as CreateCategoryRequest);
       }

@@ -64,16 +64,17 @@ const handleBranchSwitch = (branch: BranchResponce) => {
 <template>
   <div class="p-6 max-w-4xl mx-auto">
     <ConfirmDialog />
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
       <div>
         <h1 class="text-2xl font-bold text-(--surface-900)">{{ t("branches.list.title") }}</h1>
         <p class="text-(--surface-500) text-sm">{{ t("branches.list.subtitle") }}</p>
       </div>
+
       <Button
         v-if="authStore.hasPermission(Permission.BRANCH_CREATE)"
         :label="t('branches.list.add_button')"
         icon="pi pi-plus"
-        class="py-2 h-fit"
+        class="py-2 self-center"
         @click="isCreateVisible = true" />
     </div>
 

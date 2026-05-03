@@ -4,8 +4,8 @@ import { PrismaService } from '../../prisma/prisma.service.js';
 import { MediaService } from '../media.service.js';
 
 @Injectable()
-export class MediaCleanupJob {
-  private readonly logger = new Logger(MediaCleanupJob.name);
+export class MediaCleanupWorker {
+  private readonly logger = new Logger(MediaCleanupWorker.name);
 
   constructor(
     private readonly prisma: PrismaService,

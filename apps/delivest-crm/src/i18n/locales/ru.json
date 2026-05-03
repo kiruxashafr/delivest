@@ -96,7 +96,9 @@
     "system_logs": "Филиалы",
     "organization": "Организация",
     "team": "Команда",
-    "role": "Должности"
+    "role": "Должности",
+    "categories-name": "Название категории",
+    "categories-name-placeholder": "Например: напитки"
   },
   "common": {
     "select": "Выбрать",
@@ -229,5 +231,9 @@
       "branches": "Доступные филиалы",
       "branches_placeholder": "Выберите филиалы доступные сотруднику"
     }
+  },
+  "category": {
+    "order": "Порядок",
+    "create": "Создать категорию"
   }
 }

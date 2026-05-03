@@ -8,7 +8,6 @@ export interface FindCategoryByBranchRequest {
 
 export interface CreateCategoryRequest {
   name: string;
-  order: number;
   branchId: string;
 }
 
@@ -24,4 +23,5 @@ export interface CategoryResponse {
 
 export type UpdateCategoryRequest = Partial<CreateCategoryRequest> & {
   categoryId: string;
+  order?: number;
 };

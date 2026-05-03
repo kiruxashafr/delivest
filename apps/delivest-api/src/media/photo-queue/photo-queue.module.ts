@@ -5,7 +5,7 @@ import { PrismaModule } from '../../prisma/prisma.module.js';
 import { PhotoEditorProcessor } from './photo-editor.processor.js';
 import { MediaModule } from '../media.module.js';
 import { PhotoEditorService } from './photo-editor.service.js';
-import { MediaCleanupJob } from '../workers/media-cleanup.job.js';
+import { MediaCleanupWorker } from '../workers/media-cleanup.worker.js';
 import { FlowProducer } from 'bullmq';
 import { PhotoFinishProcessor } from './photo-finish.processor.js';
 
@@ -30,7 +30,7 @@ import { PhotoFinishProcessor } from './photo-finish.processor.js';
   providers: [
     PhotoEditorProcessor,
     PhotoEditorService,
-    MediaCleanupJob,
+    MediaCleanupWorker,
     PhotoFinishProcessor,
     {
       provide: 'PHOTO_FLOW_PRODUCER',

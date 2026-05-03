@@ -1,6 +1,6 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreateCategoryDto } from './create.dto.js';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { UpdateCategoryRequest } from '@delivest/types';
 
 export class UpdateCategoryDto
@@ -11,4 +11,9 @@ export class UpdateCategoryDto
   @IsString()
   @IsNotEmpty()
   categoryId: string;
+
+  @ApiProperty({ example: '2000' })
+  @IsNumber()
+  @IsOptional()
+  order?: number;
 }

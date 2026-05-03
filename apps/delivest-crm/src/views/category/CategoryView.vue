@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, watch } from "vue";
-import { useCategoryList } from "@/composables/useCategoryList";
 import { useBranchStore } from "@/stores/branch.store";
 import { useAuthStore } from "@/stores/auth.store";
 import { Permission } from "@delivest/common";
@@ -11,11 +10,12 @@ import CategoryEditDialog from "@/components/category/CategoryEditDialog.vue";
 import CategoryDeleteDialog from "@/components/category/CategoryDeleteDialog.vue";
 import type { CategoryResponse } from "@delivest/types";
 import draggable from "vuedraggable";
+import { useCategoryStore } from "@/stores/category.store";
 
 const branchStore = useBranchStore();
 const authStore = useAuthStore();
 const { t } = useI18n();
-const { categoryStore, isLoading, loadCategories } = useCategoryList();
+const categoryStore = useCategoryStore();
 
 const localCategories = ref<CategoryResponse[]>([]);
 
@@ -38,31 +38,36 @@ const selectedCategory = ref<CategoryResponse | null>(null);
 
 const categories = computed(() => categoryStore.sortedCategories);
 const branchName = computed(() => branchStore.activeBranch?.name || "");
-const isEmpty = computed(() => !isLoading.value && categories.value.length === 0 && !!branchStore.activeBranchId);
+const isEmpty = computed(
+  () => !categoryStore.isLoading && categories.value.length === 0 && !!branchStore.activeBranchId,
+);
 
 onMounted(async () => {
-  await loadCategories();
+  await categoryStore.fetchByActiveBranch();
   syncLocalCategories();
 });
 
-const onDragEnd = async () => {
-  const updates = localCategories.value
-    .map((cat, index) => ({ id: cat.id, oldOrder: cat.order, newOrder: index }))
-    .filter(item => item.oldOrder !== item.newOrder);
+const onDragEnd = async (event: any) => {
+  const { newIndex } = event;
+  const draggedItem = localCategories.value[newIndex];
 
-  if (updates.length === 0) return;
+  const prev = localCategories.value[newIndex - 1];
+  const next = localCategories.value[newIndex + 1];
+
+  let newOrder: number;
+
+  if (prev && !next) {
+    newOrder = prev.order + 1000;
+  } else if (!prev && next) {
+    newOrder = next.order / 2;
+  } else if (prev && next) {
+    newOrder = (prev.order + next.order) / 2;
+  } else {
+    newOrder = 1000;
+  }
 
   try {
-    await Promise.all(
-      updates.map(update =>
-        categoryStore.updateCategory(update.id, {
-          categoryId: update.id,
-          order: update.newOrder,
-        }),
-      ),
-    );
-    await loadCategories();
-    syncLocalCategories();
+    await categoryStore.updateCategory({ categoryId: draggedItem.id, order: newOrder });
   } catch (error) {
     console.error("Ошибка при сохранении порядка:", error);
     syncLocalCategories();
@@ -80,12 +85,12 @@ const openDelete = (category: CategoryResponse) => {
 };
 
 const onSaved = async () => {
-  await loadCategories();
+  await categoryStore.fetchByActiveBranch();
   selectedCategory.value = null;
 };
 
 const onDeleted = async () => {
-  await loadCategories();
+  await categoryStore.fetchByActiveBranch();
   selectedCategory.value = null;
 };
 </script>
@@ -104,23 +109,15 @@ const onDeleted = async () => {
         <Button
           v-if="authStore.hasPermission(Permission.CATEGORY_CREATE)"
           :disabled="!branchStore.activeBranchId"
-          label="Создать категорию"
+          :label="$t('category.create')"
           icon="pi pi-plus"
           class="py-2 h-fit"
           @click="isCreateVisible = true" />
-
-        <Button
-          v-if="authStore.hasPermission(Permission.CATEGORY_READ)"
-          label="Обновить"
-          icon="pi pi-refresh"
-          severity="secondary"
-          class="py-2 h-fit"
-          @click="loadCategories" />
       </div>
     </div>
 
     <div class="grid gap-4">
-      <template v-if="isLoading">
+      <template v-if="categoryStore.isLoading">
         <CategoryCard v-for="i in 4" :key="i" loading />
       </template>
 
@@ -169,7 +166,7 @@ const onDeleted = async () => {
       </draggable>
     </div>
 
-    <CategoryCreateDialog v-model:visible="isCreateVisible" @created="loadCategories" />
+    <CategoryCreateDialog v-model:visible="isCreateVisible" @created="categoryStore.fetchByActiveBranch" />
     <CategoryEditDialog v-model:visible="isEditVisible" :category="selectedCategory" @saved="onSaved" />
     <CategoryDeleteDialog v-model:visible="isDeleteVisible" :category="selectedCategory" @deleted="onDeleted" />
   </div>

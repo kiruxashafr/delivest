@@ -19,9 +19,8 @@ const emit = defineEmits<{
   (event: "cancel"): void;
 }>();
 
-const form = ref<{ name: string; order: number }>({
+const form = ref<{ name: string }>({
   name: "",
-  order: 0,
 });
 
 watch(
@@ -29,29 +28,22 @@ watch(
   value => {
     if (value) {
       form.value.name = value.name || "";
-      form.value.order = typeof value.order === "number" ? value.order : Number(value.order) || 0;
     } else {
       form.value.name = "";
-      form.value.order = 0;
     }
   },
   { immediate: true },
 );
 
 const onCancel = () => emit("cancel");
-const onSubmit = () => emit("submit", { name: form.value.name, order: form.value.order });
+const onSubmit = () => emit("submit", { ...form.value });
 </script>
 
 <template>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-2">
-      <label class="text-sm font-bold">{{ t("menu.categories") }}</label>
-      <InputText v-model="form.name" :placeholder="t('menu.categories')" autofocus />
-    </div>
-
-    <div class="flex flex-col gap-2">
-      <label class="text-sm font-bold">Порядок</label>
-      <input v-model.number="form.order" type="number" class="p-inputtext w-full" :placeholder="t('common.search')" />
+      <label class="text-sm font-bold">{{ t("menu.categories-name") }}</label>
+      <InputText v-model="form.name" :placeholder="t('menu.categories-name-placeholder')" autofocus />
     </div>
 
     <div class="flex justify-end gap-2 mt-4">

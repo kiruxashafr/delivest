@@ -38,7 +38,7 @@ const handleCreate = async (formData: CategoryFormData) => {
   <Dialog
     :visible="props.visible"
     @update:visible="close"
-    :header="`Создать категорию`"
+    :header="$t('category.create')"
     :modal="true"
     :draggable="false"
     class="p-fluid w-full max-w-md">
